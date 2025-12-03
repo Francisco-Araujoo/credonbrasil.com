@@ -70,35 +70,68 @@
             font-family: var(--font-display); text-transform: uppercase; text-align: center;
         }
 
-        /* --- HEADER / MENU --- */
+        /* --- HEADER / MENU (REDESENHADO) --- */
         header {
             position: fixed; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 90%; 
-            max-width: 1200px; 
-            padding: 1rem 2rem;
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            padding: 2rem 5%;
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             z-index: 100;
-            background: rgba(2, 6, 23, 0.6); 
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 100px;
+            background: transparent; /* Começa transparente */
+            transition: all 0.4s ease; /* Suavidade na transição */
         }
 
-        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; white-space: nowrap;}
-        
-        /* Botão WhatsApp Desktop */
-        .btn-whatsapp {
-            background: #25D366; color: #020617; 
-            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
-            transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 1rem;
-            white-space: nowrap;
+        /* Classe que será adicionada via JS ao rolar a página */
+        header.scrolled {
+            padding: 1rem 5%;
+            background: rgba(2, 6, 23, 0.9);
+            backdrop-filter: blur(15px);
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
-        .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+
+        .logo { 
+            font-size: 1.8rem; 
+            font-weight: 700; 
+            color: white; 
+            display: flex; 
+            gap: 12px; 
+            align-items: center; 
+            white-space: nowrap;
+            letter-spacing: -1px;
+        }
+        
+        /* Botão WhatsApp Moderno */
+        .btn-whatsapp {
+            background: rgba(37, 211, 102, 0.1); /* Fundo sutil */
+            color: #4ade80; /* Verde neon */
+            border: 1px solid rgba(37, 211, 102, 0.4);
+            padding: 0.8rem 1.8rem; 
+            border-radius: 8px; /* Mais quadrado/tech */
+            text-decoration: none; 
+            font-weight: 600;
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-whatsapp:hover { 
+            background: #25D366; 
+            color: #020617; 
+            box-shadow: 0 0 25px rgba(37, 211, 102, 0.5); 
+            border-color: #25D366;
+            transform: translateY(-2px);
+        }
 
         /* --- HERO (VÍDEO) --- */
         .hero {
@@ -195,83 +228,73 @@
         .martech-credit a:hover { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
 
         /* =========================================
-           RESPONSIVIDADE (HEADER MENOR & ESTRUTURA)
+           RESPONSIVIDADE (MOBILE & HEADER AJUSTADO)
            ========================================= */
         @media (max-width: 900px) {
             * { cursor: auto !important; }
             .cursor-dot, .cursor-outline { display: none !important; }
 
-            /* HEADER SUPER OTIMIZADO MOBILE */
+            /* HEADER AJUSTADO - REMOVE A FAIXA */
             header { 
-                width: 92% !important; /* Mais margem lateral */
+                width: 100%;
                 max-width: none;
-                padding: 0.5rem 1rem !important; /* Padding reduzido para ficar menor */
-                top: 10px; /* Mais próximo do topo */
-                display: flex; 
-                justify-content: space-between; 
-                align-items: center;
-                left: 50%; 
-                transform: translateX(-50%);
+                transform: none;
+                left: 0;
+                top: 0;
+                padding: 1.5rem 1.5rem; /* Padding confortável */
+                justify-content: space-between;
+                border: none;
+                background: transparent;
             }
             
-            .logo { 
-                font-size: 1rem; /* Fonte da logo menor */
-                gap: 8px; 
-                flex-shrink: 0; 
+            header.scrolled {
+                 padding: 1rem 1.5rem; /* Reduz padding ao rolar */
             }
-            .logo div {
-                width: 16px !important; /* Quadrado da logo menor */
-                height: 16px !important;
-            }
+
+            .logo { font-size: 1.5rem; }
             
-            /* WhatsApp apenas ícone */
+            /* WhatsApp Compacto e Moderno */
             .btn-whatsapp { 
-                padding: 0; 
-                width: 36px; height: 36px; /* Botão circular pequeno */
+                padding: 0; width: 45px; height: 45px; 
                 display: flex; align-items: center; justify-content: center;
                 border-radius: 50%; 
-                flex-shrink: 0;
+                background: #25D366; 
+                color: #020617;
+                box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
             }
-            .btn-whatsapp span { display: none; } /* Esconde o texto */
-            .btn-whatsapp i { font-size: 1.1rem; margin: 0; }
+            .btn-whatsapp span { display: none; }
+            .btn-whatsapp i { font-size: 1.4rem; margin: 0; }
 
-            /* Ajustes Gerais Mobile */
-            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; }
-            .loader-text { font-size: 0.75rem; }
-            
-            .hero { padding-top: 80px; }
-            .hero h1 { font-size: 3rem; line-height: 1.1; }
-            .hero p { font-size: 1rem !important; padding: 0 1rem; }
-            
-            /* Scroll Horizontal vira Vertical */
-            .horizontal-section { height: auto; padding: 4rem 0; display: block; overflow: visible; }
-            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 1.5rem; gap: 2rem; transform: none !important; align-items: stretch; }
-            .intro-text { width: 100%; margin-right: 0; margin-bottom: 1rem; text-align: center; }
-            .intro-text h2 { font-size: 2.2rem; }
-            .h-card { width: 100%; max-width: none; min-width: 0; height: auto; min-height: 380px; }
+            /* Restante Mobile */
+            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; justify-content: center; }
+            .loader-text { font-size: 0.75rem; text-align: center; }
+            .hero { padding-top: 0; } /* Remove padding extra pois o header é transparente */
+            .hero h1 { font-size: 3.2rem; line-height: 1.1; }
+            .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
+            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: visible; }
+            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; align-items: center; }
+            .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center;}
+            .intro-text h2 { font-size: 2.5rem; }
+            .h-card { width: 100%; max-width: 400px; min-width: unset; height: auto; min-height: 400px; margin: 0 auto; }
             .card-action { opacity: 1; transform: translateX(0); }
-            
-            /* Efeito Bolha removido para mobile */
-            .bubble-section { height: auto; padding: 4rem 1.5rem; clip-path: none !important; }
-            .feature-content { grid-template-columns: 1fr; gap: 3rem; padding: 0; } 
+            .bubble-section { height: auto; padding: 4rem 0; clip-path: none !important; }
+            .feature-content { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
             .feature-image { display: none; } 
-            .feature-text h2 { font-size: 2.2rem; }
-            .specs-grid { gap: 1rem; }
-            
-            /* Split Section Empilhada */
+            .feature-text h2 { font-size: 2.5rem; }
+            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
+            .chaos-item { padding: 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
             .split-section { grid-template-columns: 1fr; display: block; }
-            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
+            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; align-items: center;}
             .split-left > div[style*="font-size:10rem"] { display: none; } 
             .list-check { display: flex; flex-direction: column; align-items: center; padding: 0; }
+            .list-check li { justify-content: center; } 
             .split-right { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
-            
-            /* Calculadora Responsiva */
-            .calc-section { padding: 4rem 1.5rem; }
+            .split-title { font-size: 2.2rem; }
+            .calc-section { padding: 4rem 5%; }
             .calc-container { padding: 2.5rem 1.5rem; border-radius: 20px; }
             .calc-container h2 { font-size: 2rem !important; }
-            .result-big { font-size: 3rem; }
-            
-            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.8rem; }
+            .result-big { font-size: 2.8rem; }
+            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -290,12 +313,12 @@
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
 
-    <header>
+    <header id="main-header">
         <div class="logo">
-            <div style="width:20px; height:20px; background:var(--primary); border-radius:4px;"></div> CredOn
+            <div style="width:24px; height:24px; background:var(--primary); border-radius:6px; box-shadow: 0 0 15px var(--primary);"></div> CredOn
         </div>
         <a href="https://wa.me/5500000000000" target="_blank" class="btn-whatsapp">
-            <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
+            <i class="fab fa-whatsapp"></i> <span>Falar Agora</span>
         </a>
     </header>
 
@@ -488,6 +511,16 @@
 
         window.addEventListener("load", () => {
             setTimeout(startSite, 500);
+        });
+
+        // --- NOVO CÓDIGO DO HEADER (SCROLL EFFECT) ---
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
         });
 
         // --- GSAP SCROLL & LOGIC ---
