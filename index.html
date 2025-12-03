@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>CredOn | Future Finance</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -15,35 +15,47 @@
 
     <style>
         :root {
-            --bg-dark: #020617; /* Slate 950 */
-            --primary: #2563eb; /* Royal Blue */
-            --accent: #38bdf8;  /* Sky Blue */
+            --bg-dark: #020617;
+            --primary: #2563eb;
+            --accent: #38bdf8;
             --text-main: #f8fafc;
             --text-muted: #94a3b8;
             --font-display: 'Space Grotesk', sans-serif;
             --font-body: 'Outfit', sans-serif;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
-
-        body {
+        /* --- CONFIGURAÇÃO GERAL --- */
+        html, body {
+            margin: 0; 
+            padding: 0; 
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden !important; /* Impede rolagem lateral indesejada */
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: var(--font-body);
-            overflow-x: hidden;
-            width: 100%;
-            overflow-y: hidden; /* Trava scroll no carregamento */
         }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+            /* REMOVIDO O 'cursor: none' PARA O MOUSE PADRÃO APARECER */
+        }
+
+        a, button, input[type="range"] {
+            cursor: pointer; /* Garante a mãozinha nos links */
+        }
+
+        body.loading { overflow: hidden; }
 
         /* --- PRELOADER --- */
         #preloader {
             position: fixed; 
             top: 0; left: 0; 
-            width: 100vw; height: 100dvh; 
+            width: 100%; height: 100%; 
             background: var(--bg-dark);
             z-index: 999999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            margin: 0; padding: 0;
         }
         
         .loader-logo {
@@ -51,7 +63,6 @@
             font-size: 3rem; font-weight: 700; color: white;
             margin-bottom: 2rem;
             display: flex; align-items: center; gap: 15px; justify-content: center;
-            width: 100%; text-align: center;
         }
         
         .loader-bar-container {
@@ -70,108 +81,111 @@
             font-family: var(--font-display); text-transform: uppercase; text-align: center;
         }
 
-        /* --- HEADER / MENU (REDESENHADO) --- */
+        /* --- HEADER / MENU --- */
         header {
             position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            padding: 2rem 5%;
+            top: 20px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            width: 90%; 
+            max-width: 1200px; 
+            padding: 1rem 2rem;
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
             z-index: 100;
-            background: transparent; /* Começa transparente */
-            transition: all 0.4s ease; /* Suavidade na transição */
+            background: rgba(2, 6, 23, 0.6); 
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.05); 
+            border-radius: 100px;
+            transition: all 0.3s ease;
         }
 
-        /* Classe que será adicionada via JS ao rolar a página */
-        header.scrolled {
-            padding: 1rem 5%;
-            background: rgba(2, 6, 23, 0.9);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-
-        .logo { 
-            font-size: 1.8rem; 
-            font-weight: 700; 
-            color: white; 
-            display: flex; 
-            gap: 12px; 
-            align-items: center; 
-            white-space: nowrap;
-            letter-spacing: -1px;
-        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; white-space: nowrap;}
         
-        /* Botão WhatsApp Moderno */
         .btn-whatsapp {
-            background: rgba(37, 211, 102, 0.1); /* Fundo sutil */
-            color: #4ade80; /* Verde neon */
-            border: 1px solid rgba(37, 211, 102, 0.4);
-            padding: 0.8rem 1.8rem; 
-            border-radius: 8px; /* Mais quadrado/tech */
-            text-decoration: none; 
-            font-weight: 600;
-            transition: all 0.3s ease; 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            font-size: 0.95rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            position: relative;
-            overflow: hidden;
+            background: #25D366; color: #020617; 
+            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
+            transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 1rem;
+            white-space: nowrap;
         }
-
-        .btn-whatsapp:hover { 
-            background: #25D366; 
-            color: #020617; 
-            box-shadow: 0 0 25px rgba(37, 211, 102, 0.5); 
-            border-color: #25D366;
-            transform: translateY(-2px);
-        }
+        .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
         /* --- HERO (VÍDEO) --- */
         .hero {
-            height: 100vh; width: 100%;
+            position: relative;
+            width: 100%;
+            height: 100vh; /* Fallback */
+            height: 100dvh; /* Mobile Moderno */
             display: flex; align-items: center; justify-content: center;
-            position: relative; overflow: hidden; text-align: center;
-        }
-        .hero-content h1, .hero-content p { opacity: 0; transform: translateY(30px); }
-        .hero-video {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            object-fit: cover; z-index: -1; filter: brightness(0.6) hue-rotate(10deg);
-        }
-        .hero h1 { 
-            font-size: clamp(3rem, 9vw, 7rem); margin-bottom: 1rem; 
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 0 10px;
+            overflow: hidden; 
+            text-align: center;
+            /* Imagem de fundo para evitar tela preta/branca enquanto carrega */
+            background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1632&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
         }
 
-        /* --- TIPOGRAFIA & AUX --- */
+        .hero::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(2, 6, 23, 0.5); z-index: 1;
+        }
+
+        .hero-video {
+            position: absolute; 
+            top: 50%; left: 50%; 
+            width: 100%; height: 100%;
+            min-width: 100%; min-height: 100%;
+            transform: translate(-50%, -50%);
+            object-fit: cover; 
+            z-index: 0;
+            filter: brightness(0.7) hue-rotate(10deg);
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2; 
+            padding: 0 20px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        .hero h1 { 
+            font-size: clamp(3rem, 9vw, 7rem); margin-bottom: 1rem; 
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            word-wrap: break-word;
+        }
+
         .gradient-text {
             background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
+
+        /* --- CUSTOM CURSOR (Efeito Visual) --- */
         .cursor-dot, .cursor-outline {
             position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
-            border-radius: 50%; z-index: 9999; pointer-events: none; mix-blend-mode: difference;
+            border-radius: 50%; 
+            z-index: 9999; /* Z-index alto para garantir visibilidade */
+            pointer-events: none; 
+            mix-blend-mode: difference;
         }
         .cursor-dot { width: 8px; height: 8px; background: white; }
         .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5); transition: width 0.2s, height 0.2s; }
+        
         .btn-nav { background: white; color: var(--bg-dark); padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s; }
         .btn-nav:hover { background: var(--accent); color: white; }
 
-        /* --- HORIZONTAL SCROLL & CARDS --- */
+        /* --- HORIZONTAL SECTION --- */
         .horizontal-section { width: 100%; height: 100vh; display: flex; align-items: center; overflow: hidden; background: var(--bg-dark); position: relative; }
         .horizontal-wrapper { display: flex; gap: 3vw; padding: 0 5vw; width: max-content; align-items: center; }
         .intro-text { width: 30vw; min-width: 300px; flex-shrink: 0; margin-right: 2vw;}
         .intro-text h2 { font-size: 3.5rem; margin-bottom: 1.5rem; }
+        
         .h-card {
             width: 28vw; min-width: 380px; height: 55vh; flex-shrink: 0; border-radius: 24px; position: relative;
             background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.08); overflow: hidden;
             display: flex; flex-direction: column; justify-content: space-between; padding: 2.5rem; transition: transform 0.3s ease;
+            cursor: pointer; /* Garante que pareça clicável */
         }
         .h-card::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 24px;
@@ -190,7 +204,7 @@
         .card-action { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0; transform: translateX(-10px); transition: 0.3s; }
         .h-card:hover .card-action { opacity: 1; transform: translateX(0); }
 
-        /* --- BUBBLE --- */
+        /* --- BUBBLE SECTION --- */
         .bubble-section { width: 100%; height: 100vh; background: #ffffff; color: #0f172a; clip-path: circle(0% at 50% 50%); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; overflow: hidden; margin-top: -1px; }
         .feature-content { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 1400px; width: 100%; padding: 0 5%; align-items: center; }
         .feature-text h2 { font-size: 4rem; line-height: 1; margin-bottom: 1.5rem; color: #0f172a; }
@@ -203,7 +217,7 @@
 
         /* --- SPLIT --- */
         .split-section { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
-        .split-left { background: #172554; color: white; padding: 6rem; display: flex; flex-direction: column; justify-content: center; position: relative; }
+        .split-left { background: #172554; color: white; padding: 6rem; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
         .split-right { background: #ffffff; color: #0f172a; padding: 6rem; display: flex; flex-direction: column; justify-content: center; }
         .split-title { font-size: 3.5rem; margin-bottom: 2rem; }
         .list-check li { margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px; font-size: 1.2rem; }
@@ -212,77 +226,67 @@
         .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--primary); font-family: var(--font-display); }
 
         /* --- CALCULADORA --- */
-        .calc-section { padding: 8rem 5%; background: #020617; position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+        .calc-section { padding: 8rem 5%; background: #020617; position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; width: 100%; overflow: hidden; }
         .calc-container { max-width: 900px; width: 100%; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 30px; padding: 4rem; backdrop-filter: blur(10px); }
-        input[type=range] { width: 100%; height: 4px; background: #334155; border-radius: 10px; appearance: none; }
+        input[type=range] { width: 100%; height: 4px; background: #334155; border-radius: 10px; appearance: none; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; background: var(--primary); border: 2px solid white; border-radius: 50%; cursor: pointer; }
         .result-big { font-size: 5rem; font-weight: 700; font-family: var(--font-display); color: white; margin: 1rem 0 2rem 0; word-wrap: break-word; }
         
-        /* FOOTER TECH */
-        footer { padding: 4rem 2rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; position: relative; }
+        footer { padding: 4rem 2rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; position: relative; width: 100%; }
         .martech-credit { margin-top: 1.5rem; font-family: var(--font-display); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; transition: 0.3s; }
         .martech-credit:hover { opacity: 1; }
         .martech-credit a { color: var(--accent); text-decoration: none; position: relative; font-weight: 500; }
         .martech-credit a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s ease; }
         .martech-credit a:hover::after { width: 100%; }
-        .martech-credit a:hover { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
 
         /* =========================================
            RESPONSIVIDADE (MOBILE & HEADER AJUSTADO)
            ========================================= */
         @media (max-width: 900px) {
-            * { cursor: auto !important; }
+            
             .cursor-dot, .cursor-outline { display: none !important; }
 
-            /* HEADER AJUSTADO - REMOVE A FAIXA */
+            /* HEADER MOBILE BLINDADO */
             header { 
-                width: 100%;
-                max-width: none;
-                transform: none;
-                left: 0;
-                top: 0;
-                padding: 1.5rem 1.5rem; /* Padding confortável */
-                justify-content: space-between;
-                border: none;
-                background: transparent;
+                width: 92%;
+                max-width: 500px;
+                padding: 0.7rem 1.2rem;
+                top: 15px; 
+                display: flex; justify-content: space-between; align-items: center;
+                left: 50%; 
+                transform: translateX(-50%);
             }
+            .logo { font-size: 1.1rem; gap: 8px; flex-shrink: 0; }
             
-            header.scrolled {
-                 padding: 1rem 1.5rem; /* Reduz padding ao rolar */
-            }
-
-            .logo { font-size: 1.5rem; }
-            
-            /* WhatsApp Compacto e Moderno */
             .btn-whatsapp { 
-                padding: 0; width: 45px; height: 45px; 
+                padding: 0; width: 38px; height: 38px; 
                 display: flex; align-items: center; justify-content: center;
-                border-radius: 50%; 
-                background: #25D366; 
-                color: #020617;
-                box-shadow: 0 0 15px rgba(37, 211, 102, 0.3);
+                border-radius: 50%; flex-shrink: 0;
             }
             .btn-whatsapp span { display: none; }
-            .btn-whatsapp i { font-size: 1.4rem; margin: 0; }
+            .btn-whatsapp i { font-size: 1.2rem; margin: 0; }
 
             /* Restante Mobile */
-            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; justify-content: center; }
-            .loader-text { font-size: 0.75rem; text-align: center; }
-            .hero { padding-top: 0; } /* Remove padding extra pois o header é transparente */
+            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; }
+            .hero { padding-top: 80px; }
             .hero h1 { font-size: 3.2rem; line-height: 1.1; }
             .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
-            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: visible; }
+            
+            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: hidden; width: 100%; }
             .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; align-items: center; }
             .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center;}
             .intro-text h2 { font-size: 2.5rem; }
+            
             .h-card { width: 100%; max-width: 400px; min-width: unset; height: auto; min-height: 400px; margin: 0 auto; }
             .card-action { opacity: 1; transform: translateX(0); }
+            
             .bubble-section { height: auto; padding: 4rem 0; clip-path: none !important; }
             .feature-content { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
             .feature-image { display: none; } 
             .feature-text h2 { font-size: 2.5rem; }
             .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
             .chaos-item { padding: 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            
             .split-section { grid-template-columns: 1fr; display: block; }
             .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; align-items: center;}
             .split-left > div[style*="font-size:10rem"] { display: none; } 
@@ -290,6 +294,7 @@
             .list-check li { justify-content: center; } 
             .split-right { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
             .split-title { font-size: 2.2rem; }
+            
             .calc-section { padding: 4rem 5%; }
             .calc-container { padding: 2.5rem 1.5rem; border-radius: 20px; }
             .calc-container h2 { font-size: 2rem !important; }
@@ -298,7 +303,7 @@
         }
     </style>
 </head>
-<body>
+<body class="loading">
 
     <div id="preloader">
         <div class="loader-logo">
@@ -313,12 +318,12 @@
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
 
-    <header id="main-header">
+    <header>
         <div class="logo">
-            <div style="width:24px; height:24px; background:var(--primary); border-radius:6px; box-shadow: 0 0 15px var(--primary);"></div> CredOn
+            <div style="width:20px; height:20px; background:var(--primary); border-radius:4px;"></div> CredOn
         </div>
         <a href="https://wa.me/5500000000000" target="_blank" class="btn-whatsapp">
-            <i class="fab fa-whatsapp"></i> <span>Falar Agora</span>
+            <i class="fab fa-whatsapp"></i> <span>WhatsApp</span>
         </a>
     </header>
 
@@ -336,7 +341,7 @@
             <source src="/src/video/banner.mp4" type="video/mp4">
         </video>
         
-        <div class="hero-content" style="z-index: 1; max-width: 800px; padding: 0 20px;">
+        <div class="hero-content">
             <h1 class="gradient-text">Crédito<br>Inteligente</h1>
             <p style="font-size: 1.3rem; color: #f1f5f9; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
                 Desbloqueie o potencial do seu patrimônio com as menores taxas do mercado global.
@@ -490,7 +495,6 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        // --- LÓGICA DE PRELOADING (COM SCROLL LOCK) ---
         function startSite() {
             const tlLoader = gsap.timeline();
             
@@ -500,7 +504,7 @@
             .to("#preloader", {
                 y: "-100%", duration: 1.2, ease: "power4.inOut", delay: 0.2,
                 onComplete: () => {
-                    document.body.style.overflowY = "auto"; // Libera o scroll
+                    document.body.classList.remove("loading");
                     const vid = document.getElementById('heroVideo');
                     if(vid) vid.play().catch(e => console.log(e));
                 }
@@ -513,17 +517,6 @@
             setTimeout(startSite, 500);
         });
 
-        // --- NOVO CÓDIGO DO HEADER (SCROLL EFFECT) ---
-        const header = document.getElementById('main-header');
-        window.addEventListener('scroll', () => {
-            if (window.scrollY > 50) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-
-        // --- GSAP SCROLL & LOGIC ---
         let mm = gsap.matchMedia();
 
         mm.add("(min-width: 901px)", () => {
