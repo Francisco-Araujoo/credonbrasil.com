@@ -35,15 +35,15 @@
             overflow-y: hidden; /* Trava scroll no carregamento */
         }
 
-        /* --- PRELOADER CORRIGIDO --- */
+        /* --- PRELOADER --- */
         #preloader {
-            position: fixed; top: 0; left: 0; width: 100%; 
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Centralização perfeita em mobile (Dynamic Viewport Height) */
+            position: fixed; 
+            top: 0; left: 0; 
+            width: 100vw; height: 100dvh; 
             background: var(--bg-dark);
             z-index: 999999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px; text-align: center;
+            margin: 0; padding: 0;
         }
         
         .loader-logo {
@@ -51,6 +51,7 @@
             font-size: 3rem; font-weight: 700; color: white;
             margin-bottom: 2rem;
             display: flex; align-items: center; gap: 15px; justify-content: center;
+            width: 100%; text-align: center;
         }
         
         .loader-bar-container {
@@ -66,10 +67,10 @@
 
         .loader-text {
             margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 2px;
-            font-family: var(--font-display); text-transform: uppercase;
+            font-family: var(--font-display); text-transform: uppercase; text-align: center;
         }
 
-        /* --- HEADER / MENU RESPONSIVO --- */
+        /* --- HEADER / MENU --- */
         header {
             position: fixed; 
             top: 20px; 
@@ -86,12 +87,12 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.05); 
             border-radius: 100px;
-            transition: all 0.3s ease; /* Suaviza a mudança de tamanho */
+            transition: all 0.3s ease;
         }
 
         .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; white-space: nowrap;}
         
-        /* Botão WhatsApp */
+        /* Botão WhatsApp Desktop */
         .btn-whatsapp {
             background: #25D366; color: #020617; 
             padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
@@ -100,31 +101,17 @@
         }
         .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
-        .btn-nav {
-            background: white; color: var(--bg-dark); 
-            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
-            transition: 0.3s;
-        }
-        .btn-nav:hover { background: var(--accent); color: white; }
-
         /* --- HERO (VÍDEO) --- */
         .hero {
-            height: 100vh;
-            width: 100%;
+            height: 100vh; width: 100%;
             display: flex; align-items: center; justify-content: center;
             position: relative; overflow: hidden; text-align: center;
         }
-        
-        /* Elementos da Hero (ocultos p/ animação) */
         .hero-content h1, .hero-content p { opacity: 0; transform: translateY(30px); }
-
         .hero-video {
-            position: absolute; top: 0; left: 0;
-            width: 100%; height: 100%;
-            object-fit: cover; z-index: -1;
-            filter: brightness(0.6) hue-rotate(10deg);
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            object-fit: cover; z-index: -1; filter: brightness(0.6) hue-rotate(10deg);
         }
-        
         .hero h1 { 
             font-size: clamp(3rem, 9vw, 7rem); margin-bottom: 1rem; 
             text-shadow: 0 10px 30px rgba(0,0,0,0.5); padding: 0 10px;
@@ -141,6 +128,8 @@
         }
         .cursor-dot { width: 8px; height: 8px; background: white; }
         .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5); transition: width 0.2s, height 0.2s; }
+        .btn-nav { background: white; color: var(--bg-dark); padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700; transition: 0.3s; }
+        .btn-nav:hover { background: var(--accent); color: white; }
 
         /* --- HORIZONTAL SCROLL & CARDS --- */
         .horizontal-section { width: 100%; height: 100vh; display: flex; align-items: center; overflow: hidden; background: var(--bg-dark); position: relative; }
@@ -196,63 +185,74 @@
         input[type=range] { width: 100%; height: 4px; background: #334155; border-radius: 10px; appearance: none; }
         input[type=range]::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; background: var(--primary); border: 2px solid white; border-radius: 50%; cursor: pointer; }
         .result-big { font-size: 5rem; font-weight: 700; font-family: var(--font-display); color: white; margin: 1rem 0 2rem 0; word-wrap: break-word; }
-        footer { padding: 4rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; }
+        
+        /* FOOTER TECH */
+        footer { padding: 4rem 2rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; position: relative; }
+        .martech-credit { margin-top: 1.5rem; font-family: var(--font-display); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; transition: 0.3s; }
+        .martech-credit:hover { opacity: 1; }
+        .martech-credit a { color: var(--accent); text-decoration: none; position: relative; font-weight: 500; }
+        .martech-credit a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s ease; }
+        .martech-credit a:hover::after { width: 100%; }
+        .martech-credit a:hover { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
 
         /* =========================================
-           RESPONSIVIDADE (MOBILE AJUSTADO)
+           RESPONSIVIDADE (MOBILE & HEADER AJUSTADO)
            ========================================= */
         @media (max-width: 900px) {
-            
             * { cursor: auto !important; }
             .cursor-dot, .cursor-outline { display: none !important; }
 
-            /* AJUSTE DO PRELOADER MOBILE */
-            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; }
-            .loader-text { font-size: 0.75rem; }
-
-            /* AJUSTE CRÍTICO DO HEADER */
+            /* HEADER AJUSTADO */
             header { 
-                width: 95%; /* Ocupa quase toda a largura para evitar quebra */
-                padding: 0.8rem 1rem; 
+                /* Cálculo exato: 100% da tela menos 32px (16px de cada lado) */
+                width: calc(100% - 32px);
+                max-width: 500px; /* Garante que não fique enorme em telas médias */
+                padding: 0.7rem 1.2rem; /* Padding reduzido para parecer menor */
                 top: 15px; 
+                display: flex; justify-content: space-between; align-items: center;
+                left: 50%; transform: translateX(-50%);
             }
-            .logo { font-size: 1.2rem; gap: 8px; }
+            .logo { font-size: 1.1rem; gap: 8px; flex-shrink: 0; }
             
-            /* Botão WhatsApp Compacto */
+            /* WhatsApp Compacto */
             .btn-whatsapp { 
-                padding: 0.6rem; 
-                width: 45px; 
-                height: 45px; 
-                justify-content: center;
-                border-radius: 50%;
+                padding: 0; width: 38px; height: 38px; /* Reduzido levemente */
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 50%; flex-shrink: 0;
             }
-            .btn-whatsapp span { display: none; } 
-            .btn-whatsapp i { font-size: 1.4rem; margin: 0; }
+            .btn-whatsapp span { display: none; }
+            .btn-whatsapp i { font-size: 1.2rem; margin: 0; }
 
-            /* Restante do layout mobile */
+            /* Restante Mobile */
+            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; justify-content: center; }
+            .loader-text { font-size: 0.75rem; text-align: center; }
+            .hero { padding-top: 80px; }
             .hero h1 { font-size: 3.2rem; line-height: 1.1; }
             .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
-            .horizontal-section { height: auto; padding: 6rem 0; overflow: visible; display: block; }
-            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2rem; transform: none !important; }
-            .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: left; }
-            .intro-text h2 { font-size: 2.8rem; }
-            .h-card { width: 100%; min-width: unset; height: auto; min-height: 400px; }
+            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: visible; }
+            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; align-items: center; }
+            .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center;}
+            .intro-text h2 { font-size: 2.5rem; }
+            .h-card { width: 100%; max-width: 400px; min-width: unset; height: auto; min-height: 400px; margin: 0 auto; }
             .card-action { opacity: 1; transform: translateX(0); }
             .bubble-section { height: auto; padding: 4rem 0; clip-path: none !important; }
-            .feature-content { grid-template-columns: 1fr; gap: 3rem; }
+            .feature-content { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
             .feature-image { display: none; } 
-            .feature-text h2 { font-size: 2.8rem; }
-            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
-            .chaos-item { padding: 1rem; }
-            .chaos-item h4 { font-size: 1.4rem; }
+            .feature-text h2 { font-size: 2.5rem; }
+            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
+            .chaos-item { padding: 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
             .split-section { grid-template-columns: 1fr; display: block; }
-            .split-left, .split-right { padding: 4rem 1.5rem; min-height: auto; }
-            .split-title { font-size: 2.5rem; }
+            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; align-items: center;}
+            .split-left > div[style*="font-size:10rem"] { display: none; } 
+            .list-check { display: flex; flex-direction: column; align-items: center; padding: 0; }
+            .list-check li { justify-content: center; } 
+            .split-right { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
+            .split-title { font-size: 2.2rem; }
             .calc-section { padding: 4rem 5%; }
-            .calc-container { padding: 2rem 1.5rem; border-radius: 20px; }
-            .calc-container h2 { font-size: 2.2rem !important; }
-            .result-big { font-size: 3rem; }
-            footer { padding: 2rem 1rem; font-size: 0.9rem; }
+            .calc-container { padding: 2.5rem 1.5rem; border-radius: 20px; }
+            .calc-container h2 { font-size: 2rem !important; }
+            .result-big { font-size: 2.8rem; }
+            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.9rem; } /* Mais espaço embaixo */
         }
     </style>
 </head>
@@ -428,15 +428,21 @@
             </div>
 
             <div class="calc-result-box">
-                <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;">Parcela Inicial</p>
-                <div class="result-big" id="result-total">R$ 1.500</div>
-                <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none; display: inline-block;">Solicitar Análise</a>
+                <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; text-align: center;">Parcela Inicial</p>
+                <div class="result-big" id="result-total" style="text-align: center;">R$ 1.500</div>
+                <div style="text-align: center;">
+                    <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none; display: inline-block;">Solicitar Análise</a>
+                </div>
             </div>
         </div>
     </section>
 
     <footer>
         <p>&copy; 2025 CredOn Tech Finance. Todos os direitos reservados.</p>
+        
+        <div class="martech-credit">
+            Desenvolvido por <a href="http://agenciamartech.com.br/" target="_blank">Agência Martech</a>
+        </div>
     </footer>
 
     <script>
@@ -453,7 +459,6 @@
                 y: "-100%", duration: 1.2, ease: "power4.inOut", delay: 0.2,
                 onComplete: () => {
                     document.body.style.overflowY = "auto"; // Libera o scroll
-                    // Tenta o play no vídeo
                     const vid = document.getElementById('heroVideo');
                     if(vid) vid.play().catch(e => console.log(e));
                 }
@@ -507,7 +512,6 @@
         gsap.from(".split-left", { x: -50, opacity: 0, duration: 1, scrollTrigger: { trigger: ".split-section", start: "top 80%" } });
         gsap.from(".split-right", { x: 50, opacity: 0, duration: 1, scrollTrigger: { trigger: ".split-section", start: "top 80%" } });
 
-        // Cursor logic
         if (window.matchMedia("(pointer: fine)").matches) {
             const cursorDot = document.querySelector(".cursor-dot");
             const cursorOutline = document.querySelector(".cursor-outline");
