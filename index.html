@@ -1,0 +1,564 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CredOn | Future Finance</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #020617; /* Slate 950 */
+            --primary: #2563eb; /* Royal Blue */
+            --accent: #38bdf8;  /* Sky Blue */
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; cursor: none; }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            overflow-x: hidden;
+            width: 100%;
+        }
+
+        /* --- CURSOR --- */
+        .cursor-dot, .cursor-outline {
+            position: fixed; top: 0; left: 0;
+            transform: translate(-50%, -50%);
+            border-radius: 50%; z-index: 9999;
+            pointer-events: none;
+            mix-blend-mode: difference;
+        }
+        .cursor-dot { width: 8px; height: 8px; background: white; }
+        .cursor-outline {
+            width: 40px; height: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            transition: width 0.2s, height 0.2s;
+        }
+
+        /* Typography */
+        h1, h2, h3, h4 { font-family: var(--font-display); line-height: 1.05; }
+        .gradient-text {
+            background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+        
+        /* Header Glassmorphism */
+        header {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 1200px; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center; z-index: 100;
+            background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 100px;
+        }
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center;}
+        
+        /* Botão WhatsApp */
+        .btn-whatsapp {
+            background: #25D366; color: #020617; 
+            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
+            transition: 0.3s; display: flex; align-items: center; gap: 8px;
+        }
+        .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
+
+        .btn-nav {
+            background: white; color: var(--bg-dark); 
+            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
+            transition: 0.3s;
+        }
+        .btn-nav:hover { background: var(--accent); color: white; }
+
+        /* --- HERO (VÍDEO LIMPO) --- */
+        .hero {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            position: relative; overflow: hidden; text-align: center;
+        }
+        .hero-video {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            object-fit: cover; z-index: -1;
+            filter: brightness(0.6) hue-rotate(10deg); /* Filtro azul suave */
+        }
+        .hero h1 { 
+            font-size: clamp(3.5rem, 9vw, 7rem); margin-bottom: 1rem; 
+            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        /* --- HORIZONTAL SCROLL & NOVOS CARDS --- */
+        .horizontal-section {
+            width: 100%; height: 100vh; display: flex; align-items: center;
+            overflow: hidden; background: var(--bg-dark); position: relative;
+        }
+        .horizontal-wrapper { display: flex; gap: 3vw; padding: 0 5vw; width: max-content; align-items: center; }
+        
+        .intro-text { width: 30vw; min-width: 300px; flex-shrink: 0; margin-right: 2vw;}
+        .intro-text h2 { font-size: 3.5rem; margin-bottom: 1.5rem; }
+        
+        /* ESTILO FUTURISTA DOS CARDS */
+        .h-card {
+            width: 28vw; min-width: 380px; height: 55vh; flex-shrink: 0;
+            border-radius: 24px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 2.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        /* O efeito de "Spotlight" (Glow no Mouse) */
+        .h-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            border-radius: 24px;
+            background: radial-gradient(
+                600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), 
+                rgba(56, 189, 248, 0.15), 
+                transparent 40%
+            );
+            z-index: 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+
+        .h-card:hover { transform: translateY(-10px); border-color: rgba(56, 189, 248, 0.3); }
+        .h-card:hover::before { opacity: 1; }
+
+        .card-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: space-between;}
+
+        .card-icon-box {
+            width: 60px; height: 60px;
+            background: rgba(37, 99, 235, 0.2);
+            border: 1px solid rgba(37, 99, 235, 0.4);
+            border-radius: 12px;
+            display: flex; align-items: center; justify-content: center;
+            margin-bottom: 1.5rem;
+            box-shadow: 0 0 20px rgba(37, 99, 235, 0.2);
+        }
+        .card-icon-box i { font-size: 1.5rem; color: var(--accent); }
+
+        .card-title { font-size: 2rem; margin-bottom: 0.5rem; color: white; }
+        .card-desc { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
+
+        .card-footer {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 1.5rem;
+        }
+        .card-number {
+            font-size: 4rem; font-weight: 700; 
+            color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1);
+            font-family: var(--font-display);
+        }
+        .card-action {
+            font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;
+            color: var(--accent); font-weight: 700; opacity: 0; transform: translateX(-10px);
+            transition: 0.3s;
+        }
+        .h-card:hover .card-action { opacity: 1; transform: translateX(0); }
+
+
+        /* --- BUBBLE SECTION (INSTANTÂNEA) --- */
+        .bubble-section {
+            width: 100%; height: 100vh;
+            background: #ffffff; /* Branco puro para contraste máximo */
+            color: #0f172a;
+            /* Começa como um ponto minúsculo */
+            clip-path: circle(0% at 50% 50%);
+            display: flex; align-items: center; justify-content: center;
+            position: relative; z-index: 10; overflow: hidden;
+            margin-top: -1px;
+        }
+        
+        .feature-content {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 5rem;
+            max-width: 1400px; width: 100%; padding: 0 5%; align-items: center;
+        }
+        
+        .feature-text h2 { font-size: 4rem; line-height: 1; margin-bottom: 1.5rem; color: #0f172a; }
+        .feature-text p { font-size: 1.25rem; color: #475569; margin-bottom: 2rem; }
+
+        .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
+        .chaos-item { 
+            padding: 1.5rem; border-radius: 12px; 
+            background: #f1f5f9; border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+        .chaos-item h4 { font-size: 1.8rem; color: var(--primary); margin-bottom: 0.2rem; }
+        .chaos-item span { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
+
+        .feature-image img { 
+            width: 100%; height: 650px; object-fit: cover; border-radius: 20px; 
+            /* Sombra elegante no fundo branco */
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* --- NOVA SEÇÃO: SPLIT / DUAL TONE (AZUL E BRANCO) --- */
+        .split-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            min-height: 100vh;
+            width: 100%;
+        }
+
+        /* Lado Esquerdo: Azul Profundo */
+        .split-left {
+            background: #172554; /* Azul Profundo */
+            color: white;
+            padding: 6rem;
+            display: flex; flex-direction: column; justify-content: center;
+            position: relative;
+        }
+        
+        /* Lado Direito: Branco Limpo */
+        .split-right {
+            background: #ffffff;
+            color: #0f172a;
+            padding: 6rem;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        .split-title { font-size: 3.5rem; margin-bottom: 2rem; }
+        .list-check li {
+            margin-bottom: 1.5rem; display: flex; align-items: center; gap: 15px; font-size: 1.2rem;
+        }
+        .list-check i { color: var(--accent); }
+
+        .stat-card {
+            background: #f8fafc; border: 1px solid #e2e8f0;
+            padding: 2rem; margin-bottom: 1.5rem; border-radius: 15px;
+        }
+        .stat-val { font-size: 2.5rem; font-weight: 700; color: var(--primary); font-family: var(--font-display); }
+
+        /* --- CALCULADORA --- */
+        .calc-section {
+            padding: 8rem 5%;
+            background: #020617;
+            position: relative;
+            min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        
+        .calc-container {
+            max-width: 900px; width: 100%; 
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 30px; padding: 4rem;
+            backdrop-filter: blur(10px);
+        }
+        
+        input[type=range] { width: 100%; height: 4px; background: #334155; border-radius: 10px; appearance: none; }
+        input[type=range]::-webkit-slider-thumb { 
+            appearance: none; width: 24px; height: 24px; background: var(--primary); 
+            border: 2px solid white; border-radius: 50%; cursor: pointer; 
+        }
+
+        .result-big {
+            font-size: 5rem; font-weight: 700; font-family: var(--font-display);
+            color: white; margin: 1rem 0 2rem 0;
+        }
+
+        footer { padding: 4rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; }
+
+        @media(max-width: 900px) {
+            .horizontal-wrapper { flex-direction: column; padding: 100px 5%; }
+            .feature-content, .split-section { grid-template-columns: 1fr; }
+            .feature-image { display: none; }
+            .split-left, .split-right { padding: 3rem; }
+            .hero h1 { font-size: 3rem; }
+            .h-card { width: 100%; height: auto; min-width: unset; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cursor-dot"></div>
+    <div class="cursor-outline"></div>
+
+    <header>
+        <div class="logo">
+            <div style="width:20px; height:20px; background:var(--primary); border-radius:4px;"></div> CredOn
+        </div>
+        <a href="https://wa.me/5500000000000" target="_blank" class="btn-whatsapp">
+            <i class="fab fa-whatsapp" style="font-size: 1.2rem;"></i> WhatsApp
+        </a>
+    </header>
+
+    <section class="hero">
+        <video class="hero-video" autoplay muted loop playsinline>
+            <source src="/src/video/banner.mp4" type="video/mp4">
+        </video>
+        
+        <div style="z-index: 1; max-width: 800px; padding: 0 20px;">
+            <h1 class="gradient-text">Crédito<br>Inteligente</h1>
+            <p style="font-size: 1.3rem; color: #f1f5f9; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
+                Desbloqueie o potencial do seu patrimônio com as menores taxas do mercado global.
+            </p>
+        </div>
+    </section>
+
+    <section class="horizontal-section">
+        <div class="horizontal-wrapper">
+            <div class="intro-text">
+                <h2>Ecossistema <br><span style="color: var(--primary)">Financeiro</span></h2>
+                <p>Soluções integradas para PF e PJ. Mova o mouse sobre os cards para interagir.</p>
+                <div style="margin-top:2rem; width:50px; height:2px; background:var(--accent);"></div>
+            </div>
+            
+            <div class="h-card">
+                <div class="card-content">
+                    <div>
+                        <div class="card-icon-box">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3 class="card-title">Empresarial</h3>
+                        <p class="card-desc">Capital de giro rápido para alavancar sua operação com carência estendida.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-action">Explorar -></span>
+                        <div class="card-number">01</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-card">
+                <div class="card-content">
+                    <div>
+                        <div class="card-icon-box">
+                            <i class="fas fa-home"></i>
+                        </div>
+                        <h3 class="card-title">Home Equity</h3>
+                        <p class="card-desc">Utilize seu imóvel como garantia e acesse as taxas mais baixas do Brasil.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-action">Simular -></span>
+                        <div class="card-number">02</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="h-card">
+                <div class="card-content">
+                    <div>
+                        <div class="card-icon-box">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h3 class="card-title">Score Turbo</h3>
+                        <p class="card-desc">Consultoria avançada de crédito para aumentar sua pontuação no mercado.</p>
+                    </div>
+                    <div class="card-footer">
+                        <span class="card-action">Consultar -></span>
+                        <div class="card-number">03</div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <section class="bubble-section">
+        <div class="feature-content">
+            <div class="feature-image">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1470&auto=format&fit=crop" alt="Real Estate">
+            </div>
+            
+            <div class="feature-text">
+                <h2>Seu Imóvel,<br>Sua Liberdade.</h2>
+                <p>Taxas a partir de 0.99% a.m. com até 240 meses para pagar. O dinheiro cai na conta em até 5 dias úteis.</p>
+                
+                <div class="specs-grid chaos-grid">
+                    <div class="spec-item chaos-item"><h4>R$ 5MM</h4><span>Limite Máximo</span></div>
+                    <div class="spec-item chaos-item"><h4>240x</h4><span>Prazo Estendido</span></div>
+                    <div class="spec-item chaos-item"><h4>5 Dias</h4><span>Liberação Rápida</span></div>
+                    <div class="spec-item chaos-item"><h4>100%</h4><span>Uso Livre</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="split-section">
+        <div class="split-left">
+            <div style="opacity:0.1; position:absolute; top:20px; left:20px; font-size:10rem; font-weight:800; font-family:var(--font-display);">SEG</div>
+            <h2 class="split-title">Segurança <br>Bancária</h2>
+            <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem;">
+                Utilizamos criptografia de ponta a ponta e somos regulados pelo Banco Central. Seus dados estão blindados.
+            </p>
+            <ul class="list-check" style="list-style: none;">
+                <li><i class="fas fa-shield-alt"></i> Criptografia AES-256</li>
+                <li><i class="fas fa-file-signature"></i> Assinatura Digital ICP-Brasil</li>
+                <li><i class="fas fa-user-shield"></i> Compliance LGPD</li>
+            </ul>
+        </div>
+        
+        <div class="split-right">
+            <h2 class="split-title" style="font-size: 2.5rem;">Resultados <br>Comprovados</h2>
+            <p style="color: #64748b; margin-bottom: 3rem;">
+                Milhares de clientes já transformaram suas vidas financeiras com a CredOn.
+            </p>
+            
+            <div class="stat-card">
+                <div class="stat-val">+ R$ 500 Mi</div>
+                <div style="color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Em crédito concedido</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-val">15.000+</div>
+                <div style="color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Clientes Atendidos</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="calc-section">
+        <div class="calc-container">
+            <div style="text-align: center; margin-bottom: 3rem;">
+                <h2 style="font-size: 3rem;">Simulador</h2>
+                <p style="color: var(--text-muted);">Veja quanto você pode economizar.</p>
+            </div>
+
+            <div style="margin-bottom: 2rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#94a3b8">Valor Solicitado</span>
+                    <span id="val-display" style="color:var(--accent); font-weight:700; font-size:1.5rem;">R$ 100.000</span>
+                </div>
+                <input type="range" min="50000" max="1000000" step="10000" value="100000" id="range-val">
+            </div>
+
+            <div style="margin-bottom: 3rem;">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#94a3b8">Parcelas</span>
+                    <span id="month-display" style="color:var(--accent); font-weight:700; font-size:1.5rem;">120x</span>
+                </div>
+                <input type="range" min="24" max="240" step="12" value="120" id="range-month">
+            </div>
+
+            <div class="calc-result-box">
+                <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;">Parcela Inicial</p>
+                <div class="result-big" id="result-total">R$ 1.500</div>
+                <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none;">Solicitar Análise</a>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <p>&copy; 2025 CredOn Tech Finance. Todos os direitos reservados.</p>
+    </footer>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger);
+
+        // 1. HORIZONTAL SCROLL
+        const hWrapper = document.querySelector(".horizontal-wrapper");
+        function getScrollAmount() { return -(hWrapper.scrollWidth - window.innerWidth); }
+        
+        gsap.to(hWrapper, {
+            x: getScrollAmount,
+            ease: "none",
+            scrollTrigger: {
+                trigger: ".horizontal-section",
+                start: "top top",
+                end: () => `+=${getScrollAmount() * -1}`, 
+                pin: true,
+                scrub: 1,
+                invalidateOnRefresh: true
+            }
+        });
+
+        // 2. BOLHA INSTANTÂNEA
+        let tlBubble = gsap.timeline({
+            scrollTrigger: {
+                trigger: ".bubble-section",
+                start: "top top", 
+                end: "+=500", 
+                pin: true,
+                scrub: 0.5, 
+                preventOverlaps: true
+            }
+        });
+
+        tlBubble.to(".bubble-section", {
+            clipPath: "circle(150% at 50% 50%)", 
+            duration: 2, 
+            ease: "power2.inOut"
+        });
+
+        tlBubble.from(".chaos-item", {
+            y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "back.out(1.7)"
+        }, 0.5);
+        
+        tlBubble.from(".feature-image, .feature-text h2", {
+            y: 50, opacity: 0, duration: 1
+        }, 0.5);
+
+        // 3. SPLIT SECTION ANIMATION
+        gsap.from(".split-left", {
+            x: -100, opacity: 0, duration: 1,
+            scrollTrigger: { trigger: ".split-section", start: "top 70%" }
+        });
+        gsap.from(".split-right", {
+            x: 100, opacity: 0, duration: 1,
+            scrollTrigger: { trigger: ".split-section", start: "top 70%" }
+        });
+
+        // 4. CURSOR
+        const cursorDot = document.querySelector(".cursor-dot");
+        const cursorOutline = document.querySelector(".cursor-outline");
+        window.addEventListener("mousemove", (e) => {
+            cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`;
+            cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+        });
+
+        // 5. INTERAÇÃO MOUSE NOS CARDS (SPOTLIGHT EFFECT)
+        // Isso cria o efeito futurista de luz seguindo o mouse
+        document.querySelectorAll('.h-card').forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                
+                // Define variáveis CSS para usar no radial-gradient
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+            });
+        });
+
+        // 6. CALCULADORA
+        const valSlider = document.getElementById('range-val');
+        const monthSlider = document.getElementById('range-month');
+        const valDisplay = document.getElementById('val-display');
+        const monthDisplay = document.getElementById('month-display');
+        const totalDisplay = document.getElementById('result-total');
+
+        function updateCalc() {
+            const val = parseFloat(valSlider.value);
+            const months = parseInt(monthSlider.value);
+            const rate = 0.0099; // 0.99% a.m.
+
+            valDisplay.textContent = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+            monthDisplay.textContent = months + "x";
+
+            const x = Math.pow(1 + rate, months);
+            const monthly = (val * x * rate) / (x - 1);
+            
+            totalDisplay.textContent = monthly.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        valSlider.addEventListener('input', updateCalc);
+        monthSlider.addEventListener('input', updateCalc);
+        updateCalc();
+    </script>
+</body>
+</html>
