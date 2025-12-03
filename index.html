@@ -87,7 +87,6 @@
             backdrop-filter: blur(20px);
             border: 1px solid rgba(255,255,255,0.05); 
             border-radius: 100px;
-            transition: all 0.3s ease;
         }
 
         .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; white-space: nowrap;}
@@ -196,63 +195,83 @@
         .martech-credit a:hover { text-shadow: 0 0 10px rgba(56, 189, 248, 0.5); }
 
         /* =========================================
-           RESPONSIVIDADE (MOBILE & HEADER AJUSTADO)
+           RESPONSIVIDADE (HEADER MENOR & ESTRUTURA)
            ========================================= */
         @media (max-width: 900px) {
             * { cursor: auto !important; }
             .cursor-dot, .cursor-outline { display: none !important; }
 
-            /* HEADER AJUSTADO */
+            /* HEADER SUPER OTIMIZADO MOBILE */
             header { 
-                /* Cálculo exato: 100% da tela menos 32px (16px de cada lado) */
-                width: calc(100% - 32px);
-                max-width: 500px; /* Garante que não fique enorme em telas médias */
-                padding: 0.7rem 1.2rem; /* Padding reduzido para parecer menor */
-                top: 15px; 
-                display: flex; justify-content: space-between; align-items: center;
-                left: 50%; transform: translateX(-50%);
+                width: 92% !important; /* Mais margem lateral */
+                max-width: none;
+                padding: 0.5rem 1rem !important; /* Padding reduzido para ficar menor */
+                top: 10px; /* Mais próximo do topo */
+                display: flex; 
+                justify-content: space-between; 
+                align-items: center;
+                left: 50%; 
+                transform: translateX(-50%);
             }
-            .logo { font-size: 1.1rem; gap: 8px; flex-shrink: 0; }
             
-            /* WhatsApp Compacto */
-            .btn-whatsapp { 
-                padding: 0; width: 38px; height: 38px; /* Reduzido levemente */
-                display: flex; align-items: center; justify-content: center;
-                border-radius: 50%; flex-shrink: 0;
+            .logo { 
+                font-size: 1rem; /* Fonte da logo menor */
+                gap: 8px; 
+                flex-shrink: 0; 
             }
-            .btn-whatsapp span { display: none; }
-            .btn-whatsapp i { font-size: 1.2rem; margin: 0; }
+            .logo div {
+                width: 16px !important; /* Quadrado da logo menor */
+                height: 16px !important;
+            }
+            
+            /* WhatsApp apenas ícone */
+            .btn-whatsapp { 
+                padding: 0; 
+                width: 36px; height: 36px; /* Botão circular pequeno */
+                display: flex; align-items: center; justify-content: center;
+                border-radius: 50%; 
+                flex-shrink: 0;
+            }
+            .btn-whatsapp span { display: none; } /* Esconde o texto */
+            .btn-whatsapp i { font-size: 1.1rem; margin: 0; }
 
-            /* Restante Mobile */
-            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; justify-content: center; }
-            .loader-text { font-size: 0.75rem; text-align: center; }
+            /* Ajustes Gerais Mobile */
+            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; }
+            .loader-text { font-size: 0.75rem; }
+            
             .hero { padding-top: 80px; }
-            .hero h1 { font-size: 3.2rem; line-height: 1.1; }
-            .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
-            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: visible; }
-            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; align-items: center; }
-            .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center;}
-            .intro-text h2 { font-size: 2.5rem; }
-            .h-card { width: 100%; max-width: 400px; min-width: unset; height: auto; min-height: 400px; margin: 0 auto; }
+            .hero h1 { font-size: 3rem; line-height: 1.1; }
+            .hero p { font-size: 1rem !important; padding: 0 1rem; }
+            
+            /* Scroll Horizontal vira Vertical */
+            .horizontal-section { height: auto; padding: 4rem 0; display: block; overflow: visible; }
+            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 1.5rem; gap: 2rem; transform: none !important; align-items: stretch; }
+            .intro-text { width: 100%; margin-right: 0; margin-bottom: 1rem; text-align: center; }
+            .intro-text h2 { font-size: 2.2rem; }
+            .h-card { width: 100%; max-width: none; min-width: 0; height: auto; min-height: 380px; }
             .card-action { opacity: 1; transform: translateX(0); }
-            .bubble-section { height: auto; padding: 4rem 0; clip-path: none !important; }
-            .feature-content { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
+            
+            /* Efeito Bolha removido para mobile */
+            .bubble-section { height: auto; padding: 4rem 1.5rem; clip-path: none !important; }
+            .feature-content { grid-template-columns: 1fr; gap: 3rem; padding: 0; } 
             .feature-image { display: none; } 
-            .feature-text h2 { font-size: 2.5rem; }
-            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
-            .chaos-item { padding: 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            .feature-text h2 { font-size: 2.2rem; }
+            .specs-grid { gap: 1rem; }
+            
+            /* Split Section Empilhada */
             .split-section { grid-template-columns: 1fr; display: block; }
-            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; align-items: center;}
+            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
             .split-left > div[style*="font-size:10rem"] { display: none; } 
             .list-check { display: flex; flex-direction: column; align-items: center; padding: 0; }
-            .list-check li { justify-content: center; } 
             .split-right { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
-            .split-title { font-size: 2.2rem; }
-            .calc-section { padding: 4rem 5%; }
+            
+            /* Calculadora Responsiva */
+            .calc-section { padding: 4rem 1.5rem; }
             .calc-container { padding: 2.5rem 1.5rem; border-radius: 20px; }
             .calc-container h2 { font-size: 2rem !important; }
-            .result-big { font-size: 2.8rem; }
-            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.9rem; } /* Mais espaço embaixo */
+            .result-big { font-size: 3rem; }
+            
+            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.8rem; }
         }
     </style>
 </head>
