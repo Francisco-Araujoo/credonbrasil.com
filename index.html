@@ -34,7 +34,7 @@
             width: 100%;
         }
 
-        /* --- CURSOR --- */
+        /* --- CURSOR (Desktop Only) --- */
         .cursor-dot, .cursor-outline {
             position: fixed; top: 0; left: 0;
             transform: translate(-50%, -50%);
@@ -71,6 +71,7 @@
             background: #25D366; color: #020617; 
             padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
             transition: 0.3s; display: flex; align-items: center; gap: 8px;
+            font-size: 1rem;
         }
         .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
@@ -93,8 +94,9 @@
             filter: brightness(0.6) hue-rotate(10deg); /* Filtro azul suave */
         }
         .hero h1 { 
-            font-size: clamp(3.5rem, 9vw, 7rem); margin-bottom: 1rem; 
+            font-size: clamp(3rem, 9vw, 7rem); margin-bottom: 1rem; 
             text-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            padding: 0 10px;
         }
 
         /* --- HORIZONTAL SCROLL & NOVOS CARDS --- */
@@ -205,11 +207,10 @@
 
         .feature-image img { 
             width: 100%; height: 650px; object-fit: cover; border-radius: 20px; 
-            /* Sombra elegante no fundo branco */
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
         }
 
-        /* --- NOVA SEÇÃO: SPLIT / DUAL TONE (AZUL E BRANCO) --- */
+        /* --- NOVA SEÇÃO: SPLIT / DUAL TONE --- */
         .split-section {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -217,16 +218,14 @@
             width: 100%;
         }
 
-        /* Lado Esquerdo: Azul Profundo */
         .split-left {
-            background: #172554; /* Azul Profundo */
+            background: #172554;
             color: white;
             padding: 6rem;
             display: flex; flex-direction: column; justify-content: center;
             position: relative;
         }
         
-        /* Lado Direito: Branco Limpo */
         .split-right {
             background: #ffffff;
             color: #0f172a;
@@ -271,17 +270,95 @@
         .result-big {
             font-size: 5rem; font-weight: 700; font-family: var(--font-display);
             color: white; margin: 1rem 0 2rem 0;
+            word-wrap: break-word; /* Evita quebra em mobile */
         }
 
         footer { padding: 4rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; }
 
-        @media(max-width: 900px) {
-            .horizontal-wrapper { flex-direction: column; padding: 100px 5%; }
-            .feature-content, .split-section { grid-template-columns: 1fr; }
-            .feature-image { display: none; }
-            .split-left, .split-right { padding: 3rem; }
-            .hero h1 { font-size: 3rem; }
-            .h-card { width: 100%; height: auto; min-width: unset; }
+        /* =========================================
+           RESPONSIVIDADE PROFISSIONAL (MOBILE)
+           ========================================= */
+        @media (max-width: 900px) {
+            
+            /* RESET MOUSE / CURSOR */
+            * { cursor: auto !important; }
+            .cursor-dot, .cursor-outline { display: none !important; }
+
+            /* HEADER */
+            header {
+                width: 95%; padding: 0.8rem 1.2rem;
+                top: 10px;
+            }
+            .logo { font-size: 1.2rem; }
+            .btn-whatsapp { padding: 0.5rem 1rem; font-size: 0.9rem; }
+            .btn-whatsapp span { display: none; } /* Opcional: esconder texto se ficar muito apertado */
+
+            /* HERO */
+            .hero h1 { font-size: 3.2rem; line-height: 1.1; }
+            .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
+
+            /* HORIZONTAL SCROLL (Vira Vertical) */
+            .horizontal-section {
+                height: auto; 
+                padding: 6rem 0; /* Espaço para não colar no header */
+                overflow: visible;
+                display: block;
+            }
+            .horizontal-wrapper {
+                flex-direction: column;
+                width: 100%;
+                padding: 0 5%;
+                gap: 2rem;
+                transform: none !important; /* Desativa GSAP X */
+            }
+            .intro-text {
+                width: 100%; margin-right: 0; margin-bottom: 2rem;
+                text-align: left;
+            }
+            .intro-text h2 { font-size: 2.8rem; }
+            
+            /* CARDS MOBILE */
+            .h-card {
+                width: 100%;
+                min-width: unset;
+                height: auto;
+                min-height: 400px; /* Altura mínima boa para mobile */
+            }
+            .card-action { opacity: 1; transform: translateX(0); } /* Sempre visível no mobile */
+
+            /* BUBBLE SECTION */
+            .bubble-section {
+                height: auto;
+                padding: 4rem 0;
+                clip-path: none !important; /* Remove clip path complexo no mobile */
+            }
+            .feature-content {
+                grid-template-columns: 1fr;
+                gap: 3rem;
+            }
+            .feature-image { display: none; } /* Oculta img pesada ou ajuste para height menor */
+            .feature-text h2 { font-size: 2.8rem; }
+            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
+            .chaos-item { padding: 1rem; }
+            .chaos-item h4 { font-size: 1.4rem; }
+
+            /* SPLIT SECTION */
+            .split-section { grid-template-columns: 1fr; display: block; }
+            .split-left, .split-right { 
+                padding: 4rem 1.5rem; 
+                min-height: auto;
+            }
+            .split-title { font-size: 2.5rem; }
+            .list-check li { font-size: 1rem; }
+
+            /* CALCULADORA */
+            .calc-section { padding: 4rem 5%; }
+            .calc-container { padding: 2rem 1.5rem; border-radius: 20px; }
+            .calc-container h2 { font-size: 2.2rem !important; }
+            .result-big { font-size: 3rem; }
+            
+            /* Footer */
+            footer { padding: 2rem 1rem; font-size: 0.9rem; }
         }
     </style>
 </head>
@@ -312,7 +389,7 @@
         </div>
     </section>
 
-    <section class="horizontal-section">
+    <section class="horizontal-section" id="h-section">
         <div class="horizontal-wrapper">
             <div class="intro-text">
                 <h2>Ecossistema <br><span style="color: var(--primary)">Financeiro</span></h2>
@@ -393,7 +470,7 @@
 
     <section class="split-section">
         <div class="split-left">
-            <div style="opacity:0.1; position:absolute; top:20px; left:20px; font-size:10rem; font-weight:800; font-family:var(--font-display);">SEG</div>
+            <div style="opacity:0.1; position:absolute; top:20px; left:20px; font-size:10rem; font-weight:800; font-family:var(--font-display); pointer-events: none;">SEG</div>
             <h2 class="split-title">Segurança <br>Bancária</h2>
             <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem;">
                 Utilizamos criptografia de ponta a ponta e somos regulados pelo Banco Central. Seus dados estão blindados.
@@ -449,7 +526,7 @@
             <div class="calc-result-box">
                 <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase;">Parcela Inicial</p>
                 <div class="result-big" id="result-total">R$ 1.500</div>
-                <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none;">Solicitar Análise</a>
+                <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none; display: inline-block;">Solicitar Análise</a>
             </div>
         </div>
     </section>
@@ -461,82 +538,104 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        // 1. HORIZONTAL SCROLL
-        const hWrapper = document.querySelector(".horizontal-wrapper");
-        function getScrollAmount() { return -(hWrapper.scrollWidth - window.innerWidth); }
-        
-        gsap.to(hWrapper, {
-            x: getScrollAmount,
-            ease: "none",
-            scrollTrigger: {
-                trigger: ".horizontal-section",
-                start: "top top",
-                end: () => `+=${getScrollAmount() * -1}`, 
-                pin: true,
-                scrub: 1,
-                invalidateOnRefresh: true
-            }
+        // CONFIGURAÇÃO RESPONSIVA DO GSAP
+        // matchMedia permite rodar animações diferentes para Mobile vs Desktop
+        let mm = gsap.matchMedia();
+
+        mm.add("(min-width: 901px)", () => {
+            // --- CÓDIGO APENAS PARA DESKTOP ---
+            
+            // 1. HORIZONTAL SCROLL
+            const hWrapper = document.querySelector(".horizontal-wrapper");
+            function getScrollAmount() { return -(hWrapper.scrollWidth - window.innerWidth); }
+            
+            gsap.to(hWrapper, {
+                x: getScrollAmount,
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".horizontal-section",
+                    start: "top top",
+                    end: () => `+=${getScrollAmount() * -1}`, 
+                    pin: true,
+                    scrub: 1,
+                    invalidateOnRefresh: true
+                }
+            });
+
+            // 2. BOLHA INSTANTÂNEA (Efeito completo)
+            let tlBubble = gsap.timeline({
+                scrollTrigger: {
+                    trigger: ".bubble-section",
+                    start: "top top", 
+                    end: "+=500", 
+                    pin: true,
+                    scrub: 0.5, 
+                    preventOverlaps: true
+                }
+            });
+
+            tlBubble.to(".bubble-section", {
+                clipPath: "circle(150% at 50% 50%)", 
+                duration: 2, 
+                ease: "power2.inOut"
+            });
+
+            tlBubble.from(".chaos-item", {
+                y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "back.out(1.7)"
+            }, 0.5);
+            
+            tlBubble.from(".feature-image, .feature-text h2", {
+                y: 50, opacity: 0, duration: 1
+            }, 0.5);
         });
 
-        // 2. BOLHA INSTANTÂNEA
-        let tlBubble = gsap.timeline({
-            scrollTrigger: {
-                trigger: ".bubble-section",
-                start: "top top", 
-                end: "+=500", 
-                pin: true,
-                scrub: 0.5, 
-                preventOverlaps: true
-            }
-        });
-
-        tlBubble.to(".bubble-section", {
-            clipPath: "circle(150% at 50% 50%)", 
-            duration: 2, 
-            ease: "power2.inOut"
-        });
-
-        tlBubble.from(".chaos-item", {
-            y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "back.out(1.7)"
-        }, 0.5);
-        
-        tlBubble.from(".feature-image, .feature-text h2", {
-            y: 50, opacity: 0, duration: 1
-        }, 0.5);
-
-        // 3. SPLIT SECTION ANIMATION
-        gsap.from(".split-left", {
-            x: -100, opacity: 0, duration: 1,
-            scrollTrigger: { trigger: ".split-section", start: "top 70%" }
-        });
-        gsap.from(".split-right", {
-            x: 100, opacity: 0, duration: 1,
-            scrollTrigger: { trigger: ".split-section", start: "top 70%" }
-        });
-
-        // 4. CURSOR
-        const cursorDot = document.querySelector(".cursor-dot");
-        const cursorOutline = document.querySelector(".cursor-outline");
-        window.addEventListener("mousemove", (e) => {
-            cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`;
-            cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
-        });
-
-        // 5. INTERAÇÃO MOUSE NOS CARDS (SPOTLIGHT EFFECT)
-        // Isso cria o efeito futurista de luz seguindo o mouse
-        document.querySelectorAll('.h-card').forEach(card => {
-            card.addEventListener('mousemove', (e) => {
-                const rect = card.getBoundingClientRect();
-                const x = e.clientX - rect.left;
-                const y = e.clientY - rect.top;
-                
-                // Define variáveis CSS para usar no radial-gradient
-                card.style.setProperty('--mouse-x', `${x}px`);
-                card.style.setProperty('--mouse-y', `${y}px`);
+        mm.add("(max-width: 900px)", () => {
+            // --- CÓDIGO PARA MOBILE (Simplificado para performance) ---
+            
+            // Animação simples de fade up para os itens da bolha (sem pin, sem clip-path)
+            gsap.from(".chaos-item", {
+                scrollTrigger: {
+                    trigger: ".specs-grid",
+                    start: "top 85%"
+                },
+                y: 30, opacity: 0, duration: 0.8, stagger: 0.1
             });
         });
 
-        // 6. CALCULADORA
+        // 3. ANIMAÇÕES GERAIS (Funcionam em ambos, mas adaptadas)
+        
+        // SPLIT SECTION
+        gsap.from(".split-left", {
+            x: -50, opacity: 0, duration: 1,
+            scrollTrigger: { trigger: ".split-section", start: "top 80%" }
+        });
+        gsap.from(".split-right", {
+            x: 50, opacity: 0, duration: 1,
+            scrollTrigger: { trigger: ".split-section", start: "top 80%" }
+        });
+
+        // 4. CURSOR (Só ativa lógica se for desktop com mouse)
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const cursorDot = document.querySelector(".cursor-dot");
+            const cursorOutline = document.querySelector(".cursor-outline");
+            window.addEventListener("mousemove", (e) => {
+                cursorDot.style.left = `${e.clientX}px`; cursorDot.style.top = `${e.clientY}px`;
+                cursorOutline.animate({ left: `${e.clientX}px`, top: `${e.clientY}px` }, { duration: 500, fill: "forwards" });
+            });
+            
+            // Spotlight Effect nos Cards
+            document.querySelectorAll('.h-card').forEach(card => {
+                card.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left;
+                    const y = e.clientY - rect.top;
+                    card.style.setProperty('--mouse-x', `${x}px`);
+                    card.style.setProperty('--mouse-y', `${y}px`);
+                });
+            });
+        }
+
+        // 5. CALCULADORA
         const valSlider = document.getElementById('range-val');
         const monthSlider = document.getElementById('range-month');
         const valDisplay = document.getElementById('val-display');
