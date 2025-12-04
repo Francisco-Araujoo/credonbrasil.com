@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>CredOn | Future Finance</title>
+    <title>CredOn | Crédito com Garantia</title>
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -26,148 +26,90 @@
 
         /* --- CONFIGURAÇÃO GERAL --- */
         html, body {
-            margin: 0; 
-            padding: 0; 
-            width: 100%;
-            max-width: 100%;
+            margin: 0; padding: 0; width: 100%; max-width: 100%;
             overflow-x: hidden !important;
             background-color: var(--bg-dark);
             color: var(--text-main);
             font-family: var(--font-body);
         }
 
-        * { 
-            box-sizing: border-box; 
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        a, button, input[type="range"] {
-            cursor: pointer;
-        }
-
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        a, button, input[type="range"] { cursor: pointer; }
         body.loading { overflow: hidden; }
 
         /* --- PRELOADER --- */
         #preloader {
-            position: fixed; 
-            top: 0; left: 0; 
-            width: 100%; height: 100%; 
-            background: var(--bg-dark);
-            z-index: 999999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-dark); z-index: 999999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
         }
-        
         .loader-logo {
-            font-family: var(--font-display);
-            font-size: 3rem; font-weight: 700; color: white;
-            margin-bottom: 2rem;
-            display: flex; align-items: center; gap: 15px; justify-content: center;
+            font-family: var(--font-display); font-size: 3rem; font-weight: 700; color: white;
+            margin-bottom: 2rem; display: flex; align-items: center; gap: 15px;
         }
-        
         .loader-bar-container {
             width: 250px; max-width: 80%; height: 2px; background: rgba(255,255,255,0.1);
             position: relative; overflow: hidden; border-radius: 4px;
         }
-        
         .loader-bar {
-            width: 0%; height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--accent));
+            width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--accent));
             box-shadow: 0 0 15px var(--accent);
         }
-
         .loader-text {
             margin-top: 1rem; color: var(--text-muted); font-size: 0.9rem; letter-spacing: 2px;
-            font-family: var(--font-display); text-transform: uppercase; text-align: center;
+            font-family: var(--font-display); text-transform: uppercase;
         }
 
-        /* --- HEADER / MENU --- */
+        /* --- HEADER / MENU (Hide on Scroll) --- */
         header {
-            position: fixed; 
-            top: 20px; 
-            left: 50%; 
-            transform: translateX(-50%);
-            width: 90%; 
-            max-width: 1200px; 
-            padding: 1rem 2rem;
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            width: 90%; max-width: 1200px; padding: 1rem 2rem;
+            display: flex; justify-content: space-between; align-items: center;
             z-index: 100;
-            background: rgba(2, 6, 23, 0.6); 
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.05); 
-            border-radius: 100px;
-            transition: all 0.3s ease;
+            background: rgba(2, 6, 23, 0.6); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.05); border-radius: 100px;
+            transition: transform 0.4s ease, opacity 0.4s ease;
         }
+        header.hide-menu { transform: translate(-50%, -150%); opacity: 0; }
 
-        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; white-space: nowrap;}
-        
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; }
         .btn-whatsapp {
-            background: #25D366; color: #020617; 
-            padding: 0.6rem 1.5rem; border-radius: 50px; text-decoration: none; font-weight: 700;
-            transition: 0.3s; display: flex; align-items: center; gap: 8px; font-size: 1rem;
-            white-space: nowrap;
+            background: #25D366; color: #020617; padding: 0.6rem 1.5rem; border-radius: 50px;
+            text-decoration: none; font-weight: 700; transition: 0.3s; display: flex; align-items: center; gap: 8px;
         }
         .btn-whatsapp:hover { background: #128C7E; color: white; box-shadow: 0 0 15px rgba(37, 211, 102, 0.4); }
 
-        /* --- HERO (VÍDEO) - SEM FILTRO --- */
+        /* --- HERO --- */
         .hero {
-            position: relative;
-            width: 100%;
-            height: 100vh; /* Fallback */
-            height: 100dvh; /* Mobile Moderno */
+            position: relative; width: 100%; height: 100dvh;
             display: flex; align-items: center; justify-content: center;
-            overflow: hidden; 
-            text-align: center;
+            overflow: hidden; text-align: center;
             background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1632&auto=format&fit=crop');
-            background-size: cover;
-            background-position: center;
+            background-size: cover; background-position: center;
         }
-
-        /* Camada de contraste (Alterada de azul para preto neutro suave) */
         .hero::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.3); /* Apenas sombra neutra para ler o texto */
-            z-index: 1;
+            background: rgba(0, 0, 0, 0.3); z-index: 1;
         }
-
         .hero-video {
-            position: absolute; 
-            top: 50%; left: 50%; 
-            width: 100%; height: 100%;
-            min-width: 100%; min-height: 100%;
-            transform: translate(-50%, -50%);
-            object-fit: cover; 
-            z-index: 0;
-            /* FILTRO REMOVIDO AQUI (filter: brightness... hue-rotate...) */
+            position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;
+            min-width: 100%; min-height: 100%; transform: translate(-50%, -50%);
+            object-fit: cover; z-index: 0;
         }
-
-        .hero-content {
-            position: relative;
-            z-index: 2; 
-            padding: 0 20px;
-            max-width: 800px;
-            width: 100%;
-        }
-
+        .hero-content { position: relative; z-index: 2; padding: 0 20px; max-width: 800px; }
         .hero h1 { 
             font-size: clamp(3rem, 9vw, 7rem); margin-bottom: 1rem; 
             text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            word-wrap: break-word;
         }
-
         .gradient-text {
             background: linear-gradient(135deg, #fff 30%, var(--accent) 100%);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
 
-        /* --- CUSTOM CURSOR (Efeito Visual) --- */
+        /* --- CUSTOM CURSOR --- */
         .cursor-dot, .cursor-outline {
             position: fixed; top: 0; left: 0; transform: translate(-50%, -50%);
-            border-radius: 50%; 
-            z-index: 9999; 
-            pointer-events: none; 
-            mix-blend-mode: difference;
+            border-radius: 50%; z-index: 9999; pointer-events: none; mix-blend-mode: difference;
         }
         .cursor-dot { width: 8px; height: 8px; background: white; }
         .cursor-outline { width: 40px; height: 40px; border: 1px solid rgba(255, 255, 255, 0.5); transition: width 0.2s, height 0.2s; }
@@ -187,20 +129,41 @@
             display: flex; flex-direction: column; justify-content: space-between; padding: 2.5rem; transition: transform 0.3s ease;
             cursor: pointer; 
         }
+        .h-card:hover { transform: translateY(-10px); border-color: rgba(56, 189, 248, 0.3); }
         .h-card::before {
             content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 24px;
             background: radial-gradient(600px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(56, 189, 248, 0.15), transparent 40%);
             z-index: 0; opacity: 0; transition: opacity 0.3s; pointer-events: none;
         }
-        .h-card:hover { transform: translateY(-10px); border-color: rgba(56, 189, 248, 0.3); }
         .h-card:hover::before { opacity: 1; }
+        
         .card-content { position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: space-between;}
+        
+        /* ÍCONES E TEXTO */
         .card-icon-box { width: 60px; height: 60px; background: rgba(37, 99, 235, 0.2); border: 1px solid rgba(37, 99, 235, 0.4); border-radius: 12px; display: flex; align-items: center; justify-content: center; margin-bottom: 1.5rem; box-shadow: 0 0 20px rgba(37, 99, 235, 0.2); }
         .card-icon-box i { font-size: 1.5rem; color: var(--accent); }
         .card-title { font-size: 2rem; margin-bottom: 0.5rem; color: white; }
         .card-desc { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
-        .card-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; }
-        .card-number { font-size: 4rem; font-weight: 700; color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.1); font-family: var(--font-display); }
+        
+        /* FOOTER DO CARD E NÚMERO */
+        .card-footer { 
+            display: flex; justify-content: space-between; align-items: flex-end; 
+            margin-top: 2rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1.5rem; 
+        }
+        
+        /* NÚMERO CORRIGIDO PARA CIMA */
+        .card-number { 
+            position: absolute;
+            top: 2rem;
+            right: 2rem;
+            font-size: 4rem; 
+            font-weight: 700; 
+            color: transparent; 
+            -webkit-text-stroke: 1px rgba(255,255,255,0.1); 
+            font-family: var(--font-display); 
+            line-height: 1;
+        }
+
         .card-action { font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px; color: var(--accent); font-weight: 700; opacity: 0; transform: translateX(-10px); transition: 0.3s; }
         .h-card:hover .card-action { opacity: 1; transform: translateX(0); }
 
@@ -208,14 +171,23 @@
         .bubble-section { width: 100%; height: 100vh; background: #ffffff; color: #0f172a; clip-path: circle(0% at 50% 50%); display: flex; align-items: center; justify-content: center; position: relative; z-index: 10; overflow: hidden; margin-top: -1px; }
         .feature-content { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; max-width: 1400px; width: 100%; padding: 0 5%; align-items: center; }
         .feature-text h2 { font-size: 4rem; line-height: 1; margin-bottom: 1.5rem; color: #0f172a; }
-        .feature-text p { font-size: 1.25rem; color: #475569; margin-bottom: 2rem; }
         .specs-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; }
         .chaos-item { padding: 1.5rem; border-radius: 12px; background: #f1f5f9; border: 1px solid #e2e8f0; text-align: left; }
         .chaos-item h4 { font-size: 1.8rem; color: var(--primary); margin-bottom: 0.2rem; }
         .chaos-item span { color: #64748b; font-size: 0.85rem; font-weight: 600; text-transform: uppercase; }
         .feature-image img { width: 100%; height: 650px; object-fit: cover; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15); }
 
-        /* --- SPLIT --- */
+        /* --- STEPS (Passo a Passo) --- */
+        .steps-section { padding: 8rem 5%; background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.05); }
+        .steps-header { text-align: center; margin-bottom: 5rem; }
+        .steps-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 3rem; max-width: 1200px; margin: 0 auto; }
+        .step-card { background: rgba(255,255,255,0.02); padding: 2.5rem; border-radius: 20px; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
+        .step-card:hover { border-color: var(--accent); transform: translateY(-5px); }
+        .step-num { font-size: 3.5rem; font-family: var(--font-display); color: rgba(255,255,255,0.1); margin-bottom: 1rem; font-weight: 700; }
+        .step-title { font-size: 1.5rem; margin-bottom: 1rem; color: white; }
+        .step-desc { color: var(--text-muted); line-height: 1.6; }
+
+        /* --- SPLIT SECTION --- */
         .split-section { display: grid; grid-template-columns: 1fr 1fr; min-height: 100vh; width: 100%; }
         .split-left { background: #172554; color: white; padding: 6rem; display: flex; flex-direction: column; justify-content: center; position: relative; overflow: hidden; }
         .split-right { background: #ffffff; color: #0f172a; padding: 6rem; display: flex; flex-direction: column; justify-content: center; }
@@ -231,65 +203,38 @@
         input[type=range] { width: 100%; height: 4px; background: #334155; border-radius: 10px; appearance: none; cursor: pointer; }
         input[type=range]::-webkit-slider-thumb { appearance: none; width: 24px; height: 24px; background: var(--primary); border: 2px solid white; border-radius: 50%; cursor: pointer; }
         .result-big { font-size: 5rem; font-weight: 700; font-family: var(--font-display); color: white; margin: 1rem 0 2rem 0; word-wrap: break-word; }
-        
-        footer { padding: 4rem 2rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; position: relative; width: 100%; }
+        .disclaimer-text { color: var(--text-muted); font-size: 0.8rem; margin-top: 2rem; text-align: center; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 1rem; }
+
+        footer { padding: 4rem 2rem; text-align: center; border-top: 1px solid #1e293b; color: #64748b; background: #020617; }
         .martech-credit { margin-top: 1.5rem; font-family: var(--font-display); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; opacity: 0.6; transition: 0.3s; }
         .martech-credit:hover { opacity: 1; }
         .martech-credit a { color: var(--accent); text-decoration: none; position: relative; font-weight: 500; }
         .martech-credit a::after { content: ''; position: absolute; bottom: -2px; left: 0; width: 0; height: 1px; background: var(--accent); transition: width 0.3s ease; }
         .martech-credit a:hover::after { width: 100%; }
 
-        /* =========================================
-           RESPONSIVIDADE
-           ========================================= */
+        /* RESPONSIVIDADE */
         @media (max-width: 900px) {
             .cursor-dot, .cursor-outline { display: none !important; }
-
-            header { 
-                width: 92%; max-width: 500px; padding: 0.7rem 1.2rem; top: 15px; 
-                display: flex; justify-content: space-between; align-items: center;
-                left: 50%; transform: translateX(-50%);
-            }
-            .logo { font-size: 1.1rem; gap: 8px; flex-shrink: 0; }
-            .btn-whatsapp { 
-                padding: 0; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 50%; flex-shrink: 0;
-            }
+            header { width: 92%; max-width: 500px; padding: 0.7rem 1.2rem; top: 15px; }
+            .logo { font-size: 1.1rem; }
             .btn-whatsapp span { display: none; }
-            .btn-whatsapp i { font-size: 1.2rem; margin: 0; }
-
-            .loader-logo { font-size: 2rem; margin-bottom: 1.5rem; }
-            .hero { padding-top: 80px; }
-            .hero h1 { font-size: 3.2rem; line-height: 1.1; }
-            .hero p { font-size: 1.1rem !important; padding: 0 1rem; }
             
-            .horizontal-section { height: auto; padding: 6rem 0; display: block; overflow: hidden; width: 100%; }
-            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; align-items: center; }
-            .intro-text { width: 100%; margin-right: 0; margin-bottom: 2rem; text-align: center; display: flex; flex-direction: column; align-items: center;}
-            .intro-text h2 { font-size: 2.5rem; }
-            
-            .h-card { width: 100%; max-width: 400px; min-width: unset; height: auto; min-height: 400px; margin: 0 auto; }
-            .card-action { opacity: 1; transform: translateX(0); }
+            .horizontal-section { height: auto; padding: 6rem 0; display: block; }
+            .horizontal-wrapper { flex-direction: column; width: 100%; padding: 0 5%; gap: 2.5rem; transform: none !important; }
+            .intro-text, .h-card { width: 100%; max-width: 400px; margin: 0 auto; height: auto; min-height: 400px; }
+            .card-number { font-size: 3rem; top: 1.5rem; right: 1.5rem; }
             
             .bubble-section { height: auto; padding: 4rem 0; clip-path: none !important; }
             .feature-content { grid-template-columns: 1fr; gap: 3rem; text-align: center; } 
             .feature-image { display: none; } 
-            .feature-text h2 { font-size: 2.5rem; }
-            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; max-width: 400px; margin: 0 auto; }
-            .chaos-item { padding: 1rem; display: flex; flex-direction: column; align-items: center; text-align: center; }
+            .specs-grid { grid-template-columns: 1fr 1fr; gap: 1rem; }
             
-            .split-section { grid-template-columns: 1fr; display: block; }
-            .split-left { padding: 4rem 1.5rem; min-height: auto; text-align: center; align-items: center;}
-            .split-left > div[style*="font-size:10rem"] { display: none; } 
-            .list-check { display: flex; flex-direction: column; align-items: center; padding: 0; }
-            .list-check li { justify-content: center; } 
-            .split-right { padding: 4rem 1.5rem; min-height: auto; text-align: center; }
-            .split-title { font-size: 2.2rem; }
+            .split-section { display: block; }
+            .split-left, .split-right { padding: 4rem 1.5rem; text-align: center; }
+            .steps-grid { grid-template-columns: 1fr; }
             
-            .calc-section { padding: 4rem 5%; }
-            .calc-container { padding: 2.5rem 1.5rem; border-radius: 20px; }
-            .calc-container h2 { font-size: 2rem !important; }
             .result-big { font-size: 2.8rem; }
-            footer { padding: 3rem 1rem 5rem 1rem; font-size: 0.9rem; }
+            .calc-container { padding: 2rem 1.5rem; }
         }
     </style>
 </head>
@@ -299,16 +244,14 @@
         <div class="loader-logo">
             <div style="width:25px; height:25px; background:var(--primary); border-radius:4px;"></div> CredOn
         </div>
-        <div class="loader-bar-container">
-            <div class="loader-bar"></div>
-        </div>
+        <div class="loader-bar-container"><div class="loader-bar"></div></div>
         <div class="loader-text">INICIANDO SISTEMA SEGURO...</div>
     </div>
 
     <div class="cursor-dot"></div>
     <div class="cursor-outline"></div>
 
-    <header>
+    <header id="main-header">
         <div class="logo">
             <div style="width:20px; height:20px; background:var(--primary); border-radius:4px;"></div> CredOn
         </div>
@@ -318,23 +261,13 @@
     </header>
 
     <section class="hero">
-        <video 
-            id="heroVideo" 
-            class="hero-video" 
-            autoplay 
-            muted 
-            loop 
-            preload="auto"
-            playsinline 
-            webkit-playsinline
-            poster="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1632&auto=format&fit=crop">
+        <video id="heroVideo" class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1632&auto=format&fit=crop">
             <source src="/src/video/banner.mp4" type="video/mp4">
         </video>
-        
         <div class="hero-content">
-            <h1 class="gradient-text">Crédito<br>Inteligente</h1>
+            <h1 class="gradient-text">Crédito com<br>Garantia</h1>
             <p style="font-size: 1.3rem; color: #f1f5f9; text-shadow: 0 2px 10px rgba(0,0,0,0.8);">
-                Desbloqueie o potencial do seu patrimônio com as menores taxas do mercado global.
+                Desbloqueie o potencial do seu imóvel com as menores taxas do mercado.
             </p>
         </div>
     </section>
@@ -342,49 +275,49 @@
     <section class="horizontal-section" id="h-section">
         <div class="horizontal-wrapper">
             <div class="intro-text">
-                <h2>Ecossistema <br><span style="color: var(--primary)">Financeiro</span></h2>
-                <p>Soluções integradas para PF e PJ. Mova o mouse sobre os cards para interagir.</p>
+                <h2>Soluções <br><span style="color: var(--primary)">Home Equity</span></h2>
+                <p>Use seu imóvel como garantia e acesse condições exclusivas. Aceitamos negativados.</p>
                 <div style="margin-top:2rem; width:50px; height:2px; background:var(--accent);"></div>
             </div>
             
             <div class="h-card">
                 <div class="card-content">
+                    <div class="card-number">01</div>
                     <div>
                         <div class="card-icon-box"><i class="fas fa-briefcase"></i></div>
                         <h3 class="card-title">Empresarial</h3>
-                        <p class="card-desc">Capital de giro rápido para alavancar sua operação com carência estendida.</p>
+                        <p class="card-desc">Capital de giro robusto para sua empresa, sem teto de valor, usando imóvel comercial ou residencial.</p>
                     </div>
                     <div class="card-footer">
                         <span class="card-action">Explorar -></span>
-                        <div class="card-number">01</div>
                     </div>
                 </div>
             </div>
 
             <div class="h-card">
                 <div class="card-content">
+                    <div class="card-number">02</div>
                     <div>
-                        <div class="card-icon-box"><i class="fas fa-home"></i></div>
-                        <h3 class="card-title">Home Equity</h3>
-                        <p class="card-desc">Utilize seu imóvel como garantia e acesse as taxas mais baixas do Brasil.</p>
+                        <div class="card-icon-box"><i class="fas fa-user-check"></i></div>
+                        <h3 class="card-title">Para Negativados</h3>
+                        <p class="card-desc">Possui restrições no CPF ou CNPJ? Seu imóvel é a garantia que precisamos para aprovar seu crédito.</p>
                     </div>
                     <div class="card-footer">
                         <span class="card-action">Simular -></span>
-                        <div class="card-number">02</div>
                     </div>
                 </div>
             </div>
 
             <div class="h-card">
                 <div class="card-content">
+                    <div class="card-number">03</div>
                     <div>
-                        <div class="card-icon-box"><i class="fas fa-chart-line"></i></div>
-                        <h3 class="card-title">Score Turbo</h3>
-                        <p class="card-desc">Consultoria avançada de crédito para aumentar sua pontuação no mercado.</p>
+                        <div class="card-icon-box"><i class="fas fa-home"></i></div>
+                        <h3 class="card-title">Uso Livre</h3>
+                        <p class="card-desc">Reforme, invista ou organize dívidas. Taxas a partir de 1,09% a.m. com longo prazo para pagar.</p>
                     </div>
                     <div class="card-footer">
                         <span class="card-action">Consultar -></span>
-                        <div class="card-number">03</div>
                     </div>
                 </div>
             </div>
@@ -396,17 +329,39 @@
             <div class="feature-image">
                 <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?q=80&w=1470&auto=format&fit=crop" alt="Real Estate">
             </div>
-            
             <div class="feature-text">
                 <h2>Seu Imóvel,<br>Sua Liberdade.</h2>
-                <p>Taxas a partir de 0.99% a.m. com até 240 meses para pagar. O dinheiro cai na conta em até 5 dias úteis.</p>
-                
+                <p>Taxas a partir de 1,09% a.m. com até 240 meses para pagar. Sem limite máximo de operação.</p>
                 <div class="specs-grid chaos-grid">
-                    <div class="spec-item chaos-item"><h4>R$ 5MM</h4><span>Limite Máximo</span></div>
+                    <div class="spec-item chaos-item"><h4>Sem Teto</h4><span>Limite de Valor</span></div>
                     <div class="spec-item chaos-item"><h4>240x</h4><span>Prazo Estendido</span></div>
-                    <div class="spec-item chaos-item"><h4>5 Dias</h4><span>Liberação Rápida</span></div>
-                    <div class="spec-item chaos-item"><h4>100%</h4><span>Uso Livre</span></div>
+                    <div class="spec-item chaos-item"><h4>5 Dias*</h4><span>Assinatura Contrato</span></div>
+                    <div class="spec-item chaos-item"><h4>Sim</h4><span>Aceita Negativado</span></div>
                 </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="steps-section">
+        <div class="steps-header">
+            <h2 style="font-size: 3rem; color: white; font-family: var(--font-display);">Passo a Passo</h2>
+            <p style="color: var(--text-muted);">Processo simplificado e transparente.</p>
+        </div>
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-num">01</div>
+                <h3 class="step-title">Simulação</h3>
+                <p class="step-desc">Faça sua simulação online sem compromisso e veja o potencial do seu crédito.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">02</div>
+                <h3 class="step-title">Análise</h3>
+                <p class="step-desc">Nossa equipe avalia seu imóvel e estrutura a operação, mesmo com restrições.</p>
+            </div>
+            <div class="step-card">
+                <div class="step-num">03</div>
+                <h3 class="step-title">Liberação</h3>
+                <p class="step-desc">Após trâmites de cartório e assinatura do contrato, o recurso é liberado.</p>
             </div>
         </div>
     </section>
@@ -415,24 +370,18 @@
         <div class="split-left">
             <div style="opacity:0.1; position:absolute; top:20px; left:20px; font-size:10rem; font-weight:800; font-family:var(--font-display); pointer-events: none;">SEG</div>
             <h2 class="split-title">Segurança <br>Bancária</h2>
-            <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem;">
-                Utilizamos criptografia de ponta a ponta e somos regulados pelo Banco Central. Seus dados estão blindados.
-            </p>
+            <p style="color: #cbd5e1; font-size: 1.1rem; margin-bottom: 2rem;">Utilizamos criptografia de ponta a ponta e somos regulados pelo Banco Central.</p>
             <ul class="list-check" style="list-style: none;">
                 <li><i class="fas fa-shield-alt"></i> Criptografia AES-256</li>
                 <li><i class="fas fa-file-signature"></i> Assinatura Digital ICP-Brasil</li>
                 <li><i class="fas fa-user-shield"></i> Compliance LGPD</li>
             </ul>
         </div>
-        
         <div class="split-right">
             <h2 class="split-title" style="font-size: 2.5rem;">Resultados <br>Comprovados</h2>
-            <p style="color: #64748b; margin-bottom: 3rem;">
-                Milhares de clientes já transformaram suas vidas financeiras com a CredOn.
-            </p>
             <div class="stat-card">
                 <div class="stat-val">+ R$ 500 Mi</div>
-                <div style="color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Em crédito concedido</div>
+                <div style="color: #64748b; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px;">Em crédito estruturado</div>
             </div>
             <div class="stat-card">
                 <div class="stat-val">15.000+</div>
@@ -445,17 +394,15 @@
         <div class="calc-container">
             <div style="text-align: center; margin-bottom: 3rem;">
                 <h2 style="font-size: 3rem;">Simulador</h2>
-                <p style="color: var(--text-muted);">Veja quanto você pode economizar.</p>
+                <p style="color: var(--text-muted);">Taxas a partir de 1,09% a.m.</p>
             </div>
-
             <div style="margin-bottom: 2rem;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span style="color:#94a3b8">Valor Solicitado</span>
                     <span id="val-display" style="color:var(--accent); font-weight:700; font-size:1.5rem;">R$ 100.000</span>
                 </div>
-                <input type="range" min="50000" max="1000000" step="10000" value="100000" id="range-val">
+                <input type="range" min="50000" max="5000000" step="50000" value="100000" id="range-val">
             </div>
-
             <div style="margin-bottom: 3rem;">
                 <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
                     <span style="color:#94a3b8">Parcelas</span>
@@ -463,12 +410,14 @@
                 </div>
                 <input type="range" min="24" max="240" step="12" value="120" id="range-month">
             </div>
-
             <div class="calc-result-box">
-                <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; text-align: center;">Parcela Inicial</p>
+                <p style="color: #64748b; font-size: 0.9rem; letter-spacing: 2px; text-transform: uppercase; text-align: center;">Parcela Estimada</p>
                 <div class="result-big" id="result-total" style="text-align: center;">R$ 1.500</div>
                 <div style="text-align: center;">
                     <a href="#" class="btn-nav" style="padding: 1rem 3rem; background: var(--primary); color: white; border: none; display: inline-block;">Solicitar Análise</a>
+                </div>
+                <div class="disclaimer-text">
+                    * Prazo de 5 dias refere-se à assinatura do contrato após aprovação. A liberação do recurso depende dos prazos do cartório de registro de imóveis. Taxas sujeitas a análise de crédito.
                 </div>
             </div>
         </div>
@@ -476,10 +425,7 @@
 
     <footer>
         <p>&copy; 2025 CredOn Tech Finance. Todos os direitos reservados.</p>
-        
-        <div class="martech-credit">
-            Desenvolvido por <a href="http://agenciamartech.com.br/" target="_blank">Agência Martech</a>
-        </div>
+        <div class="martech-credit">Desenvolvido por <a href="http://agenciamartech.com.br/" target="_blank">Agência Martech</a></div>
     </footer>
 
     <script>
@@ -487,10 +433,7 @@
 
         function startSite() {
             const tlLoader = gsap.timeline();
-            
-            tlLoader.to(".loader-bar", {
-                width: "100%", duration: 0.8, ease: "power2.inOut"
-            })
+            tlLoader.to(".loader-bar", { width: "100%", duration: 0.8, ease: "power2.inOut" })
             .to("#preloader", {
                 y: "-100%", duration: 1.2, ease: "power4.inOut", delay: 0.2,
                 onComplete: () => {
@@ -502,46 +445,36 @@
             .to(".hero-content h1", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.8")
             .to(".hero-content p", { opacity: 1, y: 0, duration: 1, ease: "power3.out" }, "-=0.6");
         }
+        window.addEventListener("load", () => { setTimeout(startSite, 500); });
 
-        window.addEventListener("load", () => {
-            setTimeout(startSite, 500);
+        // HEADER HIDE
+        let lastScrollTop = 0;
+        const header = document.getElementById('main-header');
+        window.addEventListener('scroll', function() {
+            let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            if (scrollTop > lastScrollTop && scrollTop > 100) { header.classList.add('hide-menu'); } 
+            else { header.classList.remove('hide-menu'); }
+            lastScrollTop = scrollTop;
         });
 
         let mm = gsap.matchMedia();
-
         mm.add("(min-width: 901px)", () => {
             const hWrapper = document.querySelector(".horizontal-wrapper");
             function getScrollAmount() { return -(hWrapper.scrollWidth - window.innerWidth); }
-            
             gsap.to(hWrapper, {
-                x: getScrollAmount,
-                ease: "none",
-                scrollTrigger: {
-                    trigger: ".horizontal-section",
-                    start: "top top",
-                    end: () => `+=${getScrollAmount() * -1}`, 
-                    pin: true,
-                    scrub: 1,
-                    invalidateOnRefresh: true
-                }
+                x: getScrollAmount, ease: "none",
+                scrollTrigger: { trigger: ".horizontal-section", start: "top top", end: () => `+=${getScrollAmount() * -1}`, pin: true, scrub: 1, invalidateOnRefresh: true }
             });
-
-            let tlBubble = gsap.timeline({
-                scrollTrigger: {
-                    trigger: ".bubble-section",
-                    start: "top top", end: "+=500", pin: true, scrub: 0.5, preventOverlaps: true
-                }
-            });
-            tlBubble.to(".bubble-section", { clipPath: "circle(150% at 50% 50%)", duration: 2, ease: "power2.inOut" });
-            tlBubble.from(".chaos-item", { y: 100, opacity: 0, duration: 1, stagger: 0.1, ease: "back.out(1.7)" }, 0.5);
+            let tlBubble = gsap.timeline({ scrollTrigger: { trigger: ".bubble-section", start: "top top", end: "+=500", pin: true, scrub: 0.5 } });
+            tlBubble.to(".bubble-section", { clipPath: "circle(150% at 50% 50%)", duration: 2 });
+            tlBubble.from(".chaos-item", { y: 100, opacity: 0, duration: 1, stagger: 0.1 }, 0.5);
             tlBubble.from(".feature-image, .feature-text h2", { y: 50, opacity: 0, duration: 1 }, 0.5);
         });
 
-        mm.add("(max-width: 900px)", () => {
-            gsap.from(".chaos-item", {
-                scrollTrigger: { trigger: ".specs-grid", start: "top 85%" },
-                y: 30, opacity: 0, duration: 0.8, stagger: 0.1
-            });
+        // STEPS ANIMATION
+        gsap.from(".step-card", {
+            y: 50, opacity: 0, duration: 0.8, stagger: 0.2,
+            scrollTrigger: { trigger: ".steps-grid", start: "top 85%" }
         });
 
         gsap.from(".split-left", { x: -50, opacity: 0, duration: 1, scrollTrigger: { trigger: ".split-section", start: "top 80%" } });
@@ -572,7 +505,7 @@
         function updateCalc() {
             const val = parseFloat(valSlider.value);
             const months = parseInt(monthSlider.value);
-            const rate = 0.0099;
+            const rate = 0.0109; // 1.09% a.m.
             valDisplay.textContent = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
             monthDisplay.textContent = months + "x";
             const x = Math.pow(1 + rate, months);
