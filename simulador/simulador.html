@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulador CCB | Comercial Detalhado</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #003366;      
+            --accent: #00d084;       
+            --error: #dc2626;
+            --bg-page: #f0f2f5;      
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-secondary: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --radius: 12px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            padding: 20px;
+            line-height: 1.5;
+        }
+
+        .header {
+            max-width: 1000px;
+            margin: 0 auto 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header h1 { font-size: 1.5rem; color: var(--primary); font-weight: 700; letter-spacing: -0.5px; }
+        .badge { background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+
+        .main-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 24px;
+        }
+
+        /* --- Inputs --- */
+        .controls-card {
+            background: var(--bg-card);
+            padding: 30px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            height: fit-content;
+        }
+
+        .input-group { margin-bottom: 24px; }
+        .input-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        
+        .input-wrapper { position: relative; }
+        .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 500; z-index: 10; pointer-events: none;}
+        
+        input[type="text"], input[type="number"], input[type="tel"], input[type="date"] {
+            width: 100%;
+            padding: 12px 12px 12px 45px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-main);
+            font-weight: 600;
+            transition: all 0.2s;
+            background: #f8fafc;
+        }
+        input[type="date"] { padding-left: 12px; }
+
+        input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); }
+        
+        input.no-prefix { padding-left: 12px; }
+
+        .btn-calc {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.1s, background 0.2s;
+            box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
+            margin-top: 10px;
+        }
+        .btn-calc:hover { background: #002244; transform: translateY(-1px); }
+
+        .details-trigger {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .advanced-options {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px dashed var(--border);
+        }
+        .advanced-options.show { display: block; }
+
+        /* --- Resultados --- */
+        .results-area {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            opacity: 0.5; 
+            transition: opacity 0.3s;
+            pointer-events: none;
+        }
+        .results-area.active { opacity: 1; pointer-events: all; }
+
+        .error-banner {
+            background-color: #fee2e2;
+            color: var(--error);
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            display: none;
+            border: 1px solid #fca5a5;
+        }
+
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            padding: 24px;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            border-left: 5px solid transparent;
+        }
+        .kpi-card.highlight { border-left-color: var(--accent); }
+        .kpi-card.primary { border-left-color: var(--primary); }
+
+        .kpi-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .kpi-sub { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
+
+        .summary-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 30px;
+        }
+        .section-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;}
+        
+        .summary-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+            font-size: 0.95rem;
+        }
+        .summary-row:last-child { border-bottom: none; }
+        .summary-row.total { font-weight: 700; color: var(--primary); font-size: 1.1rem; border-top: 2px solid #e2e8f0; border-bottom: none; padding-top: 15px; margin-top: 5px;}
+        
+        .val-negative { color: #dc2626; } 
+
+        /* --- Tabela UI --- */
+        .table-container {
+            margin-top: 20px;
+            display: none;
+            overflow-x: auto;
+        }
+        .table-container.show { display: block; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; }
+        th { background: #f8fafc; color: var(--text-secondary); font-weight: 600; padding: 12px; text-align: right; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        th:first-child, td:first-child { text-align: center; }
+        tr:hover { background-color: #f1f5f9; }
+
+        /* Botões de Ação */
+        .actions-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .btn-toggle-table {
+            background: white;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .btn-toggle-table:hover { background: #f0f9ff; }
+
+        .btn-pdf {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        .btn-pdf:hover { background: #dc2626; }
+
+        /* --- ESTILOS ESPECÍFICOS PARA O PDF GERADO --- */
+        /* Importante: display: none aqui, nós vamos clonar e exibir via JS */
+        #relatorio-pdf {
+            display: none; 
+            font-family: 'Inter', sans-serif;
+            color: #1e293b;
+            background: white;
+            padding: 30px;
+        }
+        
+        /* Estilos internos do PDF */
+        #relatorio-pdf h1 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; margin-bottom: 20px; font-size: 24px; }
+        #relatorio-pdf h3 { color: #003366; margin-top: 30px; margin-bottom: 10px; font-size: 16px; border-left: 4px solid #00d084; padding-left: 10px; }
+        
+        .pdf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .pdf-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+        .pdf-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .pdf-val { font-size: 14px; font-weight: 700; color: #1e293b; }
+
+        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px; }
+        .pdf-table th { background: #003366; color: white; padding: 6px; text-align: right; }
+        .pdf-table td { border-bottom: 1px solid #e2e8f0; padding: 5px; text-align: right; }
+        .pdf-table tr:nth-child(even) { background-color: #f8fafc; }
+        
+        /* Evita quebra de página no meio de uma linha da tabela */
+        tr { page-break-inside: avoid; }
+
+        @media (max-width: 800px) {
+            .main-container { grid-template-columns: 1fr; }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .actions-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>Simulador Comercial <span style="font-weight:300; color:#64748b">| Crédito Estruturado</span></h1>
+        <span class="badge">Versão 3.6 (Fixed)</span>
+    </div>
+
+    <div class="main-container">
+        
+        <aside class="controls-card">
+            <h3 style="margin-bottom:20px; color:var(--primary)">Parâmetros</h3>
+            
+            <div class="input-group">
+                <label>Valor Solicitado (Bruto)</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">R$</span>
+                    <input type="tel" id="valor" placeholder="0,00" oninput="maskCurrency(this)">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Data de Emissão</label>
+                <div class="input-wrapper">
+                    <input type="date" id="dataEmissao">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Taxa de Juros (a.m.)</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">%</span>
+                    <input type="number" id="taxa" value="2.99" step="0.01">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Prazo (Meses)</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">#</span>
+                    <input type="number" id="prazo" placeholder="Ex: 36">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Carência (Meses - Juros Only)</label>
+                <div class="input-wrapper">
+                    <span class="input-prefix">#</span>
+                    <input type="number" id="carencia" value="0">
+                </div>
+                <small style="color:#94a3b8; font-size:0.75rem">Paga juros, não amortiza.</small>
+            </div>
+
+            <div class="details-trigger" onclick="toggleAdvanced()">Ver Taxas Adicionais ▼</div>
+            
+            <div id="advanced" class="advanced-options">
+                <div class="input-group">
+                    <label>TAC (% sobre Valor)</label>
+                    <input type="number" id="tac" value="4.0" step="0.1" class="no-prefix" placeholder="Ex: 4.0">
+                </div>
+                <div class="input-group">
+                    <label>Taxa de Emissão (%)</label>
+                    <input type="number" id="emissao" value="1.0" step="0.1" class="no-prefix" placeholder="Ex: 1.0">
+                </div>
+                <div class="input-group">
+                    <label>Seguro Prestamista (%)</label>
+                    <input type="number" id="seguro" value="0.0" step="0.1" class="no-prefix" placeholder="Ex: 0.0">
+                </div>
+            </div>
+
+            <button class="btn-calc" onclick="calcular()">CALCULAR SIMULAÇÃO</button>
+        </aside>
+
+        <div class="results-area" id="resultsArea">
+            
+            <div id="errorMsg" class="error-banner"></div>
+
+            <div class="kpi-grid">
+                <div class="kpi-card highlight">
+                    <div class="kpi-label">Valor Líquido a Receber</div>
+                    <div class="kpi-value" id="res-liquido">R$ 0,00</div>
+                    <div class="kpi-sub" id="res-desconto-perc">--% do valor solicitado</div>
+                </div>
+                <div class="kpi-card primary">
+                    <div class="kpi-label">Primeira Parcela</div>
+                    <div class="kpi-value" id="res-parcela">R$ 0,00</div>
+                    <div class="kpi-sub">Tabela Price (Fixa)</div>
+                </div>
+            </div>
+
+            <div class="summary-card">
+                <div class="section-title">
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    Detalhamento Financeiro
+                </div>
+                
+                <div class="summary-row">
+                    <span>Valor da CCB (Bruto)</span>
+                    <strong id="det-bruto">R$ 0,00</strong>
+                </div>
+                <div class="summary-row">
+                    <span>(-) IOF Total (Fixo + Diário)</span>
+                    <span class="val-negative" id="det-iof">R$ 0,00</span>
+                </div>
+                <div class="summary-row">
+                    <span>(-) TAC + Emissão</span>
+                    <span class="val-negative" id="det-taxas">R$ 0,00</span>
+                </div>
+                <div class="summary-row">
+                    <span>(-) Seguro</span>
+                    <span class="val-negative" id="det-seguro">R$ 0,00</span>
+                </div>
+                <div class="summary-row total">
+                    <span>(=) Líquido Liberado</span>
+                    <span style="color:var(--accent)" id="det-liquido">R$ 0,00</span>
+                </div>
+
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #e2e8f0; display:grid; grid-template-columns: 1fr 1fr;">
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary)">Custo Efetivo Total (Mensal)</div>
+                        <div style="font-weight:700; color:var(--text-main)" id="det-cet-m">0.00%</div>
+                    </div>
+                    <div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary)">Custo Efetivo Total (Anual)</div>
+                        <div style="font-weight:700; color:var(--text-main)" id="det-cet-a">0.00%</div>
+                    </div>
+                </div>
+
+                <div class="actions-row">
+                    <button class="btn-toggle-table" onclick="toggleTable()">Mostrar Parcelas</button>
+                    <!-- <button class="btn-pdf" onclick="gerarPDF()">
+                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        Salvar Relatório PDF
+                    </button> -->
+                </div>
+                
+                <div id="tableContainer" class="table-container">
+                    <table id="parcelasTable">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>Vencimento</th>
+                                <th>Saldo Devedor</th>
+                                <th>Amortização</th>
+                                <th>Juros</th>
+                                <th>Total Parcela</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div id="relatorio-pdf">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h1>Relatório de Simulação</h1>
+            <div style="text-align:right; font-size:10px; color:#64748b;">
+                Gerado em: <span id="pdf-data-geracao"></span>
+            </div>
+        </div>
+
+        <h3>1. Parâmetros da Operação</h3>
+        <div class="pdf-grid">
+            <div class="pdf-item">
+                <div class="pdf-label">Valor Solicitado</div>
+                <div class="pdf-val" id="pdf-valor">R$ 0,00</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Prazo Total</div>
+                <div class="pdf-val" id="pdf-prazo">0 meses</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Taxa de Juros</div>
+                <div class="pdf-val" id="pdf-taxa">0,00% a.m.</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Carência</div>
+                <div class="pdf-val" id="pdf-carencia">0 meses</div>
+            </div>
+        </div>
+
+        <h3>2. Resumo Financeiro</h3>
+        <div class="pdf-grid">
+            <div class="pdf-item">
+                <div class="pdf-label">Valor Líquido Liberado</div>
+                <div class="pdf-val" id="pdf-liquido" style="color:#00d084">R$ 0,00</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Primeira Parcela</div>
+                <div class="pdf-val" id="pdf-parcela">R$ 0,00</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Custo Efetivo (CET a.m.)</div>
+                <div class="pdf-val" id="pdf-cet-m">0,00%</div>
+            </div>
+            <div class="pdf-item">
+                <div class="pdf-label">Custo Efetivo (CET a.a.)</div>
+                <div class="pdf-val" id="pdf-cet-a">0,00%</div>
+            </div>
+        </div>
+
+        <h3>3. Cronograma de Pagamento (Tabela Price)</h3>
+        <table class="pdf-table" id="pdf-table-body">
+            <thead>
+                <tr>
+                    <th style="text-align:center">#</th>
+                    <th>Vencimento</th>
+                    <th>Amortização</th>
+                    <th>Juros</th>
+                    <th>Parcela</th>
+                </tr>
+            </thead>
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+<script>
+    // Inicializa Data
+    document.getElementById('dataEmissao').valueAsDate = new Date();
+
+    function maskCurrency(input) {
+        let value = input.value.replace(/\D/g, "");
+        if (value === "") { input.value = ""; return; }
+        value = (parseInt(value) / 100).toFixed(2) + "";
+        let parts = value.split(".");
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+        input.value = parts.join(",");
+    }
+
+    function parseCurrency(valueStr) {
+        if (!valueStr) return 0;
+        let clean = valueStr.replace(/\./g, "").replace(",", ".");
+        return parseFloat(clean);
+    }
+
+    const IOF_FIXO_RATE = 0.0038; 
+    const IOF_DIARIO_RATE = 0.00008219;
+
+    function toggleAdvanced() {
+        document.getElementById('advanced').classList.toggle('show');
+    }
+
+    function toggleTable() {
+        const container = document.getElementById('tableContainer');
+        const btn = document.querySelector('.btn-toggle-table');
+        container.classList.toggle('show');
+        if(container.classList.contains('show')) {
+            btn.innerText = "Ocultar Parcelas";
+        } else {
+            btn.innerText = "Mostrar Parcelas";
+        }
+    }
+
+    function formatMoney(val) {
+        return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+    function formatDate(date) {
+        return date.toLocaleDateString('pt-BR');
+    }
+
+    // Variável global para guardar os dados calculados para o PDF
+    let dadosSimulacao = [];
+
+    function calcular() {
+        document.getElementById('errorMsg').style.display = 'none';
+
+        const valorRaw = document.getElementById('valor').value;
+        const V = parseCurrency(valorRaw);
+        
+        const dataEmissaoInput = document.getElementById('dataEmissao').value;
+        const dataEmissao = dataEmissaoInput ? new Date(dataEmissaoInput + "T00:00:00") : new Date();
+
+        const taxaInput = document.getElementById('taxa').value;
+        const i_am = parseFloat(taxaInput) / 100;
+        const n = parseInt(document.getElementById('prazo').value);
+        const carencia = parseInt(document.getElementById('carencia').value) || 0;
+        
+        let tacInput = parseFloat(document.getElementById('tac').value) || 0;
+        let emissaoInput = parseFloat(document.getElementById('emissao').value) || 0;
+        let seguroInput = parseFloat(document.getElementById('seguro').value) || 0;
+
+        if(!V || V <= 0) { alert("Digite um valor válido."); return; }
+        if(!n || n <= 0) { alert("Digite um prazo válido."); return; }
+
+        const tacPerc = tacInput / 100;
+        const emissaoPerc = emissaoInput / 100;
+        const seguroPerc = seguroInput / 100;
+
+        document.getElementById('resultsArea').classList.add('active');
+        document.getElementById('tableContainer').classList.remove('show');
+        document.querySelector('.btn-toggle-table').innerText = "Mostrar Parcelas";
+
+        let saldo = V;
+        const mesesAmortizacao = n - carencia;
+        
+        let pmtPrice = 0;
+        if (mesesAmortizacao > 0 && i_am > 0) {
+            pmtPrice = V * ( (i_am * Math.pow(1 + i_am, mesesAmortizacao)) / (Math.pow(1 + i_am, mesesAmortizacao) - 1) );
+        } else if (i_am === 0) {
+             pmtPrice = V / mesesAmortizacao;
+        }
+
+        let totalIOFDiario = 0;
+        let fluxoCaixaCET = [];
+        const valIOFFixo = V * IOF_FIXO_RATE;
+
+        // Limpa Tabelas (UI e PDF)
+        const tbodyUI = document.querySelector('#parcelasTable tbody');
+        const tbodyPDF = document.querySelector('#pdf-table-body tbody');
+        tbodyUI.innerHTML = "";
+        tbodyPDF.innerHTML = "";
+        
+        dadosSimulacao = []; 
+
+        for (let t = 1; t <= n; t++) {
+            let juros = saldo * i_am;
+            let parcela = 0;
+            let amortizacao = 0;
+
+            if (t <= carencia) {
+                parcela = juros;
+                amortizacao = 0;
+            } else {
+                parcela = pmtPrice;
+                amortizacao = parcela - juros;
+            }
+
+            saldo -= amortizacao;
+            if (saldo < 0.01) saldo = 0;
+
+            if (amortizacao > 0) {
+                let diasAcumulados = t * 30; 
+                let diasParaCalculo = Math.min(diasAcumulados, 365);
+                totalIOFDiario += (amortizacao * IOF_DIARIO_RATE * diasParaCalculo);
+            }
+
+            fluxoCaixaCET.push(parcela);
+
+            let dataVenc = new Date(dataEmissao);
+            dataVenc.setMonth(dataVenc.getMonth() + t);
+
+            // Row UI
+            let rowUI = `<tr>
+                <td>${t}</td>
+                <td>${formatDate(dataVenc)}</td>
+                <td>${formatMoney(saldo)}</td>
+                <td>${formatMoney(amortizacao)}</td>
+                <td>${formatMoney(juros)}</td>
+                <td><strong>${formatMoney(parcela)}</strong></td>
+            </tr>`;
+            tbodyUI.innerHTML += rowUI;
+
+            // Row PDF (Compacta e sem fundo nas TDs para economizar tinta)
+            let rowPDF = `<tr>
+                <td style="text-align:center">${t}</td>
+                <td>${formatDate(dataVenc)}</td>
+                <td>${formatMoney(amortizacao)}</td>
+                <td>${formatMoney(juros)}</td>
+                <td><strong>${formatMoney(parcela)}</strong></td>
+            </tr>`;
+            tbodyPDF.innerHTML += rowPDF;
+        }
+
+        const totalIOF = valIOFFixo + totalIOFDiario;
+        const totalTac = V * tacPerc;
+        const totalEmissao = V * emissaoPerc;
+        const totalSeguro = V * seguroPerc;
+        const totalDespesas = totalIOF + totalTac + totalEmissao + totalSeguro;
+        const liquido = V - totalDespesas;
+
+        if (liquido <= 0) {
+            document.getElementById('errorMsg').style.display = 'block';
+            document.getElementById('errorMsg').innerText = "ERRO: O Valor Líquido é negativo.";
+            document.getElementById('res-liquido').innerText = "Inválido";
+            return;
+        }
+
+        fluxoCaixaCET.unshift(-liquido);
+        let cetMensal = 0;
+        try { cetMensal = calcularIRR(fluxoCaixaCET); } catch (e) { cetMensal = 0; }
+        let cetAnual = Math.pow(1 + cetMensal, 12) - 1;
+
+        // UI Update
+        document.getElementById('res-liquido').innerText = formatMoney(liquido);
+        document.getElementById('res-parcela').innerText = formatMoney(pmtPrice);
+        const percDesconto = ((totalDespesas/V)*100).toFixed(2);
+        document.getElementById('res-desconto-perc').innerText = `-${percDesconto}% (Taxas + IOF)`;
+        document.getElementById('det-bruto').innerText = formatMoney(V);
+        document.getElementById('det-iof').innerText = formatMoney(totalIOF);
+        document.getElementById('det-taxas').innerText = formatMoney(totalTac + totalEmissao);
+        document.getElementById('det-seguro').innerText = formatMoney(totalSeguro);
+        document.getElementById('det-liquido').innerText = formatMoney(liquido);
+
+        let cetMText = "--";
+        let cetAText = "--";
+        if (cetMensal > 0 && isFinite(cetMensal)) {
+            cetMText = (cetMensal * 100).toFixed(2) + "%";
+            cetAText = (cetAnual * 100).toFixed(2) + "%";
+        }
+        document.getElementById('det-cet-m').innerText = cetMText;
+        document.getElementById('det-cet-a').innerText = cetAText;
+
+        // PREENCHE DADOS NO PDF OCULTO
+        document.getElementById('pdf-data-geracao').innerText = new Date().toLocaleString('pt-BR');
+        document.getElementById('pdf-valor').innerText = formatMoney(V);
+        document.getElementById('pdf-prazo').innerText = n + " meses";
+        document.getElementById('pdf-taxa').innerText = document.getElementById('taxa').value + "% a.m.";
+        document.getElementById('pdf-carencia').innerText = carencia + " meses";
+        
+        document.getElementById('pdf-liquido').innerText = formatMoney(liquido);
+        document.getElementById('pdf-parcela').innerText = formatMoney(pmtPrice);
+        document.getElementById('pdf-cet-m').innerText = cetMText;
+        document.getElementById('pdf-cet-a').innerText = cetAText;
+    }
+
+    function calcularIRR(values, guess = 0.1) {
+        const maxIter = 1000; const precision = 1e-7; let rate = guess;
+        for (let i = 0; i < maxIter; i++) {
+            let npv = 0; let d_npv = 0;
+            for (let j = 0; j < values.length; j++) {
+                let term = values[j] / Math.pow(1 + rate, j);
+                npv += term;
+                d_npv -= (j * values[j]) / Math.pow(1 + rate, j + 1);
+            }
+            if (Math.abs(d_npv) < 1e-10) return rate; 
+            let newRate = rate - npv / d_npv;
+            if (Math.abs(newRate - rate) < precision) return newRate;
+            rate = newRate;
+        }
+        return rate;
+    }
+
+    // --- CORREÇÃO DA FOLHA EM BRANCO ---
+    function gerarPDF() {
+        const valLiquido = document.getElementById('res-liquido').innerText;
+        if(valLiquido === "R$ 0,00" || valLiquido === "Inválido") {
+            alert("Faça a simulação antes de gerar o PDF.");
+            return;
+        }
+
+        const element = document.getElementById('relatorio-pdf');
+        
+        // 1. Clona o elemento original (que está display: none)
+        const clone = element.cloneNode(true);
+        
+        // 2. Torna o clone visível e define largura fixa (simulando A4)
+        clone.style.display = 'block';
+        clone.style.width = '750px'; 
+        clone.style.padding = '40px';
+        
+        // 3. Posiciona o clone de forma absoluta e em "camada" inferior para não piscar na tela
+        clone.style.position = 'absolute';
+        clone.style.top = '0';
+        clone.style.left = '0';
+        clone.style.zIndex = '-9999';
+        clone.style.background = 'white'; // Garante fundo branco
+
+        // 4. Adiciona ao DOM para o html2canvas conseguir ler
+        document.body.appendChild(clone);
+
+        const opt = {
+            margin:       10,
+            filename:     'Simulacao_CCB.pdf',
+            image:        { type: 'jpeg', quality: 0.98 },
+            html2canvas:  { scale: 2 }, // Melhora qualidade
+            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        // 5. Gera o PDF a partir do clone e depois remove o clone
+        html2pdf().set(opt).from(clone).save().then(() => {
+            document.body.removeChild(clone);
+        });
+    }
+</script>
+
+</body>
+</html>
