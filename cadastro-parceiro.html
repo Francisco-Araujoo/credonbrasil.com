@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Parceiro</title>
+    <style>
+        body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background-color: #f0f2f5; }
+        .card { background: white; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); width: 300px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
+        button { width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        .msg { font-size: 0.9em; margin-top: 10px; text-align: center; }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Novo Parceiro</h2>
+    <form id="formCadastro">
+        <input type="text" id="nome" placeholder="Nome Completo" required>
+        <input type="text" id="cpf" placeholder="CPF" required>
+        <input type="email" id="email" placeholder="E-mail" required>
+        <input type="password" id="senha" placeholder="Senha" required>
+        <button type="submit">Cadastrar</button>
+    </form>
+    <div id="mensagem" class="msg"></div>
+</div>
+
+<script>
+    // URL DO SEU BACKEND SERVERLESS (base URL) — não inclua a rota final
+    const API_URL = 'https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com'; 
+
+    document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const msgDiv = document.getElementById('mensagem');
+        msgDiv.textContent = 'Enviando...';
+        msgDiv.style.color = 'gray';
+
+        const dados = {
+            nome: document.getElementById('nome').value,
+            cpf: document.getElementById('cpf').value,
+            email: document.getElementById('email').value,
+            senha: document.getElementById('senha').value
+        };
+
+        try {
+            const response = await fetch(`${API_URL}/parceiros/cadastro`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(dados)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                msgDiv.textContent = result.message;
+                msgDiv.style.color = 'green';
+                document.getElementById('formCadastro').reset();
+                // Opcional: Redirecionar para o login após sucesso
+                // window.location.href = 'index.html'; 
+            } else {
+                throw new Error(result.message);
+            }
+        } catch (error) {
+            msgDiv.textContent = error.message || 'Erro ao conectar.';
+            msgDiv.style.color = 'red';
+        }
+    });
+</script>
+
+</body>
+</html>

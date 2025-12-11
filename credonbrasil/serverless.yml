@@ -1,0 +1,54 @@
+org: credonbrasil
+app: credonbrasilapp
+service: credonbrasilservice
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  region: us-east-1
+  timeout: 10 # Aumentei o timeout para 10s para garantir conexão lenta
+  environment:
+    # Use environment variables and a secrets manager for sensitive values.
+    # Example: set DB_HOST/DB_USER/DB_NAME in your deployment environment and
+    # store DB_PASSWORD in SSM Parameter Store or Secrets Manager.
+    DB_HOST: ${env:DB_HOST}
+    DB_USER: ${env:DB_USER}
+    # DB_PASSWORD from Parameter Store (replace path with your parameter)
+    DB_PASSWORD: ${ssm:/credonbrasil/db_password~true}
+    DB_NAME: ${env:DB_NAME}
+  httpApi:
+    cors:
+      allowedOrigins:
+        - '*'
+      allowedMethods:
+        - GET
+        - POST
+        - OPTIONS
+      allowedHeaders:
+        - Content-Type
+        - Authorization
+        - X-Amz-Date
+        - X-Api-Key
+        - X-Amz-Security-Token
+
+functions:
+  cadastro:
+    handler: handler.cadastro
+    events:
+      - httpApi:
+          path: /parceiros/cadastro
+          method: post
+
+  login:
+    handler: handler.login
+    events:
+      - httpApi:
+          path: /parceiros/login
+          method: post
+
+  hello:
+    handler: handler.hello
+    events:
+      - httpApi:
+          path: /
+          method: get

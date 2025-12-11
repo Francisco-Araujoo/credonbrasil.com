@@ -1,0 +1,17 @@
+{
+  "name": "credonbrasil-backend",
+  "version": "1.0.0",
+  "description": "Serverless backend for CredOnBrasil",
+  "main": "handler.js",
+  "scripts": {
+    "start": "sls offline"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "mysql2": "^3.15.3"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
