@@ -3,69 +3,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simulador CCB | Comercial Detalhado</title>
+    <title>Simulador CCB | CredOn Brasil</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 
     <style>
+        /* --- Variáveis de Cores Globais --- */
         :root {
-            --primary: #003366;      
-            --accent: #00d084;       
+            --primary: #003366;      /* Azul escuro corporativo */
+            --primary-dark: #002244;
+            --accent: #00d084;       /* Verde destaque */
+            --whatsapp: #25D366;
             --error: #dc2626;
             --bg-page: #f0f2f5;      
             --bg-card: #ffffff;
             --text-main: #1e293b;
             --text-secondary: #64748b;
             --border: #e2e8f0;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             --radius: 12px;
         }
 
+        /* Reset básico */
         * { box-sizing: border-box; margin: 0; padding: 0; }
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--bg-page);
+            background-color: var(--primary-dark); /* Fallback color */
+            /* Imagem de fundo profissional com overlay */
+            background-image: linear-gradient(rgba(0, 34, 68, 0.85), rgba(0, 34, 68, 0.9)), url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
             color: var(--text-main);
-            padding: 20px;
+            padding: 40px 20px;
             line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            min-height: 100vh;
         }
 
-        .header {
-            max-width: 1000px;
+        /* --- Loading Overlay (GSAP) --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.9);
+            z-index: 9999;
+            display: none; /* Controlado via JS */
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(5px);
+        }
+        .spinner {
+            width: 50px; height: 50px;
+            border: 5px solid var(--border);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+        .loading-text { font-weight: 700; color: var(--primary); letter-spacing: 0.5px; }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* --- Header da Aplicação (Tela) --- */
+        .app-header {
+            max-width: 1100px;
             margin: 0 auto 30px auto;
             display: flex;
             align-items: center;
             justify-content: space-between;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px 30px;
+            border-radius: var(--radius);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
         }
         
-        .header h1 { font-size: 1.5rem; color: var(--primary); font-weight: 700; letter-spacing: -0.5px; }
+        .logo-credon-screen {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            display: flex;
+            align-items: center;
+        }
+        .logo-accent { color: var(--accent); }
+
         .badge { background: #e0f2fe; color: #0284c7; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
 
+        /* --- Layout Principal --- */
         .main-container {
-            max-width: 1000px;
+            max-width: 1100px;
             margin: 0 auto;
             display: grid;
             grid-template-columns: 350px 1fr;
             gap: 24px;
+            align-items: start; /* Impede que estique a altura se não necessário */
         }
 
-        /* --- Inputs --- */
+        /* --- Cards e Inputs --- */
         .controls-card {
             background: var(--bg-card);
             padding: 30px;
             border-radius: var(--radius);
             box-shadow: var(--shadow);
             height: fit-content;
+            position: sticky;
+            top: 20px; /* Faz o menu acompanhar a rolagem */
         }
 
         .input-group { margin-bottom: 24px; }
-        .input-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 500; }
+        .input-group label { display: block; font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 8px; font-weight: 600; }
         
         .input-wrapper { position: relative; }
-        .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 500; z-index: 10; pointer-events: none;}
+        .input-prefix { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-weight: 600; z-index: 10; pointer-events: none;}
         
         input[type="text"], input[type="number"], input[type="tel"], input[type="date"] {
             width: 100%;
@@ -79,200 +133,213 @@
             background: #f8fafc;
         }
         input[type="date"] { padding-left: 12px; }
-
         input:focus { outline: none; border-color: var(--primary); background: #fff; box-shadow: 0 0 0 3px rgba(0, 51, 102, 0.1); }
-        
         input.no-prefix { padding-left: 12px; }
 
         .btn-calc {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.1s, background 0.2s;
-            box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2);
-            margin-top: 10px;
+            width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 700; cursor: pointer; transition: transform 0.1s, background 0.2s; box-shadow: 0 4px 6px rgba(0, 51, 102, 0.2); margin-top: 10px;
         }
-        .btn-calc:hover { background: #002244; transform: translateY(-1px); }
+        .btn-calc:hover { background: var(--primary-dark); transform: translateY(-1px); }
+        .btn-calc:active { transform: translateY(1px); }
 
-        .details-trigger {
-            margin-top: 20px;
-            text-align: center;
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            cursor: pointer;
-            text-decoration: underline;
-        }
+        .details-trigger { margin-top: 20px; text-align: center; font-size: 0.85rem; color: var(--text-secondary); cursor: pointer; text-decoration: underline; }
+        .advanced-options { display: none; margin-top: 20px; padding-top: 20px; border-top: 1px dashed var(--border); }
+        .advanced-options.show { display: block; animation: fadeIn 0.3s ease; }
 
-        .advanced-options {
-            display: none;
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px dashed var(--border);
-        }
-        .advanced-options.show { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* --- Resultados --- */
-        .results-area {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
+        /* --- Área de Resultados (Tela) --- */
+        .results-area { 
+            display: flex; 
+            flex-direction: column; 
+            gap: 24px; 
             opacity: 0.5; 
-            transition: opacity 0.3s;
-            pointer-events: none;
+            transition: opacity 0.3s; 
+            pointer-events: none; 
+            /* GSAP controla visibilidade, mas começamos invisível para animar */
         }
         .results-area.active { opacity: 1; pointer-events: all; }
 
-        .error-banner {
-            background-color: #fee2e2;
-            color: var(--error);
-            padding: 15px;
-            border-radius: 8px;
-            font-size: 0.9rem;
-            display: none;
-            border: 1px solid #fca5a5;
-        }
+        .error-banner { background-color: #fee2e2; color: var(--error); padding: 15px; border-radius: 8px; font-size: 0.9rem; display: none; border: 1px solid #fca5a5; }
 
-        .kpi-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .kpi-card {
-            background: var(--bg-card);
-            padding: 24px;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            border-left: 5px solid transparent;
-        }
+        .kpi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .kpi-card { background: var(--bg-card); padding: 24px; border-radius: var(--radius); box-shadow: var(--shadow); border-left: 5px solid transparent; }
         .kpi-card.highlight { border-left-color: var(--accent); }
         .kpi-card.primary { border-left-color: var(--primary); }
-
-        .kpi-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 600; margin-bottom: 8px; }
-        .kpi-value { font-size: 1.8rem; font-weight: 700; color: var(--text-main); }
+        .kpi-label { font-size: 0.85rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 700; margin-bottom: 8px; }
+        .kpi-value { font-size: 1.8rem; font-weight: 800; color: var(--text-main); }
         .kpi-sub { font-size: 0.8rem; color: #94a3b8; margin-top: 4px; }
 
-        .summary-card {
-            background: var(--bg-card);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 30px;
-        }
+        .summary-card { background: var(--bg-card); border-radius: var(--radius); box-shadow: var(--shadow); padding: 30px; }
         .section-title { font-size: 1.1rem; font-weight: 700; color: var(--primary); margin-bottom: 20px; display: flex; align-items: center; gap: 10px;}
         
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 0.95rem;
-        }
+        .summary-row { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #f1f5f9; font-size: 0.95rem; }
         .summary-row:last-child { border-bottom: none; }
-        .summary-row.total { font-weight: 700; color: var(--primary); font-size: 1.1rem; border-top: 2px solid #e2e8f0; border-bottom: none; padding-top: 15px; margin-top: 5px;}
-        
+        .summary-row.total { font-weight: 800; color: var(--primary); font-size: 1.1rem; border-top: 2px solid #e2e8f0; border-bottom: none; padding-top: 15px; margin-top: 5px;}
         .val-negative { color: #dc2626; } 
 
-        /* --- Tabela UI --- */
-        .table-container {
-            margin-top: 20px;
-            display: none;
-            overflow-x: auto;
+        /* --- Tabela UI Otimizada (CORREÇÃO DO BUG) --- */
+        .table-container { 
+            margin-top: 20px; 
+            display: none; 
+            border-radius: 8px; 
+            border: 1px solid var(--border);
+            /* O SEGREDO DO LAYOUT: Altura máxima e Scroll */
+            max-height: 400px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--primary) #f1f5f9;
         }
+        
+        /* Estilização da Scrollbar (Webkit) */
+        .table-container::-webkit-scrollbar { width: 8px; }
+        .table-container::-webkit-scrollbar-track { background: #f1f5f9; }
+        .table-container::-webkit-scrollbar-thumb { background-color: var(--primary); border-radius: 10px; border: 2px solid #f1f5f9; }
+
+        /* REMOVIDO: animation: slideDown conflitante */
         .table-container.show { display: block; }
         
-        table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; }
-        th { background: #f8fafc; color: var(--text-secondary); font-weight: 600; padding: 12px; text-align: right; border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-main); }
-        th:first-child, td:first-child { text-align: center; }
-        tr:hover { background-color: #f1f5f9; }
-
-        /* Botões de Ação */
-        .actions-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
+        table.ui-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; text-align: right; background: #fff; }
+        
+        /* Cabeçalho Fixo na Tabela */
+        table.ui-table thead th { 
+            position: sticky; 
+            top: 0; 
+            background: #f8fafc; 
+            z-index: 2;
+            color: var(--text-secondary); 
+            font-weight: 700; 
+            padding: 12px; 
+            text-align: right; 
+            border-bottom: 2px solid var(--border);
+            box-shadow: 0 2px 2px -1px rgba(0,0,0,0.05);
         }
         
-        .btn-toggle-table {
-            background: white;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-        }
+        table.ui-table td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-main); }
+        table.ui-table th:first-child, table.ui-table td:first-child { text-align: center; }
+        
+        /* Zebra Striping e Hover para garantir visibilidade */
+        table.ui-table tbody tr:nth-child(even) { background-color: #f8fafc; }
+        table.ui-table tbody tr:hover { background-color: #e0f2fe; transition: background-color 0.2s; }
+
+        /* --- Botões de Ação --- */
+        .actions-row { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .btn-toggle-table { background: white; border: 2px solid var(--primary); color: var(--primary); padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; transition: all 0.2s;}
         .btn-toggle-table:hover { background: #f0f9ff; }
-
-        .btn-pdf {
-            background: #ef4444;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 6px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+        .btn-pdf { background: #ef4444; color: white; border: none; padding: 10px; border-radius: 6px; font-weight: 700; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; transition: background 0.2s;}
         .btn-pdf:hover { background: #dc2626; }
+        .btn-whatsapp { background: var(--whatsapp); color: white; border: none; padding: 16px; border-radius: 8px; font-weight: 800; cursor: pointer; width: 100%; margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 1rem; transition: background 0.2s; }
+        .btn-whatsapp:hover { background: #1da851; }
 
-        /* --- ESTILOS ESPECÍFICOS PARA O PDF GERADO --- */
-        /* Importante: display: none aqui, nós vamos clonar e exibir via JS */
+        /* --- Modal --- */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 1000; backdrop-filter: blur(2px); }
+        
+        .modal-box { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 90%; 
+            max-width: 450px; 
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1); 
+            position: relative; 
+        }
+        
+        .close-modal { position: absolute; top: 15px; right: 15px; cursor: pointer; font-size: 1.5rem; color: #94a3b8; }
+        .modal-title { font-size: 1.25rem; font-weight: 800; color: var(--primary); margin-bottom: 20px; text-align: center; }
+
+        /* =========================================
+           ESTILOS PROFISSIONAIS PARA O PDF
+        ========================================= */
         #relatorio-pdf {
             display: none; 
             font-family: 'Inter', sans-serif;
-            color: #1e293b;
+            color: var(--text-main);
             background: white;
-            padding: 30px;
+            padding: 40px 50px; 
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
         }
-        
-        /* Estilos internos do PDF */
-        #relatorio-pdf h1 { color: #003366; border-bottom: 2px solid #003366; padding-bottom: 10px; margin-bottom: 20px; font-size: 24px; }
-        #relatorio-pdf h3 { color: #003366; margin-top: 30px; margin-bottom: 10px; font-size: 16px; border-left: 4px solid #00d084; padding-left: 10px; }
-        
-        .pdf-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .pdf-item { background: #f8fafc; padding: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
-        .pdf-label { font-size: 10px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .pdf-val { font-size: 14px; font-weight: 700; color: #1e293b; }
 
-        .pdf-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 10px; }
-        .pdf-table th { background: #003366; color: white; padding: 6px; text-align: right; }
-        .pdf-table td { border-bottom: 1px solid #e2e8f0; padding: 5px; text-align: right; }
-        .pdf-table tr:nth-child(even) { background-color: #f8fafc; }
+        .pdf-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid var(--primary);
+        }
+
+        .pdf-logo { font-size: 2rem; font-weight: 900; color: var(--primary); letter-spacing: -1px; line-height: 1; }
+        .pdf-logo .accent { color: var(--accent); }
+        .pdf-tagline { font-size: 0.85rem; color: var(--text-secondary); margin-top: 5px; font-weight: 500; }
+
+        .pdf-title-block { text-align: right; }
+        .pdf-main-title { font-size: 1.4rem; font-weight: 800; color: var(--text-main); text-transform: uppercase; letter-spacing: 0.5px; }
+        .pdf-meta-info { font-size: 0.8rem; color: var(--text-secondary); margin-top: 8px; font-weight: 600; }
+
+        .pdf-section-title { 
+            color: var(--primary); margin-top: 35px; margin-bottom: 20px; font-size: 1.1rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center;
+        }
+        .pdf-section-title::before {
+            content: ''; display: inline-block; width: 8px; height: 16px; background-color: var(--accent); margin-right: 10px; border-radius: 2px;
+        }
+
+        .pdf-info-grid { 
+            display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px 30px; margin-bottom: 30px; background: #f8fafc; padding: 25px; border-radius: 12px; border: 1px solid #e2e8f0;
+        }
+
+        .pdf-info-item { display: flex; flex-direction: column; }
+        .pdf-label { font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+        .pdf-val { font-size: 1.2rem; font-weight: 800; color: var(--text-main); }
+        .pdf-val.highlight { color: var(--accent); }
+        .pdf-val.primary { color: var(--primary); }
+
+        .pdf-table-container { margin-top: 20px; border-radius: 8px; overflow: hidden; border: 1px solid #e2e8f0; }
+        .pdf-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+
+        .pdf-table thead th { background: var(--primary); color: white; padding: 12px 10px; text-align: right; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; }
+        .pdf-table tbody td { padding: 10px; text-align: right; color: var(--text-main); border-bottom: 1px solid #e2e8f0; font-weight: 500; }
+        .pdf-table th:first-child, .pdf-table td:first-child { text-align: center; width: 50px; }
         
-        /* Evita quebra de página no meio de uma linha da tabela */
-        tr { page-break-inside: avoid; }
+        .pdf-table tbody tr:nth-child(even) { background-color: #f1f5f9; }
+        .pdf-table tbody tr:nth-child(odd) { background-color: #ffffff; }
+        .pdf-table td.col-parcela { font-weight: 800; color: var(--primary); }
+
+        .pdf-footer { margin-top: 50px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: center; font-size: 0.75rem; color: var(--text-secondary); }
+
+        .pdf-header, .pdf-section-title, .pdf-info-grid { page-break-inside: avoid; }
+        .pdf-table thead { display: table-header-group; }
+        .pdf-table tr { page-break-inside: avoid; page-break-after: auto; }
 
         @media (max-width: 800px) {
             .main-container { grid-template-columns: 1fr; }
-            .kpi-grid { grid-template-columns: 1fr; }
-            .actions-row { grid-template-columns: 1fr; }
+            .kpi-grid, .actions-row { grid-template-columns: 1fr; }
+            .app-header { flex-direction: column; gap: 15px; text-align: center; }
+            .controls-card { position: static; } /* Remove sticky no mobile */
         }
     </style>
 </head>
 <body>
 
-    <div class="header">
-        <h1>Simulador Comercial <span style="font-weight:300; color:#64748b">| Crédito Estruturado</span></h1>
-        <span class="badge">Versão 3.6 (Fixed)</span>
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text" id="loadingText">Calculando Proposta...</div>
+    </div>
+
+    <div class="app-header">
+        <div class="logo-credon-screen">
+            CredOn<span class="logo-accent">Brasil</span>
+        </div>
+        <h1>Simulador Comercial <span style="font-weight:300; color:#64748b">| Estruturado</span></h1>
+        <span class="badge">v5.0 Pro</span>
     </div>
 
     <div class="main-container">
         
         <aside class="controls-card">
-            <h3 style="margin-bottom:20px; color:var(--primary)">Parâmetros</h3>
+            <h3 style="margin-bottom:20px; color:var(--primary); font-weight:800">Parâmetros da Operação</h3>
             
             <div class="input-group">
                 <label>Valor Solicitado (Bruto)</label>
@@ -311,27 +378,29 @@
                     <span class="input-prefix">#</span>
                     <input type="number" id="carencia" value="0">
                 </div>
-                <small style="color:#94a3b8; font-size:0.75rem">Paga juros, não amortiza.</small>
+                <small style="color:#94a3b8; font-size:0.75rem; font-weight:500">Paga juros, não amortiza durante o período.</small>
             </div>
 
             <div class="details-trigger" onclick="toggleAdvanced()">Ver Taxas Adicionais ▼</div>
             
             <div id="advanced" class="advanced-options">
                 <div class="input-group">
-                    <label>TAC (% sobre Valor)</label>
-                    <input type="number" id="tac" value="4.0" step="0.1" class="no-prefix" placeholder="Ex: 4.0">
-                </div>
-                <div class="input-group">
-                    <label>Taxa de Emissão (%)</label>
-                    <input type="number" id="emissao" value="1.0" step="0.1" class="no-prefix" placeholder="Ex: 1.0">
+                    <label>Custo de Emissão (TAC + Emissão)</label>
+                    <div class="input-wrapper">
+                        <span class="input-prefix">%</span>
+                        <input type="number" id="emissao" value="8.5" step="0.1" placeholder="Ex: 8.5">
+                    </div>
                 </div>
                 <div class="input-group">
                     <label>Seguro Prestamista (%)</label>
-                    <input type="number" id="seguro" value="0.0" step="0.1" class="no-prefix" placeholder="Ex: 0.0">
+                    <div class="input-wrapper">
+                        <span class="input-prefix">%</span>
+                        <input type="number" id="seguro" value="0.0" step="0.1" placeholder="Ex: 0.0">
+                    </div>
                 </div>
             </div>
 
-            <button class="btn-calc" onclick="calcular()">CALCULAR SIMULAÇÃO</button>
+            <button class="btn-calc" onclick="iniciarCalculo()">CALCULAR SIMULAÇÃO</button>
         </aside>
 
         <div class="results-area" id="resultsArea">
@@ -366,7 +435,7 @@
                     <span class="val-negative" id="det-iof">R$ 0,00</span>
                 </div>
                 <div class="summary-row">
-                    <span>(-) TAC + Emissão</span>
+                    <span>(-) Custo de Emissão</span>
                     <span class="val-negative" id="det-taxas">R$ 0,00</span>
                 </div>
                 <div class="summary-row">
@@ -378,27 +447,32 @@
                     <span style="color:var(--accent)" id="det-liquido">R$ 0,00</span>
                 </div>
 
-                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #e2e8f0; display:grid; grid-template-columns: 1fr 1fr;">
+                <div style="margin-top: 25px; padding-top: 15px; border-top: 1px dashed #e2e8f0; display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
                     <div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary)">Custo Efetivo Total (Mensal)</div>
-                        <div style="font-weight:700; color:var(--text-main)" id="det-cet-m">0.00%</div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">Custo Efetivo Total (Mensal)</div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1.1rem;" id="det-cet-m">0.00%</div>
                     </div>
                     <div>
-                        <div style="font-size:0.8rem; color:var(--text-secondary)">Custo Efetivo Total (Anual)</div>
-                        <div style="font-weight:700; color:var(--text-main)" id="det-cet-a">0.00%</div>
+                        <div style="font-size:0.8rem; color:var(--text-secondary); font-weight:600;">Custo Efetivo Total (Anual)</div>
+                        <div style="font-weight:800; color:var(--text-main); font-size:1.1rem;" id="det-cet-a">0.00%</div>
                     </div>
                 </div>
 
                 <div class="actions-row">
                     <button class="btn-toggle-table" onclick="toggleTable()">Mostrar Parcelas</button>
-                    <!-- <button class="btn-pdf" onclick="gerarPDF()">
+                    <button class="btn-pdf" onclick="iniciarPDF()">
                         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                        Salvar Relatório PDF
-                    </button> -->
+                        Baixar PDF Profissional
+                    </button>
                 </div>
                 
+                <button class="btn-whatsapp" onclick="abrirModalLead()">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    Solicitar Análise de Crédito
+                </button>
+                
                 <div id="tableContainer" class="table-container">
-                    <table id="parcelasTable">
+                    <table id="parcelasTable" class="ui-table">
                         <thead>
                             <tr>
                                 <th>#</th>
@@ -417,328 +491,498 @@
         </div>
     </div>
 
+    <div id="leadModal" class="modal-overlay">
+        <div class="modal-box">
+            <span class="close-modal" onclick="fecharModalLead()">&times;</span>
+            <div class="modal-title">Dados para Solicitação</div>
+            
+            <div class="input-group">
+                <label>Nome Completo</label>
+                <div class="input-wrapper">
+                    <input type="text" id="leadNome" placeholder="Seu nome" class="no-prefix">
+                </div>
+            </div>
+            
+            <div class="input-group">
+                <label>CPF</label>
+                <div class="input-wrapper">
+                    <input type="tel" id="leadCPF" placeholder="000.000.000-00" class="no-prefix" maxlength="14" oninput="maskCPF(this)">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Cidade (Imóvel de Garantia)</label>
+                <div class="input-wrapper">
+                    <input type="text" id="leadCidade" placeholder="Ex: Londrina - PR" class="no-prefix">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label>Consultor Responsável</label>
+                <div class="input-wrapper">
+                    <input type="text" id="leadConsultor" placeholder="Nome do consultor" class="no-prefix">
+                </div>
+            </div>
+
+            <button class="btn-whatsapp" onclick="enviarWhatsApp()">
+                Enviar Solicitação via WhatsApp
+            </button>
+        </div>
+    </div>
+
     <div id="relatorio-pdf">
-        <div style="display:flex; justify-content:space-between; align-items:center;">
-            <h1>Relatório de Simulação</h1>
-            <div style="text-align:right; font-size:10px; color:#64748b;">
-                Gerado em: <span id="pdf-data-geracao"></span>
+        <div class="pdf-header">
+            <div>
+                <div class="pdf-logo">CredOn<span class="accent">Brasil</span></div>
+                <div class="pdf-tagline">Soluções Financeiras Estruturadas</div>
+            </div>
+            <div class="pdf-title-block">
+                <div class="pdf-main-title">Demonstrativo de Simulação</div>
+                <div class="pdf-meta-info">
+                    Gerado em: <span id="pdf-data-geracao"></span><br>
+                    Documento Informativo
+                </div>
             </div>
         </div>
 
-        <h3>1. Parâmetros da Operação</h3>
-        <div class="pdf-grid">
-            <div class="pdf-item">
-                <div class="pdf-label">Valor Solicitado</div>
-                <div class="pdf-val" id="pdf-valor">R$ 0,00</div>
+        <div class="pdf-section-title">1. Parâmetros da Operação</div>
+        <div class="pdf-info-grid">
+            <div class="pdf-info-item">
+                <div class="pdf-label">Valor Solicitado (Bruto)</div>
+                <div class="pdf-val primary" id="pdf-valor">R$ 0,00</div>
             </div>
-            <div class="pdf-item">
-                <div class="pdf-label">Prazo Total</div>
-                <div class="pdf-val" id="pdf-prazo">0 meses</div>
-            </div>
-            <div class="pdf-item">
+            <div class="pdf-info-item">
                 <div class="pdf-label">Taxa de Juros</div>
                 <div class="pdf-val" id="pdf-taxa">0,00% a.m.</div>
             </div>
-            <div class="pdf-item">
-                <div class="pdf-label">Carência</div>
+            <div class="pdf-info-item">
+                <div class="pdf-label">Prazo Total</div>
+                <div class="pdf-val" id="pdf-prazo">0 meses</div>
+            </div>
+            <div class="pdf-info-item">
+                <div class="pdf-label">Período de Carência</div>
                 <div class="pdf-val" id="pdf-carencia">0 meses</div>
             </div>
         </div>
 
-        <h3>2. Resumo Financeiro</h3>
-        <div class="pdf-grid">
-            <div class="pdf-item">
+        <div class="pdf-section-title">2. Resumo Financeiro e Custos</div>
+        <div class="pdf-info-grid" style="grid-template-columns: repeat(3, 1fr);">
+            <div class="pdf-info-item">
                 <div class="pdf-label">Valor Líquido Liberado</div>
-                <div class="pdf-val" id="pdf-liquido" style="color:#00d084">R$ 0,00</div>
+                <div class="pdf-val highlight" id="pdf-liquido">R$ 0,00</div>
             </div>
-            <div class="pdf-item">
-                <div class="pdf-label">Primeira Parcela</div>
-                <div class="pdf-val" id="pdf-parcela">R$ 0,00</div>
+            <div class="pdf-info-item">
+                <div class="pdf-label">Valor da Primeira Parcela</div>
+                <div class="pdf-val primary" id="pdf-parcela">R$ 0,00</div>
             </div>
-            <div class="pdf-item">
-                <div class="pdf-label">Custo Efetivo (CET a.m.)</div>
+             <div class="pdf-info-item">
+                <div class="pdf-label">Sistema de Amortização</div>
+                <div class="pdf-val" style="font-size:1rem">Tabela Price (Fixa)</div>
+            </div>
+            <div class="pdf-info-item">
+                <div class="pdf-label">Custo Efetivo Total (a.m.)</div>
                 <div class="pdf-val" id="pdf-cet-m">0,00%</div>
             </div>
-            <div class="pdf-item">
-                <div class="pdf-label">Custo Efetivo (CET a.a.)</div>
+            <div class="pdf-info-item">
+                <div class="pdf-label">Custo Efetivo Total (a.a.)</div>
                 <div class="pdf-val" id="pdf-cet-a">0,00%</div>
             </div>
         </div>
 
-        <h3>3. Cronograma de Pagamento (Tabela Price)</h3>
-        <table class="pdf-table" id="pdf-table-body">
-            <thead>
-                <tr>
-                    <th style="text-align:center">#</th>
-                    <th>Vencimento</th>
-                    <th>Amortização</th>
-                    <th>Juros</th>
-                    <th>Parcela</th>
-                </tr>
-            </thead>
-            <tbody>
-                </tbody>
-        </table>
+        <div class="pdf-section-title">3. Cronograma de Pagamentos Estimado</div>
+        <div class="pdf-table-container">
+            <table class="pdf-table" id="pdf-table-body">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Vencimento</th>
+                        <th>Amortização</th>
+                        <th>Juros</th>
+                        <th>Parcela Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    </tbody>
+            </table>
+        </div>
+
+        <div class="pdf-footer">
+            <p>Este documento é uma simulação e não vale como proposta de crédito. Valores sujeitos a análise e alteração sem aviso prévio.</p>
+            <p>CredOn Brasil - Todos os direitos reservados.</p>
+        </div>
     </div>
 
-<script>
-    // Inicializa Data
-    document.getElementById('dataEmissao').valueAsDate = new Date();
+    <script>
+        // Inicializa Data
+        document.getElementById('dataEmissao').valueAsDate = new Date();
 
-    function maskCurrency(input) {
-        let value = input.value.replace(/\D/g, "");
-        if (value === "") { input.value = ""; return; }
-        value = (parseInt(value) / 100).toFixed(2) + "";
-        let parts = value.split(".");
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-        input.value = parts.join(",");
-    }
-
-    function parseCurrency(valueStr) {
-        if (!valueStr) return 0;
-        let clean = valueStr.replace(/\./g, "").replace(",", ".");
-        return parseFloat(clean);
-    }
-
-    const IOF_FIXO_RATE = 0.0038; 
-    const IOF_DIARIO_RATE = 0.00008219;
-
-    function toggleAdvanced() {
-        document.getElementById('advanced').classList.toggle('show');
-    }
-
-    function toggleTable() {
-        const container = document.getElementById('tableContainer');
-        const btn = document.querySelector('.btn-toggle-table');
-        container.classList.toggle('show');
-        if(container.classList.contains('show')) {
-            btn.innerText = "Ocultar Parcelas";
-        } else {
-            btn.innerText = "Mostrar Parcelas";
-        }
-    }
-
-    function formatMoney(val) {
-        return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-    function formatDate(date) {
-        return date.toLocaleDateString('pt-BR');
-    }
-
-    // Variável global para guardar os dados calculados para o PDF
-    let dadosSimulacao = [];
-
-    function calcular() {
-        document.getElementById('errorMsg').style.display = 'none';
-
-        const valorRaw = document.getElementById('valor').value;
-        const V = parseCurrency(valorRaw);
-        
-        const dataEmissaoInput = document.getElementById('dataEmissao').value;
-        const dataEmissao = dataEmissaoInput ? new Date(dataEmissaoInput + "T00:00:00") : new Date();
-
-        const taxaInput = document.getElementById('taxa').value;
-        const i_am = parseFloat(taxaInput) / 100;
-        const n = parseInt(document.getElementById('prazo').value);
-        const carencia = parseInt(document.getElementById('carencia').value) || 0;
-        
-        let tacInput = parseFloat(document.getElementById('tac').value) || 0;
-        let emissaoInput = parseFloat(document.getElementById('emissao').value) || 0;
-        let seguroInput = parseFloat(document.getElementById('seguro').value) || 0;
-
-        if(!V || V <= 0) { alert("Digite um valor válido."); return; }
-        if(!n || n <= 0) { alert("Digite um prazo válido."); return; }
-
-        const tacPerc = tacInput / 100;
-        const emissaoPerc = emissaoInput / 100;
-        const seguroPerc = seguroInput / 100;
-
-        document.getElementById('resultsArea').classList.add('active');
-        document.getElementById('tableContainer').classList.remove('show');
-        document.querySelector('.btn-toggle-table').innerText = "Mostrar Parcelas";
-
-        let saldo = V;
-        const mesesAmortizacao = n - carencia;
-        
-        let pmtPrice = 0;
-        if (mesesAmortizacao > 0 && i_am > 0) {
-            pmtPrice = V * ( (i_am * Math.pow(1 + i_am, mesesAmortizacao)) / (Math.pow(1 + i_am, mesesAmortizacao) - 1) );
-        } else if (i_am === 0) {
-             pmtPrice = V / mesesAmortizacao;
+        // Máscara de Moeda
+        function maskCurrency(input) {
+            let value = input.value.replace(/\D/g, "");
+            if (value === "") { input.value = ""; return; }
+            value = (parseInt(value) / 100).toFixed(2) + "";
+            value = value.replace(".", ",");
+            value = value.replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1.");
+            input.value = value;
         }
 
-        let totalIOFDiario = 0;
-        let fluxoCaixaCET = [];
-        const valIOFFixo = V * IOF_FIXO_RATE;
+        // Máscara CPF
+        function maskCPF(input) {
+            let v = input.value.replace(/\D/g, "");
+            if (v.length > 11) v = v.slice(0, 11);
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d)/, "$1.$2");
+            v = v.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            input.value = v;
+        }
 
-        // Limpa Tabelas (UI e PDF)
-        const tbodyUI = document.querySelector('#parcelasTable tbody');
-        const tbodyPDF = document.querySelector('#pdf-table-body tbody');
-        tbodyUI.innerHTML = "";
-        tbodyPDF.innerHTML = "";
-        
-        dadosSimulacao = []; 
+        function parseCurrency(valueStr) {
+            if (!valueStr) return 0;
+            let clean = valueStr.replace(/\./g, "").replace(",", ".");
+            return parseFloat(clean);
+        }
 
-        for (let t = 1; t <= n; t++) {
-            let juros = saldo * i_am;
-            let parcela = 0;
-            let amortizacao = 0;
+        const IOF_FIXO_RATE = 0.0038; 
+        const IOF_DIARIO_RATE = 0.00008219;
 
-            if (t <= carencia) {
-                parcela = juros;
-                amortizacao = 0;
+        function toggleAdvanced() {
+            document.getElementById('advanced').classList.toggle('show');
+        }
+
+        /* --- CORREÇÃO DO BUG AQUI --- */
+        function toggleTable() {
+            const container = document.getElementById('tableContainer');
+            const btn = document.querySelector('.btn-toggle-table');
+            
+            // Verifica se a classe está ativa
+            if (container.classList.contains('show')) {
+                // FECHAR: Anima para 0 e depois remove a classe
+                gsap.to(container, {
+                    height: 0, 
+                    opacity: 0, 
+                    duration: 0.4, 
+                    ease: "power2.in",
+                    onComplete: () => {
+                        container.classList.remove('show');
+                        container.style.height = 'auto'; // Reset necessário
+                    }
+                });
+                btn.innerText = "Mostrar Parcelas";
             } else {
-                parcela = pmtPrice;
-                amortizacao = parcela - juros;
+                // ABRIR: Adiciona classe e força cálculo de altura
+                container.classList.add('show');
+                
+                // gsap.fromTo garante que ele calcule o "auto" corretamente partindo de 0
+                gsap.fromTo(container, 
+                    { height: 0, opacity: 0 },
+                    { height: "auto", opacity: 1, duration: 0.5, ease: "power2.out" }
+                );
+                
+                btn.innerText = "Ocultar Parcelas";
+            }
+        }
+
+        function formatMoney(val) {
+            return val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+        }
+        function formatDate(date) {
+            return date.toLocaleDateString('pt-BR');
+        }
+
+        let dadosSimulacao = {};
+
+        // Nova Função de "Controller" para dar sensação de processamento
+        function iniciarCalculo() {
+            const overlay = document.getElementById('loadingOverlay');
+            document.getElementById('loadingText').innerText = "Calculando as melhores condições...";
+            overlay.style.display = 'flex';
+
+            // Simula delay de 800ms para UX
+            setTimeout(() => {
+                calcular();
+                overlay.style.display = 'none';
+                
+                // Anima a entrada dos resultados
+                const results = document.getElementById('resultsArea');
+                if (results.classList.contains('active')) {
+                    gsap.fromTo(results, 
+                        { opacity: 0, y: 50 }, 
+                        { opacity: 1, y: 0, duration: 0.8, ease: "power3.out" }
+                    );
+                }
+            }, 800);
+        }
+
+        function calcular() {
+            document.getElementById('errorMsg').style.display = 'none';
+
+            const valorRaw = document.getElementById('valor').value;
+            const V = parseCurrency(valorRaw);
+            
+            const dataEmissaoInput = document.getElementById('dataEmissao').value;
+            const dataEmissao = dataEmissaoInput ? new Date(dataEmissaoInput + "T00:00:00") : new Date();
+
+            const taxaInput = document.getElementById('taxa').value;
+            const i_am = parseFloat(taxaInput) / 100;
+            const n = parseInt(document.getElementById('prazo').value);
+            const carencia = parseInt(document.getElementById('carencia').value) || 0;
+            
+            let emissaoInput = parseFloat(document.getElementById('emissao').value) || 0;
+            let seguroInput = parseFloat(document.getElementById('seguro').value) || 0;
+
+            if(!V || V <= 0) { alert("Digite um valor válido."); return; }
+            if(!n || n <= 0) { alert("Digite um prazo válido."); return; }
+
+            const emissaoPerc = emissaoInput / 100;
+            const seguroPerc = seguroInput / 100;
+
+            document.getElementById('resultsArea').classList.add('active');
+            
+            // Reseta estado da tabela se recalcular
+            document.getElementById('tableContainer').classList.remove('show');
+            document.querySelector('.btn-toggle-table').innerText = "Mostrar Parcelas";
+
+            let saldo = V;
+            const mesesAmortizacao = n - carencia;
+            
+            let pmtPrice = 0;
+            if (mesesAmortizacao > 0 && i_am > 0) {
+                pmtPrice = V * ( (i_am * Math.pow(1 + i_am, mesesAmortizacao)) / (Math.pow(1 + i_am, mesesAmortizacao) - 1) );
+            } else if (i_am === 0) {
+                 pmtPrice = V / mesesAmortizacao;
             }
 
-            saldo -= amortizacao;
-            if (saldo < 0.01) saldo = 0;
+            let totalIOFDiario = 0;
+            let fluxoCaixaCET = [];
+            const valIOFFixo = V * IOF_FIXO_RATE;
 
-            if (amortizacao > 0) {
-                let diasAcumulados = t * 30; 
-                let diasParaCalculo = Math.min(diasAcumulados, 365);
-                totalIOFDiario += (amortizacao * IOF_DIARIO_RATE * diasParaCalculo);
+            const tbodyUI = document.querySelector('#parcelasTable tbody');
+            const tbodyPDF = document.querySelector('#pdf-table-body tbody');
+            
+            // OTIMIZAÇÃO: Criação de buffer de string
+            let uiRowsBuffer = "";
+            let pdfRowsBuffer = "";
+            
+            for (let t = 1; t <= n; t++) {
+                let juros = saldo * i_am;
+                let parcela = 0;
+                let amortizacao = 0;
+
+                if (t <= carencia) {
+                    parcela = juros;
+                    amortizacao = 0;
+                } else {
+                    parcela = pmtPrice;
+                    amortizacao = parcela - juros;
+                }
+
+                saldo -= amortizacao;
+                if (saldo < 0.01) saldo = 0;
+
+                if (amortizacao > 0) {
+                    let diasAcumulados = t * 30; 
+                    let diasParaCalculo = Math.min(diasAcumulados, 365);
+                    totalIOFDiario += (amortizacao * IOF_DIARIO_RATE * diasParaCalculo);
+                }
+
+                fluxoCaixaCET.push(parcela);
+
+                let dataVenc = new Date(dataEmissao);
+                dataVenc.setMonth(dataVenc.getMonth() + t);
+
+                // Concatena strings em vez de manipular o DOM
+                uiRowsBuffer += `<tr>
+                    <td>${t}</td>
+                    <td>${formatDate(dataVenc)}</td>
+                    <td>${formatMoney(saldo)}</td>
+                    <td>${formatMoney(amortizacao)}</td>
+                    <td>${formatMoney(juros)}</td>
+                    <td><strong>${formatMoney(parcela)}</strong></td>
+                </tr>`;
+
+                pdfRowsBuffer += `<tr>
+                    <td>${t}</td>
+                    <td>${formatDate(dataVenc)}</td>
+                    <td>${formatMoney(amortizacao)}</td>
+                    <td>${formatMoney(juros)}</td>
+                    <td class="col-parcela">${formatMoney(parcela)}</td>
+                </tr>`;
             }
 
-            fluxoCaixaCET.push(parcela);
+            // Atualização única do DOM
+            tbodyUI.innerHTML = uiRowsBuffer;
+            tbodyPDF.innerHTML = pdfRowsBuffer;
 
-            let dataVenc = new Date(dataEmissao);
-            dataVenc.setMonth(dataVenc.getMonth() + t);
+            const totalIOF = valIOFFixo + totalIOFDiario;
+            const totalTaxas = V * emissaoPerc;
+            const totalSeguro = V * seguroPerc;
+            const totalDespesas = totalIOF + totalTaxas + totalSeguro;
+            const liquido = V - totalDespesas;
 
-            // Row UI
-            let rowUI = `<tr>
-                <td>${t}</td>
-                <td>${formatDate(dataVenc)}</td>
-                <td>${formatMoney(saldo)}</td>
-                <td>${formatMoney(amortizacao)}</td>
-                <td>${formatMoney(juros)}</td>
-                <td><strong>${formatMoney(parcela)}</strong></td>
-            </tr>`;
-            tbodyUI.innerHTML += rowUI;
-
-            // Row PDF (Compacta e sem fundo nas TDs para economizar tinta)
-            let rowPDF = `<tr>
-                <td style="text-align:center">${t}</td>
-                <td>${formatDate(dataVenc)}</td>
-                <td>${formatMoney(amortizacao)}</td>
-                <td>${formatMoney(juros)}</td>
-                <td><strong>${formatMoney(parcela)}</strong></td>
-            </tr>`;
-            tbodyPDF.innerHTML += rowPDF;
-        }
-
-        const totalIOF = valIOFFixo + totalIOFDiario;
-        const totalTac = V * tacPerc;
-        const totalEmissao = V * emissaoPerc;
-        const totalSeguro = V * seguroPerc;
-        const totalDespesas = totalIOF + totalTac + totalEmissao + totalSeguro;
-        const liquido = V - totalDespesas;
-
-        if (liquido <= 0) {
-            document.getElementById('errorMsg').style.display = 'block';
-            document.getElementById('errorMsg').innerText = "ERRO: O Valor Líquido é negativo.";
-            document.getElementById('res-liquido').innerText = "Inválido";
-            return;
-        }
-
-        fluxoCaixaCET.unshift(-liquido);
-        let cetMensal = 0;
-        try { cetMensal = calcularIRR(fluxoCaixaCET); } catch (e) { cetMensal = 0; }
-        let cetAnual = Math.pow(1 + cetMensal, 12) - 1;
-
-        // UI Update
-        document.getElementById('res-liquido').innerText = formatMoney(liquido);
-        document.getElementById('res-parcela').innerText = formatMoney(pmtPrice);
-        const percDesconto = ((totalDespesas/V)*100).toFixed(2);
-        document.getElementById('res-desconto-perc').innerText = `-${percDesconto}% (Taxas + IOF)`;
-        document.getElementById('det-bruto').innerText = formatMoney(V);
-        document.getElementById('det-iof').innerText = formatMoney(totalIOF);
-        document.getElementById('det-taxas').innerText = formatMoney(totalTac + totalEmissao);
-        document.getElementById('det-seguro').innerText = formatMoney(totalSeguro);
-        document.getElementById('det-liquido').innerText = formatMoney(liquido);
-
-        let cetMText = "--";
-        let cetAText = "--";
-        if (cetMensal > 0 && isFinite(cetMensal)) {
-            cetMText = (cetMensal * 100).toFixed(2) + "%";
-            cetAText = (cetAnual * 100).toFixed(2) + "%";
-        }
-        document.getElementById('det-cet-m').innerText = cetMText;
-        document.getElementById('det-cet-a').innerText = cetAText;
-
-        // PREENCHE DADOS NO PDF OCULTO
-        document.getElementById('pdf-data-geracao').innerText = new Date().toLocaleString('pt-BR');
-        document.getElementById('pdf-valor').innerText = formatMoney(V);
-        document.getElementById('pdf-prazo').innerText = n + " meses";
-        document.getElementById('pdf-taxa').innerText = document.getElementById('taxa').value + "% a.m.";
-        document.getElementById('pdf-carencia').innerText = carencia + " meses";
-        
-        document.getElementById('pdf-liquido').innerText = formatMoney(liquido);
-        document.getElementById('pdf-parcela').innerText = formatMoney(pmtPrice);
-        document.getElementById('pdf-cet-m').innerText = cetMText;
-        document.getElementById('pdf-cet-a').innerText = cetAText;
-    }
-
-    function calcularIRR(values, guess = 0.1) {
-        const maxIter = 1000; const precision = 1e-7; let rate = guess;
-        for (let i = 0; i < maxIter; i++) {
-            let npv = 0; let d_npv = 0;
-            for (let j = 0; j < values.length; j++) {
-                let term = values[j] / Math.pow(1 + rate, j);
-                npv += term;
-                d_npv -= (j * values[j]) / Math.pow(1 + rate, j + 1);
+            if (liquido <= 0) {
+                document.getElementById('errorMsg').style.display = 'block';
+                document.getElementById('errorMsg').innerText = "ERRO: O Valor Líquido é negativo.";
+                document.getElementById('res-liquido').innerText = "Inválido";
+                return;
             }
-            if (Math.abs(d_npv) < 1e-10) return rate; 
-            let newRate = rate - npv / d_npv;
-            if (Math.abs(newRate - rate) < precision) return newRate;
-            rate = newRate;
+
+            fluxoCaixaCET.unshift(-liquido);
+            let cetMensal = 0;
+            try { cetMensal = calcularIRR(fluxoCaixaCET); } catch (e) { cetMensal = 0; }
+            let cetAnual = Math.pow(1 + cetMensal, 12) - 1;
+
+            // Atualiza UI da Tela
+            document.getElementById('res-liquido').innerText = formatMoney(liquido);
+            document.getElementById('res-parcela').innerText = formatMoney(pmtPrice);
+            const percDesconto = ((totalDespesas/V)*100).toFixed(2);
+            document.getElementById('res-desconto-perc').innerText = `-${percDesconto}% (Taxas + IOF)`;
+            document.getElementById('det-bruto').innerText = formatMoney(V);
+            document.getElementById('det-iof').innerText = formatMoney(totalIOF);
+            document.getElementById('det-taxas').innerText = formatMoney(totalTaxas);
+            document.getElementById('det-seguro').innerText = formatMoney(totalSeguro);
+            document.getElementById('det-liquido').innerText = formatMoney(liquido);
+
+            let cetMText = "--";
+            let cetAText = "--";
+            if (cetMensal > 0 && isFinite(cetMensal)) {
+                cetMText = (cetMensal * 100).toFixed(2) + "%";
+                cetAText = (cetAnual * 100).toFixed(2) + "%";
+            }
+            document.getElementById('det-cet-m').innerText = cetMText;
+            document.getElementById('det-cet-a').innerText = cetAText;
+
+            // Atualiza o PDF Oculto
+            document.getElementById('pdf-data-geracao').innerText = new Date().toLocaleString('pt-BR');
+            document.getElementById('pdf-valor').innerText = formatMoney(V);
+            document.getElementById('pdf-prazo').innerText = n + " meses";
+            document.getElementById('pdf-taxa').innerText = document.getElementById('taxa').value + "% a.m.";
+            document.getElementById('pdf-carencia').innerText = carencia + " meses";
+            
+            document.getElementById('pdf-liquido').innerText = formatMoney(liquido);
+            document.getElementById('pdf-parcela').innerText = formatMoney(pmtPrice);
+            document.getElementById('pdf-cet-m').innerText = cetMText;
+            document.getElementById('pdf-cet-a').innerText = cetAText;
+
+            dadosSimulacao = {
+                valorBruto: formatMoney(V),
+                valorLiquido: formatMoney(liquido),
+                prazo: n,
+                parcela: formatMoney(pmtPrice)
+            };
         }
-        return rate;
-    }
 
-    // --- CORREÇÃO DA FOLHA EM BRANCO ---
-    function gerarPDF() {
-        const valLiquido = document.getElementById('res-liquido').innerText;
-        if(valLiquido === "R$ 0,00" || valLiquido === "Inválido") {
-            alert("Faça a simulação antes de gerar o PDF.");
-            return;
+        function calcularIRR(values, guess = 0.1) {
+            const maxIter = 1000; const precision = 1e-7; let rate = guess;
+            for (let i = 0; i < maxIter; i++) {
+                let npv = 0; let d_npv = 0;
+                for (let j = 0; j < values.length; j++) {
+                    let term = values[j] / Math.pow(1 + rate, j);
+                    npv += term;
+                    d_npv -= (j * values[j]) / Math.pow(1 + rate, j + 1);
+                }
+                if (Math.abs(d_npv) < 1e-10) return rate; 
+                let newRate = rate - npv / d_npv;
+                if (Math.abs(newRate - rate) < precision) return newRate;
+                rate = newRate;
+            }
+            return rate;
         }
 
-        const element = document.getElementById('relatorio-pdf');
-        
-        // 1. Clona o elemento original (que está display: none)
-        const clone = element.cloneNode(true);
-        
-        // 2. Torna o clone visível e define largura fixa (simulando A4)
-        clone.style.display = 'block';
-        clone.style.width = '750px'; 
-        clone.style.padding = '40px';
-        
-        // 3. Posiciona o clone de forma absoluta e em "camada" inferior para não piscar na tela
-        clone.style.position = 'absolute';
-        clone.style.top = '0';
-        clone.style.left = '0';
-        clone.style.zIndex = '-9999';
-        clone.style.background = 'white'; // Garante fundo branco
+        // Nova Função Intermediária PDF
+        function iniciarPDF() {
+            const valLiquido = document.getElementById('res-liquido').innerText;
+             if(valLiquido === "R$ 0,00" || valLiquido === "Inválido") {
+                alert("Faça a simulação antes de gerar o PDF.");
+                return;
+            }
 
-        // 4. Adiciona ao DOM para o html2canvas conseguir ler
-        document.body.appendChild(clone);
+            const overlay = document.getElementById('loadingOverlay');
+            document.getElementById('loadingText').innerText = "Gerando Documento PDF...";
+            overlay.style.display = 'flex';
 
-        const opt = {
-            margin:       10,
-            filename:     'Simulacao_CCB.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 }, // Melhora qualidade
-            jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
+            setTimeout(() => {
+                gerarPDF();
+            }, 500); // Pequeno delay para a UI respirar
+        }
 
-        // 5. Gera o PDF a partir do clone e depois remove o clone
-        html2pdf().set(opt).from(clone).save().then(() => {
-            document.body.removeChild(clone);
-        });
-    }
-</script>
+        function gerarPDF() {
+            const element = document.getElementById('relatorio-pdf');
+            const overlay = document.getElementById('loadingOverlay');
+
+            const opt = {
+                margin:       [10, 10, 10, 10],
+                filename:     'Simulacao_CredOn_Brasil.pdf', 
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { 
+                    scale: 2, 
+                    useCORS: true, 
+                    logging: false, 
+                    scrollY: 0,
+                    backgroundColor: '#ffffff' 
+                },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['css', 'legacy'] } 
+            };
+
+            const originalDisplay = element.style.display;
+            element.style.display = 'block';
+
+            html2pdf().set(opt).from(element).save().then(() => {
+                element.style.display = originalDisplay;
+                overlay.style.display = 'none'; // Some o loading
+            }).catch(err => {
+                console.error(err);
+                alert("Erro ao gerar PDF.");
+                element.style.display = originalDisplay;
+                overlay.style.display = 'none';
+            });
+        }
+
+        function abrirModalLead() {
+            const valLiquido = document.getElementById('res-liquido').innerText;
+            if(valLiquido === "R$ 0,00" || valLiquido === "Inválido") {
+                alert("Por favor, realize a simulação primeiro.");
+                return;
+            }
+            document.getElementById('leadModal').style.display = 'flex';
+            gsap.from(".modal-box", {scale: 0.8, opacity: 0, duration: 0.3, ease: "back.out(1.7)"});
+        }
+
+        function fecharModalLead() {
+            document.getElementById('leadModal').style.display = 'none';
+        }
+
+        function enviarWhatsApp() {
+            const nome = document.getElementById('leadNome').value;
+            const cpf = document.getElementById('leadCPF').value;
+            const cidade = document.getElementById('leadCidade').value;
+            const consultor = document.getElementById('leadConsultor').value;
+
+            if(!nome || !cpf || !cidade || !consultor) {
+                alert("Preencha todos os campos para enviar.");
+                return;
+            }
+
+            let msg = `*NOVA SOLICITAÇÃO DE CRÉDITO - CredOn Brasil*\n\n`;
+            msg += `*Consultor:* ${consultor}\n`;
+            msg += `*Cliente:* ${nome}\n`;
+            msg += `*CPF:* ${cpf}\n`;
+            msg += `*Cidade/Garantia:* ${cidade}\n\n`;
+            msg += `--------------------------------\n`;
+            msg += `*RESUMO DA SIMULAÇÃO:*\n`;
+            msg += `Valor Solicitado: ${dadosSimulacao.valorBruto}\n`;
+            msg += `Prazo: ${dadosSimulacao.prazo} meses\n`;
+            msg += `*Valor Líquido:* ${dadosSimulacao.valorLiquido}\n`;
+            msg += `*Parcela:* ${dadosSimulacao.parcela}\n`;
+            
+            const telefoneDestino = "5543988331584";
+            
+            const url = `https://wa.me/${telefoneDestino}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+            
+            fecharModalLead();
+        }
+    </script>
 
 </body>
 </html>
