@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>CredOn | Crédito com Garantia</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --primary: #2563eb;
+            --accent: #38bdf8;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --line-color: rgba(255, 255, 255, 0.1);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+        }
+
+        /* --- CONFIGURAÇÃO GERAL E REMOÇÃO DA SCROLLBAR --- */
+        html, body {
+            margin: 0; padding: 0; width: 100%; max-width: 100%;
+            overflow-x: hidden !important;
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+        }
+
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        a, button, input[type="range"] { cursor: pointer; }
+        body.loading { overflow: hidden; height: 100vh; }
+
+        /* --- PRELOADER LÍQUIDO --- */
+        #preloader {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: var(--bg-dark); z-index: 999999;
+            display: flex; align-items: center; justify-content: center;
+        }
+        
+        .svg-loader {
+            width: 80%; max-width: 800px; height: auto;
+        }
+        
+        .loader-text {
+            font-family: var(--font-display);
+            font-weight: 700;
+            text-transform: uppercase;
+            font-size: 100px; 
+        }
+
+        #liquid-mask-rect {
+            transform-origin: center;
+            transform: translate(-100%, 100%); 
+        }
+
+        /* --- HEADER / MENU --- */
+        header {
+            position: fixed; top: 0; left: 0; width: 100%; padding: 1.5rem 3rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 100;
+            transition: transform 0.4s ease, background 0.4s ease;
+            mix-blend-mode: difference; 
+        }
+        header.scrolled {
+            background: rgba(2, 6, 23, 0.8); backdrop-filter: blur(10px);
+            padding: 1rem 3rem;
+            mix-blend-mode: normal;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; font-family: var(--font-display); letter-spacing: -1px; }
+        .header-actions { display: flex; align-items: center; gap: 20px; }
+
+        .btn-header-login {
+            background: transparent; border: 1px solid rgba(255,255,255,0.4);
+            color: white; padding: 0.6rem 1.5rem; border-radius: 0px;
+            font-size: 0.85rem; font-weight: 500; transition: all 0.3s ease;
+            text-decoration: none; font-family: var(--font-display); text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-header-login:hover { background: white; color: var(--bg-dark); border-color: white; }
+
+        /* --- LOGIN MODAL --- */
+        .login-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            z-index: 99999;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; visibility: hidden;
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%; max-width: 900px; height: 600px;
+            display: grid; grid-template-columns: 1fr 1fr;
+            overflow: hidden;
+            box-shadow: 0 50px 100px -20px rgba(0, 0, 0, 0.7);
+            transform: translateY(50px);
+        }
+
+        .login-image {
+            background-image: url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover; background-position: center;
+            position: relative;
+        }
+        .login-image::after {
+            content: ''; position: absolute; top:0; left:0; width:100%; height:100%;
+            background: linear-gradient(to top, var(--bg-dark), transparent); opacity: 0.8;
+        }
+        .login-image-content {
+            position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 3rem;
+        }
+        .login-content { padding: 4rem; display: flex; flex-direction: column; position: relative; }
+        
+        .close-modal {
+            position: absolute; top: 20px; right: 20px; z-index: 10;
+            background: none; border: none; color: var(--text-muted);
+            font-size: 1.5rem; transition: 0.3s;
+        }
+        .close-modal:hover { color: white; transform: rotate(90deg); }
+
+        /* Login Tabs */
+        .login-tabs {
+            display: flex; gap: 20px; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .tab-btn {
+            background: none; border: none; color: var(--text-muted);
+            font-family: var(--font-display); font-size: 1rem; text-transform: uppercase;
+            padding-bottom: 10px; position: relative; opacity: 0.6; transition: 0.3s;
+        }
+        .tab-btn.active { opacity: 1; color: white; }
+        .tab-btn.active::after {
+            content:''; position: absolute; bottom: -1px; left:0; width: 100%; height: 2px; background: var(--accent);
+        }
+        
+        .form-container { position: relative; width: 100%; height: 100%; }
+        .login-form { position: absolute; top: 0; left: 0; width: 100%; transition: opacity 0.3s; }
+        
+        .input-group { margin-bottom: 2rem; position: relative; }
+        .input-field {
+            width: 100%; background: transparent; border: none;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+            padding: 10px 0; color: white; font-size: 1.1rem;
+            font-family: var(--font-body); transition: 0.3s;
+        }
+        .input-field:focus { border-bottom-color: var(--accent); }
+        .btn-submit {
+            width: 100%; background: white;
+            color: var(--bg-dark); border: none; padding: 1.2rem;
+            font-weight: 700; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 2px;
+            font-family: var(--font-display); cursor: pointer; transition: 0.3s;
+        }
+        .btn-submit:hover { background: var(--accent); color: white; }
+
+        /* --- HERO --- */
+        .hero {
+            position: relative; width: 100%; height: 100vh;
+            display: flex; align-items: center; justify-content: center;
+            overflow: hidden; text-align: center;
+        }
+        .hero-video {
+            position: absolute; top: 50%; left: 50%; width: 100%; height: 100%;
+            min-width: 100%; min-height: 100%; transform: translate(-50%, -50%);
+            object-fit: cover; opacity: 0.5;
+        }
+        .hero-content { position: relative; z-index: 2; padding: 0 20px; max-width: 1400px; display: flex; flex-direction: column; align-items: center; }
+        .hero h1 { 
+            font-size: clamp(4rem, 13vw, 11rem); margin: 0; line-height: 0.85;
+            font-family: var(--font-display); color: white;
+            letter-spacing: -4px;
+        }
+        .hero p {
+            font-size: 1.2rem; margin-top: 2rem; max-width: 500px; margin-left: auto; margin-right: auto;
+            color: #cbd5e1;
+            opacity: 0; transform: translateY(20px); /* Preparado para animação */
+        }
+
+        .hero-btn {
+            margin-top: 3rem;
+            background: var(--accent);
+            color: var(--bg-dark);
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-family: var(--font-display);
+            text-transform: uppercase;
+            font-weight: 700;
+            text-decoration: none;
+            letter-spacing: 1px;
+            transition: transform 0.3s, box-shadow 0.3s;
+            opacity: 0; transform: translateY(20px); /* Preparado para animação */
+        }
+        .hero-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4);
+            color: white;
+        }
+
+        /* --- UTILS --- */
+        .reveal-wrap { overflow: hidden; display: block; }
+        .reveal-text { transform: translateY(120%); display: block; will-change: transform; }
+        .section-line { width: 100%; height: 1px; background: var(--line-color); margin: 0; }
+
+        /* --- TICKER --- */
+        .ticker-section {
+            padding: 2rem 0; background: var(--bg-dark);
+            border-top: 1px solid var(--line-color); border-bottom: 1px solid var(--line-color);
+            overflow: hidden; display: flex;
+        }
+        .ticker-wrap { display: flex; white-space: nowrap; }
+        .ticker-item {
+            font-family: var(--font-display); font-size: 5rem; font-weight: 700;
+            color: transparent; -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+            margin-right: 2rem; text-transform: uppercase;
+        }
+        .ticker-item span { color: var(--accent); }
+
+        /* --- STACKED CARDS --- */
+        .stacked-section { 
+            background: var(--bg-dark);
+            background-image: 
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.9)),
+                url('/img/altaVertical2.jpg'); /* Substituir por sua imagem vertical */
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            
+            /* CORREÇÃO AQUI: Adicionado padding-top de 15vh para dar o espaçamento inicial */
+            padding-top: 15vh;
+            padding-bottom: 10vh; 
+        }
+        .stack-wrapper { position: relative; width: 100%; max-width: 1200px; margin: 0 auto; }
+        
+        .stack-card {
+            height: 80vh; width: 100%; position: sticky; top: 10vh;
+            background: rgba(15, 23, 42, 0.85); 
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            margin-bottom: 5vh; display: grid; grid-template-columns: 1fr 1fr;
+            overflow: hidden; transform-origin: center top;
+            box-shadow: 0 -20px 50px rgba(0,0,0,0.5);
+        }
+        .stack-img { width: 100%; height: 100%; object-fit: cover; }
+        .stack-content { padding: 4rem; display: flex; flex-direction: column; justify-content: center; border-left: 1px solid var(--line-color); }
+        .stack-num { font-family: var(--font-display); font-size: 4rem; color: var(--accent); margin-bottom: 2rem; }
+        .stack-title { font-family: var(--font-display); font-size: 3rem; margin: 0 0 1rem 0; line-height: 1; }
+        .stack-desc { color: var(--text-muted); font-size: 1.1rem; line-height: 1.6; }
+
+        /* --- HORIZONTAL SECTION --- */
+        .horizontal-section { width: 100%; height: 100vh; display: flex; align-items: center; overflow: hidden; background: var(--bg-dark); }
+        .horizontal-wrapper { display: flex; gap: 0; width: max-content; align-items: center; }
+        
+        .intro-text { 
+            width: 40vw; 
+            min-width: 500px; 
+            flex-shrink: 0; 
+            padding: 0 3rem; 
+            border-right: 1px solid var(--line-color); 
+            height: 60vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center;
+            align-items: flex-start;
+            text-align: left;
+        }
+        .intro-text h2 { font-size: 4rem; line-height: 1; font-family: var(--font-display); }
+        
+        .h-card {
+            width: 35vw; min-width: 400px; height: 100vh; flex-shrink: 0;
+            background: transparent; border-right: 1px solid var(--line-color);
+            padding: 3rem; display: flex; flex-direction: column; justify-content: center;
+            transition: background 0.3s; position: relative;
+        }
+        .h-card:hover { background: rgba(255, 255, 255, 0.02); }
+        .h-card h3 { font-size: 2.5rem; font-family: var(--font-display); margin: 0; }
+        .h-card p { color: var(--text-muted); margin-top: 1rem; }
+        .h-bg-num { position: absolute; bottom: 2rem; right: 2rem; font-size: 10rem; color: rgba(255,255,255,0.03); font-family: var(--font-display); font-weight: 700; }
+
+        /* --- BUBBLE/FEATURE --- */
+        .bubble-section { width: 100%; padding: 0; background: #f8fafc; color: #020617; position: relative; z-index: 10; }
+        .feature-content { max-width: 100%; margin: 0 auto; display: grid; grid-template-columns: 1fr 1fr; }
+        .feature-text { padding: 8rem 5rem; display: flex; flex-direction: column; justify-content: center; }
+        .feature-text h2 { font-size: 5rem; line-height: 0.9; margin-bottom: 2rem; font-family: var(--font-display); letter-spacing: -2px; }
+        .chaos-item { border-top: 1px solid #cbd5e1; padding: 1.5rem 0; display: flex; justify-content: space-between; align-items: center; }
+        .chaos-item h4 { font-size: 1.5rem; margin: 0; font-family: var(--font-display); }
+        .feature-image { position: relative; overflow: hidden; height: 100%; min-height: 80vh; }
+        .feature-image img { width: 100%; height: 100%; object-fit: cover; position: absolute; top:0; left:0; }
+
+        /* --- CALC CARD (SIMULADOR) --- */
+        .calc-section { 
+            padding: 8rem 5%; 
+            background-color: var(--bg-dark);
+            background-image: 
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.95)),
+                url('/img/fundoS3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            
+            border-top: 1px solid var(--line-color);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            z-index: 20;
+        }
+
+        .calc-card-container {
+            width: 100%;
+            max-width: 1100px;
+            background: #0f172a;
+            border-radius: 24px;
+            border: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            overflow: hidden;
+            box-shadow: 0 30px 60px -10px rgba(0,0,0,0.6);
+            position: relative;
+        }
+
+        .calc-visual {
+            width: 40%;
+            position: relative;
+            background-image: url('https://images.unsplash.com/photo-1579621970795-87facc2f976d?q=80&w=2070&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .calc-visual::after {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to top, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.2));
+        }
+
+        .calc-visual-content {
+            position: relative; z-index: 2; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 3rem;
+        }
+
+        .calc-visual-text h3 {
+            font-family: var(--font-display); font-size: 2.5rem; line-height: 1; margin-bottom: 1rem; color: white;
+        }
+        .calc-visual-text p { color: var(--text-muted); font-size: 0.95rem; }
+
+        .calc-interface { width: 60%; padding: 4rem; display: flex; flex-direction: column; justify-content: space-between; }
+        .calc-header-mobile { display: none; margin-bottom: 2rem; }
+        .calc-header-mobile h3 { font-family: var(--font-display); font-size: 2rem; margin: 0; }
+
+        .slider-wrapper-vertical { display: flex; flex-direction: column; gap: 3rem; margin-bottom: 3rem; }
+        .slider-group { position: relative; width: 100%; }
+        .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .slider-label { 
+            font-family: var(--font-display); font-size: 0.9rem; letter-spacing: 1px; color: var(--text-muted); text-transform: uppercase; 
+            display: flex; align-items: center; gap: 8px;
+        }
+        .slider-value { font-family: var(--font-display); font-size: 1.5rem; color: white; font-weight: 500; }
+
+        input[type=range] { width: 100%; background: transparent; -webkit-appearance: none; cursor: pointer; }
+        input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; transition: all 0.2s ease; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: white;
+            border: 4px solid #0f172a; margin-top: -9px; box-shadow: 0 0 0 1px rgba(255,255,255,0.5); transition: all 0.2s ease;
+        }
+        input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.1); background: var(--accent); border-color: #0f172a; }
+
+        .calc-footer {
+            background: #1e293b; padding: 2rem; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);
+            display: flex; flex-direction: column; align-items: center; gap: 1.5rem; text-align: center;
+        }
+        
+        .result-block { display: flex; flex-direction: column; align-items: center; width: 100%; }
+        .result-label { font-size: 0.8rem; text-transform: uppercase; color: var(--text-muted); letter-spacing: 1px; margin-bottom: 0.5rem; }
+        .result-value { 
+            font-size: 3rem; font-family: var(--font-display); font-weight: 700; color: var(--primary); 
+            line-height: 1; margin-bottom: 0.5rem;
+        }
+        
+        .calc-cta {
+            width: 100%; background: white; color: var(--bg-dark);
+            padding: 1.2rem 2rem; border: none; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+            font-family: var(--font-display); border-radius: 6px; transition: 0.3s;
+        }
+        .calc-cta:hover { background: var(--accent); color: white; transform: translateY(-2px); box-shadow: 0 10px 20px -5px rgba(56, 189, 248, 0.3); }
+
+        /* --- MANIFESTO SECTION --- */
+        .manifesto-section {
+            background: var(--bg-dark);
+            padding: 10rem 5%;
+            border-top: 1px solid var(--line-color);
+            position: relative;
+        }
+        .manifesto-container {
+            max-width: 1400px; margin: 0 auto;
+        }
+        .manifesto-text {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4.5rem);
+            line-height: 1.1;
+            color: #475569;
+        }
+        .manifesto-line { display: block; overflow: hidden; }
+        .manifesto-word { display: inline-block; transition: color 0.5s ease; }
+        .manifesto-word.active { color: white; }
+
+        /* --- METODOLOGIA SECTION --- */
+        .methodology-section {
+            background-color: var(--bg-dark);
+            position: relative;
+            padding-bottom: 10vh;
+            overflow: hidden;
+            background-image: 
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.9), rgba(2, 6, 23, 0.95)),
+                url('/img/fundoM2.jpg');
+            background-size: cover;
+            background-position: center;
+        }
+
+        .methodology-container {
+            display: flex;
+            max-width: 1600px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        
+        .method-text-col { width: 50%; padding: 0 5%; z-index: 2; }
+        .method-block {
+            min-height: 90vh;
+            display: flex; flex-direction: column; justify-content: center;
+            opacity: 0.3; transition: opacity 0.5s;
+        }
+        .method-block.active { opacity: 1; }
+        .method-num {
+            font-family: var(--font-display); font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem;
+            display: inline-block; border: 1px solid var(--accent); padding: 5px 15px; border-radius: 50px;
+        }
+        .method-block h3 {
+            font-family: var(--font-display); font-size: 3.5rem; margin: 0 0 1.5rem 0; line-height: 1;
+        }
+        .method-block p {
+            font-size: 1.2rem; color: var(--text-muted); max-width: 500px; line-height: 1.6;
+        }
+
+        .method-img-col {
+            width: 50%; height: 100vh; position: sticky; top: 0; right: 0;
+            display: flex; align-items: center; justify-content: center; overflow: hidden;
+        }
+        
+        /* CORREÇÃO AQUI: Removido border-radius para ficar pontudo */
+        .method-img-wrapper {
+            width: 80%; height: 65vh; position: relative; border-radius: 0px; overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 40px -15px rgba(0,0,0,0.7), inset 0 1px 1px rgba(255,255,255,0.1);
+        }
+        .method-img {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover;
+            opacity: 0; transform: scale(1.1); transition: opacity 0.8s ease, transform 1.2s ease;
+        }
+        .method-img.active { opacity: 1; transform: scale(1); }
+
+        /* --- SEÇÃO FAQ --- */
+        .faq-section {
+            padding: 8rem 5%; background: #0f172a; border-top: 1px solid var(--line-color);
+        }
+        .faq-container { max-width: 900px; margin: 0 auto; }
+        .faq-header { text-align: center; margin-bottom: 4rem; }
+        .faq-header h2 { font-family: var(--font-display); font-size: 3rem; margin-bottom: 1rem; }
+        
+        .faq-item { border-bottom: 1px solid var(--line-color); padding: 1.5rem 0; }
+        .faq-question {
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            font-family: var(--font-display); font-size: 1.2rem;
+        }
+        .faq-answer {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+            color: var(--text-muted); line-height: 1.6; padding-right: 2rem;
+        }
+        .faq-answer.open { margin-top: 1rem; max-height: 200px; }
+        .faq-icon { transition: transform 0.3s; }
+        .faq-icon.rotate { transform: rotate(45deg); color: var(--accent); }
+
+        /* --- FOOTER --- */
+        footer { padding: 3rem 5%; background: var(--bg-dark); border-top: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: flex-end; }
+        .martech-credit a { color: var(--accent); text-decoration: none; }
+
+        /* --- CURSOR --- */
+        .cursor-dot {
+            position: fixed; top: 0; left: 0; width: 10px; height: 10px; background: white;
+            border-radius: 50%; z-index: 9999; pointer-events: none; transform: translate(-50%, -50%);
+            mix-blend-mode: difference;
+        }
+
+        /* ------------------------------------------- */
+        /* --- RESPONSIVIDADE MOBILE (REESCRITA) --- */
+        /* ------------------------------------------- */
+        @media (max-width: 900px) {
+            
+            /* -- Header Mobile -- */
+            header, header.scrolled { padding: 1.2rem 5%; }
+            .logo { font-size: 1.3rem; }
+            .btn-header-login { padding: 0.5rem 1rem; font-size: 0.75rem; }
+
+            /* -- Hero Mobile -- */
+            .hero h1 { font-size: 13vw; line-height: 0.9; }
+            .hero p { font-size: 1rem; padding: 0 1rem; max-width: 100%; }
+            .hero-btn { width: 80%; max-width: 300px; padding: 1rem; }
+
+            /* -- Ticker -- */
+            .ticker-item { font-size: 3rem; margin-right: 1rem; }
+
+            /* -- Horizontal Section (Vira Vertical) -- */
+            .horizontal-section { height: auto; display: block; padding: 0; overflow: visible; }
+            .horizontal-wrapper { display: block; width: 100%; }
+            
+            /* Correção do Intro Text no Mobile para resetar a largura do Desktop */
+            .intro-text { 
+                width: 100%; 
+                min-width: auto;
+                height: auto; 
+                border: none; 
+                padding: 5rem 5% 3rem 5%; 
+                text-align: left; 
+                border-bottom: 1px solid var(--line-color);
+            }
+            .intro-text h2 { font-size: 3rem; }
+            
+            .h-card { 
+                width: 100%; height: auto; min-height: auto; 
+                padding: 4rem 5%; border-right: none; 
+                border-bottom: 1px solid var(--line-color);
+            }
+            .h-card h3 { font-size: 2rem; }
+            .h-bg-num { font-size: 6rem; bottom: 1rem; right: 1rem; }
+
+            /* -- Stacked Section (Remove Sticky) -- */
+            .stacked-section { 
+                padding-bottom: 2rem; 
+                background-attachment: scroll; /* Melhora performance no mobile */
+                padding-top: 4rem; /* Reseta o padding grande do desktop */
+            }
+            .stack-wrapper { padding: 0 5%; }
+            .stack-card { 
+                position: relative; top: 0; height: auto; 
+                margin-bottom: 3rem; display: flex; flex-direction: column;
+                transform: none !important; /* Reseta transformações GSAP se houver */
+                opacity: 1 !important;
+            }
+            .stack-img { height: 250px; }
+            .stack-content { padding: 2rem; border-left: none; border-top: 1px solid var(--line-color); }
+            .stack-title { font-size: 2rem; }
+            .stack-num { font-size: 3rem; margin-bottom: 1rem; }
+
+            /* -- Bubble/Feature -- */
+            .feature-content { grid-template-columns: 1fr; }
+            .feature-image { min-height: 40vh; height: 40vh; }
+            .feature-text { padding: 4rem 5%; }
+            .feature-text h2 { font-size: 3rem; }
+            
+            /* -- Calculator Mobile -- */
+            .calc-section { padding: 4rem 5%; min-height: auto; }
+            .calc-card-container { flex-direction: column; max-width: 100%; border-radius: 16px; }
+            .calc-visual { width: 100%; height: 180px; }
+            .calc-visual-content { display: none; } /* Oculta texto na imagem no mobile */
+            .calc-interface { width: 100%; padding: 2rem 1.5rem; }
+            .calc-header-mobile { display: block; }
+            .slider-wrapper-vertical { gap: 2rem; margin-bottom: 2rem; }
+            .calc-footer { padding: 1.5rem; }
+            .result-value { font-size: 2.5rem; }
+            
+            /* -- Manifesto -- */
+            .manifesto-section { padding: 5rem 5%; }
+            .manifesto-text { font-size: 2rem; }
+
+            /* -- Methodology (Ajuste Flow) -- */
+            .methodology-container { flex-direction: column-reverse; }
+            .method-text-col { width: 100%; padding: 0 5%; }
+            
+            /* Área da imagem fica no topo ou entre seções, estática */
+            .method-img-col { 
+                width: 100%; height: 40vh; 
+                position: relative; top: 0; 
+                margin-bottom: 2rem; 
+                padding: 1rem;
+            }
+            /* CORREÇÃO AQUI TAMBÉM: Removido border-radius no mobile */
+            .method-img-wrapper { 
+                width: 100%; height: 100%; 
+                border-radius: 0px; border: none;
+            }
+            
+            .method-block { 
+                min-height: auto; padding: 3rem 0; 
+                opacity: 1; /* Texto sempre visível no mobile */
+                border-bottom: 1px solid var(--line-color);
+            }
+            .method-block:last-child { border-bottom: none; }
+            .method-block h3 { font-size: 2.2rem; }
+
+            /* -- Login Modal Mobile -- */
+            .login-card { grid-template-columns: 1fr; height: auto; min-height: 80vh; max-width: 95%; }
+            .login-image { display: none; }
+            .login-content { padding: 2rem; }
+
+            /* -- Loader -- */
+            .svg-loader { width: 95%; }
+            .loader-text { font-size: 60px; }
+
+            /* -- Footer -- */
+            footer { flex-direction: column; gap: 1rem; align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body class="loading">
+
+    <div id="preloader">
+        <svg class="svg-loader" viewBox="0 0 800 150" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <clipPath id="liquid-clip">
+                    <rect id="liquid-mask-rect" x="-50%" y="-50%" width="200%" height="200%" fill="white" />
+                </clipPath>
+            </defs>
+            
+            <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                  class="loader-text" fill="none" stroke="#334155" stroke-width="2">
+                CREDON BRASIL
+            </text>
+
+            <g clip-path="url(#liquid-clip)">
+                <text x="50%" y="50%" dominant-baseline="middle" text-anchor="middle" 
+                      class="loader-text" fill="#fff">
+                    CREDON BRASIL
+                </text>
+            </g>
+        </svg>
+    </div>
+
+    <div class="login-overlay" id="loginOverlay">
+        <div class="login-card">
+            <div class="login-image">
+                <div class="login-image-content">
+                    <h3>Sua liberdade<br>Financeira</h3>
+                </div>
+            </div>
+            <div class="login-content">
+                <button class="close-modal" onclick="toggleLogin(false)"><i class="fas fa-times"></i></button>
+                <h3 style="font-family: var(--font-display); margin-bottom: 1.5rem; font-size: 2rem;">Acesso</h3>
+                <div class="login-tabs">
+                    <button class="tab-btn active" onclick="switchLogin('client', this)">Cliente</button>
+                    <button class="tab-btn" onclick="switchLogin('admin', this)">Administrador</button>
+                </div>
+                <div class="form-container">
+                    <form id="form-client" class="login-form">
+                        <div class="input-group">
+                            <input type="email" class="input-field" placeholder=" " id="c-email" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Seu e-mail de cadastro</div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" class="input-field" placeholder=" " id="c-pass" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
+                        </div>
+                        <button type="submit" class="btn-submit">Acessar Conta</button>
+                    </form>
+                    <form id="form-admin" class="login-form" style="opacity: 0; pointer-events: none;">
+                        <div class="input-group">
+                            <input type="text" class="input-field" placeholder=" " id="a-user" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">ID Administrativo</div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" class="input-field" placeholder=" " id="a-pass" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Chave de Acesso</div>
+                        </div>
+                        <button type="submit" class="btn-submit" style="background: var(--bg-dark); border: 1px solid white; color: white;">Entrar Admin</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="cursor-dot"></div>
+
+    <header id="main-header">
+        <div class="logo">CREDON</div>
+        <div class="header-actions">
+            <button class="btn-header-login" onclick="toggleLogin(true)">Login</button>
+            <a href="https://wa.me/5543988331584" target="_blank" style="color: white; font-size: 1.2rem;"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?q=80&w=1632">
+            <source src="/src/video/banner.mp4" type="video/mp4">
+        </video>
+        <div class="hero-content">
+            <h1>
+                <span class="reveal-wrap"><span class="reveal-text">CRÉDITO COM</span></span>
+                <span class="reveal-wrap"><span class="reveal-text">GARANTIA REAL</span></span>
+            </h1>
+            <p class="reveal-wrap"><span class="reveal-text" style="transition-delay: 0.2s;">Taxas a partir de 1,09% a.m. com até 240 meses para pagar.</span></p>
+            
+            <a href="#simulador" class="hero-btn reveal-text" style="transition-delay: 0.4s; display:inline-block;">
+                Simular Agora <i class="fas fa-arrow-down" style="margin-left: 10px;"></i>
+            </a>
+        </div>
+    </section>
+
+    <div class="ticker-section">
+        <div class="ticker-wrap">
+            <div class="ticker-item">HOME EQUITY • <span>GIRO DE CAIXA</span> • CRÉDITO RÁPIDO •</div>
+            <div class="ticker-item">HOME EQUITY • <span>GIRO DE CAIXA</span> • CRÉDITO RÁPIDO •</div>
+            <div class="ticker-item">HOME EQUITY • <span>GIRO DE CAIXA</span> • CRÉDITO RÁPIDO •</div>
+        </div>
+    </div>
+
+    <section class="horizontal-section" id="h-section">
+        <div class="horizontal-wrapper">
+            <div class="intro-text">
+                <h2>
+                    <span class="reveal-wrap"><span class="reveal-text">SOLUÇÕES</span></span>
+                    <span class="reveal-wrap"><span class="reveal-text" style="color: var(--primary)">FINANCEIRAS</span></span>
+                </h2>
+                <p>Nossa tecnologia permite avaliar seu ativo com precisão e liberar recursos em tempo recorde.</p>
+            </div>
+            
+            <div class="h-card">
+                <h3>Empresarial</h3>
+                <p>Capital de giro robusto para expansão.</p>
+                <div class="h-bg-num">01</div>
+            </div>
+
+            <div class="h-card">
+                <h3>Negativados</h3>
+                <p>Crédito baseado na garantia, não no score.</p>
+                <div class="h-bg-num">02</div>
+            </div>
+
+            <div class="h-card">
+                <h3>Uso Livre</h3>
+                <p>Sem prestação de contas do destino.</p>
+                <div class="h-bg-num">03</div>
+            </div>
+            
+             <div class="h-card" style="border-right: none;">
+                <h3>Agro</h3>
+                <p>Recursos para safra e maquinário.</p>
+                <div class="h-bg-num">04</div>
+            </div>
+        </div>
+    </section>
+
+    <section class="stacked-section">
+        <div class="stack-wrapper">
+            <div class="stack-card">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=2070" class="stack-img" alt="Building">
+                <div class="stack-content">
+                    <div class="stack-num">01</div>
+                    <h3 class="stack-title">Análise<br>Inteligente</h3>
+                    <p class="stack-desc">Nossa IA cruza dados de mercado para valorizar seu imóvel acima da média bancária tradicional, garantindo mais crédito.</p>
+                </div>
+            </div>
+            <div class="stack-card">
+                <img src="https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=2070" class="stack-img" alt="Contract">
+                <div class="stack-content">
+                    <div class="stack-num">02</div>
+                    <h3 class="stack-title">Jurídico<br>Ágil</h3>
+                    <p class="stack-desc">Processo desburocratizado. Análise de matrícula e documentos feita digitalmente em até 48 horas.</p>
+                </div>
+            </div>
+            <div class="stack-card">
+                <img src="https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=2070" class="stack-img" alt="Money">
+                <div class="stack-content">
+                    <div class="stack-num">03</div>
+                    <h3 class="stack-title">Cash-out<br>Flash</h3>
+                    <p class="stack-desc">Após assinatura digital do contrato, o recurso é liberado via TED/PIX na conta de sua preferência.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bubble-section">
+        <div class="feature-content">
+            <div class="feature-image">
+                <img class="parallax-img" src="https://images.unsplash.com/photo-1497366216548-37526070297c?q=80&w=1469" alt="Office">
+            </div>
+            <div class="feature-text">
+                <h2>
+                    <span class="reveal-wrap"><span class="reveal-text" style="color: #020617;">SEU IMÓVEL,</span></span>
+                    <span class="reveal-wrap"><span class="reveal-text" style="color: #020617;">SUA LIBERDADE.</span></span>
+                </h2>
+                <div style="margin-top: 3rem;">
+                    <div class="chaos-item"><h4>Sem Teto</h4><span>Limite de Valor</span></div>
+                    <div class="chaos-item"><h4>240x</h4><span>Prazo Estendido</span></div>
+                    <div class="chaos-item"><h4>5 Dias*</h4><span>Contrato Rápido</span></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="calc-section" id="simulador">
+        <div class="calc-card-container">
+            <div class="calc-visual">
+                <div class="calc-visual-content">
+                    <div class="calc-visual-text">
+                        <h3>Simule sua<br>Conquista</h3>
+                        <p>Planeje seu futuro com taxas competitivas e prazos que cabem no seu bolso.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="calc-interface">
+                <div class="calc-header-mobile"><h3>Simule Agora</h3></div>
+                <div class="slider-wrapper-vertical">
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label"><i class="fas fa-wallet"></i> Valor do Crédito</span>
+                            <span class="slider-value" id="val-display">R$ 100.000</span>
+                        </div>
+                        <input type="range" min="50000" max="5000000" step="50000" value="100000" id="range-val">
+                    </div>
+                    <div class="slider-group">
+                        <div class="slider-header">
+                            <span class="slider-label"><i class="fas fa-calendar-alt"></i> Prazo de Pagamento</span>
+                            <span class="slider-value" id="month-display">120 meses</span>
+                        </div>
+                        <input type="range" min="24" max="240" step="12" value="120" id="range-month">
+                    </div>
+                </div>
+                <div class="calc-footer">
+                    <div class="result-block">
+                        <span class="result-label">Parcela Estimada</span>
+                        <span class="result-value" id="result-total">R$ 1.500</span>
+                    </div>
+                    <button class="calc-cta" onclick="enviarProposta()">Solicitar Proposta</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="manifesto-section">
+        <div class="manifesto-container">
+            <div class="manifesto-text">
+                <span class="manifesto-word">Não</span> <span class="manifesto-word">somos</span> <span class="manifesto-word">apenas</span>
+                <span class="manifesto-word">um</span> <span class="manifesto-word">banco.</span> <span class="manifesto-word" style="color: var(--primary);">Somos</span>
+                <span class="manifesto-word" style="color: var(--primary);">o</span> <span class="manifesto-word" style="color: var(--primary);">combustível</span> <span class="manifesto-word">para</span>
+                <span class="manifesto-word">os</span> <span class="manifesto-word">seus</span> <span class="manifesto-word">sonhos.</span>
+                <span class="manifesto-word">Transformamos</span> <span class="manifesto-word">patrimônio</span> <span class="manifesto-word">imobilizado</span>
+                <span class="manifesto-word">em</span> <span class="manifesto-word">liquidez</span> <span class="manifesto-word">imediata</span>
+                <span class="manifesto-word">e</span> <span class="manifesto-word">futuro</span> <span class="manifesto-word">tangível.</span>
+            </div>
+        </div>
+    </section>
+
+    <section class="methodology-section">
+        <div class="methodology-container">
+            <div class="method-text-col">
+                <div class="method-block" data-img="1">
+                    <span class="method-num">01</span>
+                    <h3>Consultoria Especializada</h3>
+                    <p>Entendemos a sua necessidade antes de falar de números. Nossa equipe sênior desenha a estrutura de crédito ideal para o seu momento de vida ou empresa.</p>
+                </div>
+                <div class="method-block" data-img="2">
+                    <span class="method-num">02</span>
+                    <h3>Avaliação & Compliance</h3>
+                    <p>Usamos tecnologia de ponta para avaliar seu imóvel remotamente e agilizar a análise jurídica, garantindo segurança total para ambas as partes.</p>
+                </div>
+                <div class="method-block" data-img="3">
+                    <span class="method-num">03</span>
+                    <h3>Liberação Acelerada</h3>
+                    <p>Uma vez aprovado, o contrato é digital. Assinou, o dinheiro cai na conta. Sem filas de cartório, sem burocracia desnecessária.</p>
+                </div>
+            </div>
+            
+            <div class="method-img-col">
+                <div class="method-img-wrapper">
+                    <img src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?q=80&w=2070" class="method-img active" id="m-img-1" alt="Meeting">
+                    <img src="https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=2070" class="method-img" id="m-img-2" alt="Analysis">
+                    <img src="/img/sucesso.jpg" class="method-img" id="m-img-3" alt="Success">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="faq-section">
+        <div class="faq-container">
+            <div class="faq-header">
+                <h2>Dúvidas Frequentes</h2>
+                <p style="color: var(--text-muted);">Transparência em cada etapa.</p>
+            </div>
+            
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Quais imóveis são aceitos?</span>
+                    <i class="fas fa-plus faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    Aceitamos imóveis residenciais e comerciais em áreas urbanas, devidamente regularizados e com Habite-se. Terrenos em condomínio fechado também podem ser analisados.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Posso vender o imóvel depois?</span>
+                    <i class="fas fa-plus faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    Sim. Caso deseje vender o imóvel durante o contrato, o saldo devedor é quitado com o valor da venda e a diferença fica com você.
+                </div>
+            </div>
+
+            <div class="faq-item" onclick="toggleFaq(this)">
+                <div class="faq-question">
+                    <span>Qual o tempo médio de liberação?</span>
+                    <i class="fas fa-plus faq-icon"></i>
+                </div>
+                <div class="faq-answer">
+                    Após a entrega completa da documentação, nossa média é de 5 a 10 dias úteis para o dinheiro estar na sua conta.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div style="opacity: 0.5; font-size: 0.9rem;">&copy; 2025 CredOn Brasil. Todos os direitos reservados.</div>
+        <div class="martech-credit">BY <a href="http://agenciamartech.com.br/" target="_blank">AGÊNCIA MARTECH</a></div>
+    </footer>
+
+    <script>
+        gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
+
+        // --- 1. PRELOADER LÍQUIDO OTIMIZADO (CORREÇÃO DE VELOCIDADE) ---
+        // Alterado de window.onload para DOMContentLoaded para iniciar IMEDIATAMENTE
+        document.addEventListener("DOMContentLoaded", () => {
+            const tl = gsap.timeline();
+
+            // Passo 1: Encher o texto (efeito líquido)
+            // Usei 'duration: 2.5' para dar tempo do usuário ver o efeito legal, 
+            // mas sem esperar o resto do site carregar.
+            tl.to("#liquid-mask-rect", { 
+                x: "0%", 
+                y: "0%", 
+                duration: 2.5, 
+                ease: "power2.inOut" 
+            })
+            // Passo 2: Assim que encher, SOBE o site imediatamente (overlap de -0.5s)
+            .to("#preloader", {
+                y: "-100%", 
+                duration: 1, 
+                ease: "expo.inOut", // Easing mais "tech" e agressivo
+                onStart: () => {
+                    document.body.classList.remove("loading");
+                    revealHero(); // Chama a entrada do site
+                }
+            }, "-=0.5"); // O segredo: começa a subir antes do liquido terminar 100% o easing final
+        });
+
+        function revealHero() {
+            const tlHero = gsap.timeline();
+            
+            // Animação de entrada dos textos do Hero com Stagger (Escadinha)
+            tlHero.to(".hero h1 .reveal-text", { 
+                y: 0, 
+                duration: 1.5, 
+                stagger: 0.1, 
+                ease: "power4.out" 
+            })
+            .to(".hero p .reveal-text", {
+                y: 0,
+                duration: 1,
+                ease: "power3.out"
+            }, "-=1.0")
+            .to(".hero-btn", { 
+                opacity: 1, 
+                y: 0, 
+                duration: 1, 
+                ease: "back.out(1.7)" // Efeito de pulo leve
+            }, "-=0.8");
+        }
+
+        // --- 2. LOGIN LOGIC ---
+        const loginOverlay = document.getElementById('loginOverlay');
+        const formClient = document.getElementById('form-client');
+        const formAdmin = document.getElementById('form-admin');
+
+        function toggleLogin(show) {
+            if (show) {
+                gsap.to(loginOverlay, { autoAlpha: 1, duration: 0.4 });
+                gsap.to(".login-card", { y: 0, opacity: 1, duration: 0.6, ease: "power3.out", delay: 0.1 });
+            } else {
+                gsap.to(".login-card", { y: 50, opacity: 0, duration: 0.4, ease: "power3.in" });
+                gsap.to(loginOverlay, { autoAlpha: 0, duration: 0.4, delay: 0.2 });
+            }
+        }
+
+        function switchLogin(type, btn) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            if(btn) btn.classList.add('active');
+
+            if (type === 'client') {
+                gsap.to(formAdmin, { autoAlpha: 0, x: 20, duration: 0.3, pointerEvents: "none" });
+                gsap.fromTo(formClient, { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
+            } else {
+                gsap.to(formClient, { autoAlpha: 0, x: -20, duration: 0.3, pointerEvents: "none" });
+                gsap.fromTo(formAdmin, { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
+            }
+        }
+
+        // --- 3. SIMULADOR & WHATSAPP LOGIC ---
+        const valSlider = document.getElementById('range-val');
+        const monthSlider = document.getElementById('range-month');
+        const valDisplay = document.getElementById('val-display');
+        const monthDisplay = document.getElementById('month-display');
+        const totalDisplay = document.getElementById('result-total');
+        let currentTotal = 0;
+
+        function updateSliderTrack(slider) {
+            const min = slider.min; const max = slider.max; const val = slider.value;
+            const percentage = (val - min) * 100 / (max - min);
+            slider.style.background = `linear-gradient(to right, #2563eb ${percentage}%, #1e293b ${percentage}%)`;
+        }
+
+        function updateCalc() {
+            const val = parseFloat(valSlider.value);
+            const months = parseInt(monthSlider.value);
+            const rate = 0.0109; 
+            
+            valDisplay.innerText = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
+            monthDisplay.innerText = months + " meses";
+            updateSliderTrack(valSlider);
+            updateSliderTrack(monthSlider);
+
+            const x = Math.pow(1 + rate, months);
+            const monthly = (val * x * rate) / (x - 1);
+            
+            gsap.to({ val: currentTotal }, {
+                val: monthly, duration: 0.5, ease: "power2.out",
+                onUpdate: function() { totalDisplay.innerText = this.targets()[0].val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }); },
+                onComplete: () => { currentTotal = monthly; }
+            });
+        }
+
+        valSlider.addEventListener('input', updateCalc);
+        monthSlider.addEventListener('input', updateCalc);
+        updateCalc();
+
+        // FUNÇÃO DE ENVIAR PROPOSTA PARA WHATSAPP
+        function enviarProposta() {
+            const valor = valDisplay.innerText;
+            const meses = monthDisplay.innerText;
+            const parcela = totalDisplay.innerText;
+            const telefone = "5543988331584";
+            
+            const mensagem = `Olá! Fiz uma simulação no site da CredOn e gostaria de solicitar uma proposta.%0A%0A💰 *Valor:* ${valor}%0A📅 *Prazo:* ${meses}%0A📉 *Parcela Estimada:* ${parcela}%0A%0APodemos avançar?`;
+            
+            window.open(`https://wa.me/${telefone}?text=${mensagem}`, '_blank');
+        }
+
+        // --- 4. ANIMAÇÕES GERAIS ---
+        document.querySelectorAll('section:not(.hero) .reveal-text').forEach(text => {
+            gsap.to(text, {
+                y: 0, duration: 1.2, ease: "power3.out",
+                scrollTrigger: { trigger: text, start: "top 90%" }
+            });
+        });
+
+        gsap.to(".ticker-wrap", { xPercent: -50, ease: "none", duration: 20, repeat: -1 });
+
+        // Scroll Suave para o Botão "Simular Agora"
+        document.querySelector('.hero-btn').addEventListener('click', function(e) {
+            e.preventDefault();
+            gsap.to(window, { duration: 1.5, scrollTo: "#simulador", ease: "power4.inOut" });
+        });
+
+        // FAQ Toggle
+        function toggleFaq(item) {
+            const answer = item.querySelector('.faq-answer');
+            const icon = item.querySelector('.faq-icon');
+            
+            if (answer.classList.contains('open')) {
+                answer.classList.remove('open');
+                icon.classList.remove('rotate');
+            } else {
+                // Fecha outros
+                document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
+                document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('rotate'));
+                
+                answer.classList.add('open');
+                icon.classList.add('rotate');
+            }
+        }
+
+        // --- 5. ANIMAÇÕES ESTILO EMMPO ---
+        let mm = gsap.matchMedia();
+        mm.add("(min-width: 901px)", () => {
+            // Horizontal Section
+            const hWrapper = document.querySelector(".horizontal-wrapper");
+            gsap.to(hWrapper, {
+                x: () => -(hWrapper.scrollWidth - window.innerWidth),
+                ease: "none",
+                scrollTrigger: {
+                    trigger: ".horizontal-section", start: "top top", end: () => "+=" + hWrapper.scrollWidth,
+                    pin: true, scrub: 1, invalidateOnRefresh: true
+                }
+            });
+            
+            gsap.fromTo(".parallax-img", { scale: 1.2, y: -50 }, { scale: 1, y: 50, scrollTrigger: { trigger: ".bubble-section", start: "top bottom", end: "bottom top", scrub: true }});
+            
+            gsap.utils.toArray(".stack-card").forEach((card) => {
+                gsap.to(card, { scale: 0.95, opacity: 0.5, scrollTrigger: { trigger: card, start: "top 10vh", end: "bottom top", scrub: true, toggleActions: "restart none none reverse" }});
+            });
+
+            // Manifesto Animation (Words highlighting)
+            gsap.utils.toArray('.manifesto-word').forEach(word => {
+                gsap.to(word, {
+                    color: "white",
+                    duration: 0.5,
+                    scrollTrigger: {
+                        trigger: word, start: "top 80%", end: "top 20%", scrub: true
+                    }
+                })
+            });
+
+            // Methodology Sticky Animation
+            ScrollTrigger.create({
+                trigger: ".methodology-section",
+                start: "top top",
+                end: "bottom bottom",
+                pin: ".method-img-col", // Pin the right side
+                scrub: true
+            });
+
+            // Change images based on scroll position of text blocks
+            const blocks = document.querySelectorAll('.method-block');
+            const images = document.querySelectorAll('.method-img');
+
+            blocks.forEach((block, i) => {
+                ScrollTrigger.create({
+                    trigger: block,
+                    start: "top center",
+                    end: "bottom center",
+                    onEnter: () => updateImage(i),
+                    onEnterBack: () => updateImage(i),
+                    onLeave: () => { if(i < blocks.length - 1) updateImage(i+1) }, // Opcional
+                    onLeaveBack: () => { if(i > 0) updateImage(i-1) }, // Opcional
+                    toggleClass: { targets: block, className: "active" }
+                });
+            });
+
+            function updateImage(index) {
+                images.forEach(img => img.classList.remove('active'));
+                if(images[index]) images[index].classList.add('active');
+            }
+        });
+
+        // Header Scroll
+        window.addEventListener('scroll', () => {
+            const header = document.getElementById('main-header');
+            if (window.scrollY > 50) header.classList.add('scrolled');
+            else header.classList.remove('scrolled');
+        });
+
+        // Mouse Follower
+        if (window.matchMedia("(pointer: fine)").matches) {
+            const dot = document.querySelector(".cursor-dot");
+            window.addEventListener("mousemove", e => {
+                gsap.to(dot, { x: e.clientX, y: e.clientY, duration: 0.1 });
+            });
+        }
+    </script>
+</body>
+</html>
