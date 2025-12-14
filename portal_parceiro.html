@@ -1,0 +1,10 @@
+<script>
+    // Verifica se existe o token de usuário
+    const user = localStorage.getItem('credon_user');
+    if (!user) {
+        // Se não tiver usuário, chuta de volta pra home
+        window.location.href = "index.html"; 
+    } else {
+        console.log("Bem-vindo parceiro:", JSON.parse(user).nome);
+    }
+</script>

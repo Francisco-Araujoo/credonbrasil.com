@@ -167,6 +167,7 @@
             font-family: var(--font-display); cursor: pointer; transition: 0.3s;
         }
         .btn-submit:hover { background: var(--accent); color: white; }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
 
         /* --- HERO --- */
         .hero {
@@ -235,12 +236,11 @@
             background: var(--bg-dark);
             background-image: 
                 linear-gradient(to bottom, rgba(2, 6, 23, 0.8), rgba(2, 6, 23, 0.9)),
-                url('/img/altaVertical2.jpg'); /* Substituir por sua imagem vertical */
+                url('/img/altaVertical2.jpg'); 
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
             
-            /* CORREÇÃO AQUI: Adicionado padding-top de 15vh para dar o espaçamento inicial */
             padding-top: 15vh;
             padding-bottom: 10vh; 
         }
@@ -459,7 +459,6 @@
             display: flex; align-items: center; justify-content: center; overflow: hidden;
         }
         
-        /* CORREÇÃO AQUI: Removido border-radius para ficar pontudo */
         .method-img-wrapper {
             width: 80%; height: 65vh; position: relative; border-radius: 0px; overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -504,7 +503,7 @@
         }
 
         /* ------------------------------------------- */
-        /* --- RESPONSIVIDADE MOBILE (REESCRITA) --- */
+        /* --- RESPONSIVIDADE MOBILE --- */
         /* ------------------------------------------- */
         @media (max-width: 900px) {
             
@@ -525,7 +524,6 @@
             .horizontal-section { height: auto; display: block; padding: 0; overflow: visible; }
             .horizontal-wrapper { display: block; width: 100%; }
             
-            /* Correção do Intro Text no Mobile para resetar a largura do Desktop */
             .intro-text { 
                 width: 100%; 
                 min-width: auto;
@@ -548,14 +546,14 @@
             /* -- Stacked Section (Remove Sticky) -- */
             .stacked-section { 
                 padding-bottom: 2rem; 
-                background-attachment: scroll; /* Melhora performance no mobile */
-                padding-top: 4rem; /* Reseta o padding grande do desktop */
+                background-attachment: scroll;
+                padding-top: 4rem; 
             }
             .stack-wrapper { padding: 0 5%; }
             .stack-card { 
                 position: relative; top: 0; height: auto; 
                 margin-bottom: 3rem; display: flex; flex-direction: column;
-                transform: none !important; /* Reseta transformações GSAP se houver */
+                transform: none !important; 
                 opacity: 1 !important;
             }
             .stack-img { height: 250px; }
@@ -573,7 +571,7 @@
             .calc-section { padding: 4rem 5%; min-height: auto; }
             .calc-card-container { flex-direction: column; max-width: 100%; border-radius: 16px; }
             .calc-visual { width: 100%; height: 180px; }
-            .calc-visual-content { display: none; } /* Oculta texto na imagem no mobile */
+            .calc-visual-content { display: none; } 
             .calc-interface { width: 100%; padding: 2rem 1.5rem; }
             .calc-header-mobile { display: block; }
             .slider-wrapper-vertical { gap: 2rem; margin-bottom: 2rem; }
@@ -588,14 +586,12 @@
             .methodology-container { flex-direction: column-reverse; }
             .method-text-col { width: 100%; padding: 0 5%; }
             
-            /* Área da imagem fica no topo ou entre seções, estática */
             .method-img-col { 
                 width: 100%; height: 40vh; 
                 position: relative; top: 0; 
                 margin-bottom: 2rem; 
                 padding: 1rem;
             }
-            /* CORREÇÃO AQUI TAMBÉM: Removido border-radius no mobile */
             .method-img-wrapper { 
                 width: 100%; height: 100%; 
                 border-radius: 0px; border: none;
@@ -603,7 +599,7 @@
             
             .method-block { 
                 min-height: auto; padding: 3rem 0; 
-                opacity: 1; /* Texto sempre visível no mobile */
+                opacity: 1; 
                 border-bottom: 1px solid var(--line-color);
             }
             .method-block:last-child { border-bottom: none; }
@@ -938,56 +934,36 @@
     <script>
         gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
-        // --- 1. PRELOADER LÍQUIDO OTIMIZADO (CORREÇÃO DE VELOCIDADE) ---
-        // Alterado de window.onload para DOMContentLoaded para iniciar IMEDIATAMENTE
+        // ============================================
+        // CONFIGURAÇÃO DA API DE LOGIN
+        // ============================================
+        // SUBSTITUA ESTA URL PELA SUA URL DO AWS API GATEWAY
+        const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com/parceiros/login"; 
+        // ============================================
+
+        // --- 1. PRELOADER LÍQUIDO OTIMIZADO ---
         document.addEventListener("DOMContentLoaded", () => {
             const tl = gsap.timeline();
-
-            // Passo 1: Encher o texto (efeito líquido)
-            // Usei 'duration: 2.5' para dar tempo do usuário ver o efeito legal, 
-            // mas sem esperar o resto do site carregar.
             tl.to("#liquid-mask-rect", { 
-                x: "0%", 
-                y: "0%", 
-                duration: 2.5, 
-                ease: "power2.inOut" 
+                x: "0%", y: "0%", duration: 2.5, ease: "power2.inOut" 
             })
-            // Passo 2: Assim que encher, SOBE o site imediatamente (overlap de -0.5s)
             .to("#preloader", {
-                y: "-100%", 
-                duration: 1, 
-                ease: "expo.inOut", // Easing mais "tech" e agressivo
+                y: "-100%", duration: 1, ease: "expo.inOut",
                 onStart: () => {
                     document.body.classList.remove("loading");
-                    revealHero(); // Chama a entrada do site
+                    revealHero(); 
                 }
-            }, "-=0.5"); // O segredo: começa a subir antes do liquido terminar 100% o easing final
+            }, "-=0.5");
         });
 
         function revealHero() {
             const tlHero = gsap.timeline();
-            
-            // Animação de entrada dos textos do Hero com Stagger (Escadinha)
-            tlHero.to(".hero h1 .reveal-text", { 
-                y: 0, 
-                duration: 1.5, 
-                stagger: 0.1, 
-                ease: "power4.out" 
-            })
-            .to(".hero p .reveal-text", {
-                y: 0,
-                duration: 1,
-                ease: "power3.out"
-            }, "-=1.0")
-            .to(".hero-btn", { 
-                opacity: 1, 
-                y: 0, 
-                duration: 1, 
-                ease: "back.out(1.7)" // Efeito de pulo leve
-            }, "-=0.8");
+            tlHero.to(".hero h1 .reveal-text", { y: 0, duration: 1.5, stagger: 0.1, ease: "power4.out" })
+            .to(".hero p .reveal-text", { y: 0, duration: 1, ease: "power3.out" }, "-=1.0")
+            .to(".hero-btn", { opacity: 1, y: 0, duration: 1, ease: "back.out(1.7)" }, "-=0.8");
         }
 
-        // --- 2. LOGIN LOGIC ---
+        // --- 2. LOGIN LOGIC (AGORA CONECTADO AO BACKEND) ---
         const loginOverlay = document.getElementById('loginOverlay');
         const formClient = document.getElementById('form-client');
         const formAdmin = document.getElementById('form-admin');
@@ -1013,6 +989,61 @@
                 gsap.to(formClient, { autoAlpha: 0, x: -20, duration: 0.3, pointerEvents: "none" });
                 gsap.fromTo(formAdmin, { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
             }
+        }
+
+        // *** NOVO: CONEXÃO COM A API DE LOGIN ***
+        if (formClient) {
+            formClient.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const emailInput = document.getElementById('c-email');
+                const passInput = document.getElementById('c-pass');
+                const btnSubmit = formClient.querySelector('.btn-submit');
+                const originalText = btnSubmit.innerText;
+
+                // Feedback visual
+                btnSubmit.innerText = "AUTENTICANDO...";
+                btnSubmit.disabled = true;
+
+                try {
+                    // Remove barra final se houver
+                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    
+                    const response = await fetch(`${cleanUrl}/parceiros/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: emailInput.value, 
+                            senha: passInput.value 
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // SUCESSO
+                        localStorage.setItem('credon_user', JSON.stringify(data.user));
+                        
+                        btnSubmit.innerText = "SUCESSO!";
+                        btnSubmit.style.background = "#22c55e"; // Verde
+                        btnSubmit.style.color = "white";
+
+                        setTimeout(() => {
+                            window.location.href = "portal_parceiros.html";
+                        }, 800);
+                    } else {
+                        // ERRO
+                        alert(data.message || "Credenciais inválidas.");
+                        btnSubmit.innerText = originalText;
+                        btnSubmit.disabled = false;
+                    }
+                } catch (error) {
+                    console.error("Erro:", error);
+                    alert("Erro de conexão com o servidor.");
+                    btnSubmit.innerText = originalText;
+                    btnSubmit.disabled = false;
+                }
+            });
         }
 
         // --- 3. SIMULADOR & WHATSAPP LOGIC ---
@@ -1053,15 +1084,12 @@
         monthSlider.addEventListener('input', updateCalc);
         updateCalc();
 
-        // FUNÇÃO DE ENVIAR PROPOSTA PARA WHATSAPP
         function enviarProposta() {
             const valor = valDisplay.innerText;
             const meses = monthDisplay.innerText;
             const parcela = totalDisplay.innerText;
             const telefone = "5543988331584";
-            
             const mensagem = `Olá! Fiz uma simulação no site da CredOn e gostaria de solicitar uma proposta.%0A%0A💰 *Valor:* ${valor}%0A📅 *Prazo:* ${meses}%0A📉 *Parcela Estimada:* ${parcela}%0A%0APodemos avançar?`;
-            
             window.open(`https://wa.me/${telefone}?text=${mensagem}`, '_blank');
         }
 
@@ -1075,13 +1103,11 @@
 
         gsap.to(".ticker-wrap", { xPercent: -50, ease: "none", duration: 20, repeat: -1 });
 
-        // Scroll Suave para o Botão "Simular Agora"
         document.querySelector('.hero-btn').addEventListener('click', function(e) {
             e.preventDefault();
             gsap.to(window, { duration: 1.5, scrollTo: "#simulador", ease: "power4.inOut" });
         });
 
-        // FAQ Toggle
         function toggleFaq(item) {
             const answer = item.querySelector('.faq-answer');
             const icon = item.querySelector('.faq-icon');
@@ -1090,10 +1116,8 @@
                 answer.classList.remove('open');
                 icon.classList.remove('rotate');
             } else {
-                // Fecha outros
                 document.querySelectorAll('.faq-answer').forEach(a => a.classList.remove('open'));
                 document.querySelectorAll('.faq-icon').forEach(i => i.classList.remove('rotate'));
-                
                 answer.classList.add('open');
                 icon.classList.add('rotate');
             }
@@ -1102,7 +1126,6 @@
         // --- 5. ANIMAÇÕES ESTILO EMMPO ---
         let mm = gsap.matchMedia();
         mm.add("(min-width: 901px)", () => {
-            // Horizontal Section
             const hWrapper = document.querySelector(".horizontal-wrapper");
             gsap.to(hWrapper, {
                 x: () => -(hWrapper.scrollWidth - window.innerWidth),
@@ -1119,39 +1142,28 @@
                 gsap.to(card, { scale: 0.95, opacity: 0.5, scrollTrigger: { trigger: card, start: "top 10vh", end: "bottom top", scrub: true, toggleActions: "restart none none reverse" }});
             });
 
-            // Manifesto Animation (Words highlighting)
             gsap.utils.toArray('.manifesto-word').forEach(word => {
                 gsap.to(word, {
-                    color: "white",
-                    duration: 0.5,
-                    scrollTrigger: {
-                        trigger: word, start: "top 80%", end: "top 20%", scrub: true
-                    }
+                    color: "white", duration: 0.5,
+                    scrollTrigger: { trigger: word, start: "top 80%", end: "top 20%", scrub: true }
                 })
             });
 
-            // Methodology Sticky Animation
             ScrollTrigger.create({
-                trigger: ".methodology-section",
-                start: "top top",
-                end: "bottom bottom",
-                pin: ".method-img-col", // Pin the right side
-                scrub: true
+                trigger: ".methodology-section", start: "top top", end: "bottom bottom",
+                pin: ".method-img-col", scrub: true
             });
 
-            // Change images based on scroll position of text blocks
             const blocks = document.querySelectorAll('.method-block');
             const images = document.querySelectorAll('.method-img');
 
             blocks.forEach((block, i) => {
                 ScrollTrigger.create({
-                    trigger: block,
-                    start: "top center",
-                    end: "bottom center",
+                    trigger: block, start: "top center", end: "bottom center",
                     onEnter: () => updateImage(i),
                     onEnterBack: () => updateImage(i),
-                    onLeave: () => { if(i < blocks.length - 1) updateImage(i+1) }, // Opcional
-                    onLeaveBack: () => { if(i > 0) updateImage(i-1) }, // Opcional
+                    onLeave: () => { if(i < blocks.length - 1) updateImage(i+1) },
+                    onLeaveBack: () => { if(i > 0) updateImage(i-1) },
                     toggleClass: { targets: block, className: "active" }
                 });
             });
@@ -1162,14 +1174,12 @@
             }
         });
 
-        // Header Scroll
         window.addEventListener('scroll', () => {
             const header = document.getElementById('main-header');
             if (window.scrollY > 50) header.classList.add('scrolled');
             else header.classList.remove('scrolled');
         });
 
-        // Mouse Follower
         if (window.matchMedia("(pointer: fine)").matches) {
             const dot = document.querySelector(".cursor-dot");
             window.addEventListener("mousemove", e => {

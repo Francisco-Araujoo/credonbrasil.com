@@ -6,16 +6,19 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-1
-  timeout: 10 # Aumentei o timeout para 10s para garantir conexão lenta
+  timeout: 10
   environment:
-    # Use environment variables and a secrets manager for sensitive values.
-    # Example: set DB_HOST/DB_USER/DB_NAME in your deployment environment and
-    # store DB_PASSWORD in SSM Parameter Store or Secrets Manager.
-    DB_HOST: ${env:DB_HOST}
-    DB_USER: ${env:DB_USER}
-    # DB_PASSWORD from Parameter Store (replace path with your parameter)
-    DB_PASSWORD: ${ssm:/credonbrasil/db_password~true}
-    DB_NAME: ${env:DB_NAME}
+    # Credenciais Hardcoded conforme solicitado
+    DB_HOST: "credonbrasil.cqzygi8o8twk.us-east-1.rds.amazonaws.com"
+    DB_USER: "root"
+    # Aspas são obrigatórias aqui devido aos caracteres especiais
+    DB_PASSWORD: "jahdaj7652635%Hod00HJsdbRms" 
+    DB_NAME: "credonBrasil"
+    # Configurações de conexão
+    DB_CONN_LIMIT: "5"
+    DB_QUEUE_LIMIT: "100"
+    DB_CONNECT_TIMEOUT: "10000"
+
   httpApi:
     cors:
       allowedOrigins:

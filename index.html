@@ -74,14 +74,8 @@
 
         .logo { font-size: 1.5rem; font-weight: 700; color: white; display: flex; gap: 10px; align-items: center; }
         
-        /* Header Actions Group */
-        .header-actions {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
 
-        /* Botões de Login Header */
         .btn-header-login {
             background: transparent;
             border: 1px solid rgba(255,255,255,0.2);
@@ -94,10 +88,7 @@
             text-decoration: none;
             font-family: var(--font-body);
         }
-        .btn-header-login:hover {
-            background: rgba(255,255,255,0.1);
-            border-color: white;
-        }
+        .btn-header-login:hover { background: rgba(255,255,255,0.1); border-color: white; }
 
         .btn-header-adm {
             width: 40px; height: 40px;
@@ -124,7 +115,7 @@
             background: rgba(2, 6, 23, 0.85); backdrop-filter: blur(15px);
             z-index: 99999;
             display: flex; align-items: center; justify-content: center;
-            opacity: 0; visibility: hidden; /* GSAP controlls this */
+            opacity: 0; visibility: hidden; 
         }
         
         .login-card {
@@ -135,7 +126,7 @@
             width: 100%; max-width: 450px;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            transform: translateY(30px); /* Start pos for anim */
+            transform: translateY(30px);
         }
 
         .close-modal {
@@ -145,7 +136,6 @@
         }
         .close-modal:hover { color: white; transform: rotate(90deg); }
 
-        /* Tabs do Login */
         .login-tabs {
             display: flex; gap: 20px; margin-bottom: 2rem; border-bottom: 1px solid rgba(255,255,255,0.1);
             padding-bottom: 1rem;
@@ -162,7 +152,6 @@
             background: var(--accent); box-shadow: 0 -5px 10px var(--accent);
         }
 
-        /* Form Styling */
         .input-group { margin-bottom: 1.5rem; position: relative; }
         .input-field {
             width: 100%; background: transparent; border: none;
@@ -188,6 +177,7 @@
             transition: 0.3s;
         }
         .btn-submit:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5); }
+        .btn-submit:disabled { opacity: 0.7; cursor: not-allowed; }
 
         /* --- HERO --- */
         .hero {
@@ -354,7 +344,7 @@
                 <button class="tab-btn" id="tab-admin" onclick="switchTab('admin')">Admin</button>
             </div>
 
-            <form id="form-partner" onsubmit="event.preventDefault(); alert('Login de Parceiro Iniciado');">
+            <form id="form-partner">
                 <div style="margin-bottom: 2rem; color: #94a3b8; font-size: 0.9rem;">
                     Acesse sua carteira de clientes e acompanhe comissões.
                 </div>
@@ -584,26 +574,81 @@
     <script>
         gsap.registerPlugin(ScrollTrigger);
 
-        // --- LOGIN LOGIC (NEW) ---
+        // --- CONFIGURAÇÃO DA API ---
+        // SUBSTITUA PELA SUA URL REAL DA AWS (Ex: https://xyz123.execute-api.us-east-1.amazonaws.com)
+        const API_BASE_URL = "SUA_URL_DA_AWS_AQUI"; 
+
+        // --- LOGIN INTEGRADO ---
         const loginOverlay = document.getElementById('loginOverlay');
         const partnerTab = document.getElementById('tab-partner');
         const adminTab = document.getElementById('tab-admin');
         const formPartner = document.getElementById('form-partner');
         const formAdmin = document.getElementById('form-admin');
 
+        // Função de Login (Fetch + Redirect)
+        async function handlePartnerLogin(event) {
+            event.preventDefault();
+
+            const emailInput = document.getElementById('p-email');
+            const passInput = document.getElementById('p-pass');
+            const btnSubmit = formPartner.querySelector('.btn-submit');
+            const originalBtnText = btnSubmit.innerText;
+
+            btnSubmit.innerText = "Autenticando...";
+            btnSubmit.disabled = true;
+
+            try {
+                // Remove barras extras da URL se houver e adiciona o endpoint
+                const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                const response = await fetch(`${cleanUrl}/parceiros/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email: emailInput.value, senha: passInput.value })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // SUCESSO: Salva sessão e REDIRECIONA
+                    localStorage.setItem('credon_user', JSON.stringify(data.user));
+                    
+                    btnSubmit.innerText = "Sucesso!";
+                    btnSubmit.style.background = "#22c55e"; // Verde
+                    
+                    setTimeout(() => {
+                        window.location.href = "portal_parceiros.html";
+                    }, 800);
+                } else {
+                    // ERRO: Senha incorreta ou usuário não encontrado
+                    alert(data.message || "Credenciais inválidas.");
+                    btnSubmit.innerText = originalBtnText;
+                    btnSubmit.style.background = "";
+                }
+
+            } catch (error) {
+                console.error("Erro:", error);
+                alert("Erro ao conectar ao servidor. Verifique se a URL da API está correta.");
+                btnSubmit.innerText = originalBtnText;
+            } finally {
+                btnSubmit.disabled = false;
+            }
+        }
+
+        // Ativa o ouvinte no formulário
+        if(formPartner) {
+            formPartner.addEventListener('submit', handlePartnerLogin);
+        }
+
+        // --- INTERFACE (Modais e Abas) ---
         function toggleLogin(show, type = 'partner') {
             if (show) {
-                // Configura qual aba abrir
                 switchTab(type);
-                
-                // Animação de Entrada
                 gsap.to(loginOverlay, { autoAlpha: 1, duration: 0.4, ease: "power2.out" });
                 gsap.fromTo(".login-card", 
                     { y: 50, opacity: 0, scale: 0.95 }, 
                     { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.2)", delay: 0.1 }
                 );
             } else {
-                // Animação de Saída
                 gsap.to(".login-card", { y: 20, opacity: 0, duration: 0.3 });
                 gsap.to(loginOverlay, { autoAlpha: 0, duration: 0.3, delay: 0.1 });
             }
@@ -631,7 +676,7 @@
             }
         }
 
-        // --- ORIGINAL SCRIPTS ---
+        // --- ANIMAÇÕES DO SITE (Original) ---
         function startSite() {
             const tlLoader = gsap.timeline();
             tlLoader.to(".loader-bar", { width: "100%", duration: 0.8, ease: "power2.inOut" })
@@ -648,13 +693,12 @@
         }
         window.addEventListener("load", () => { setTimeout(startSite, 500); });
 
-        // HEADER HIDE
         let lastScrollTop = 0;
-        const header = document.getElementById('main-header');
+        const mainHeader = document.getElementById('main-header');
         window.addEventListener('scroll', function() {
             let scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            if (scrollTop > lastScrollTop && scrollTop > 100) { header.classList.add('hide-menu'); } 
-            else { header.classList.remove('hide-menu'); }
+            if (scrollTop > lastScrollTop && scrollTop > 100) { mainHeader.classList.add('hide-menu'); } 
+            else { mainHeader.classList.remove('hide-menu'); }
             lastScrollTop = scrollTop;
         });
 
@@ -672,7 +716,6 @@
             tlBubble.from(".feature-image, .feature-text h2", { y: 50, opacity: 0, duration: 1 }, 0.5);
         });
 
-        // STEPS ANIMATION
         gsap.from(".step-card", {
             y: 50, opacity: 0, duration: 0.8, stagger: 0.2,
             scrollTrigger: { trigger: ".steps-grid", start: "top 85%" }
@@ -706,7 +749,7 @@
         function updateCalc() {
             const val = parseFloat(valSlider.value);
             const months = parseInt(monthSlider.value);
-            const rate = 0.0109; // 1.09% a.m.
+            const rate = 0.0109; 
             valDisplay.textContent = val.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', maximumFractionDigits: 0 });
             monthDisplay.textContent = months + "x";
             const x = Math.pow(1 + rate, months);
