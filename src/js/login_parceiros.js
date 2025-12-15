@@ -61,13 +61,8 @@
         localStorage.setItem('credon_user', JSON.stringify(respBody.user));
       }
     } catch (e) { /* ignore storage errors */ }
-    // by default redirect to index
-    if (window.location.pathname.indexOf('index') === -1) {
-      window.location.href = 'index.html';
-    } else {
-      showMessage(document.getElementById('loginForm'), 'Login feito com sucesso', 'green');
-      setTimeout(() => location.reload(), 600);
-    }
+    // redirecionar para o portal do parceiro
+    window.location.href = './pages/portal_parceiro.html';
   }
 
   async function handleSubmit(e, options) {

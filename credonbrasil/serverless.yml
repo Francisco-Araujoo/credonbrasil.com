@@ -49,6 +49,13 @@ functions:
           path: /parceiros/login
           method: post
 
+  getUserData:
+    handler: handler.getUserData
+    events:
+      - httpApi:
+          path: /parceiros/me
+          method: get
+
   hello:
     handler: handler.hello
     events:

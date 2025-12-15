@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal do Parceiro | CredOn Brasil</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --primary: #38bdf8;
+            --accent: #38bdf8; 
+            --text-muted: #64748b;
+            --line-color: rgba(255, 255, 255, 0.1);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            margin: 0; 
+            padding: 0; 
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 5%;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line-color);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            font-family: var(--font-display);
+            letter-spacing: -1px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--line-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: var(--bg-dark);
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+            background-image: 
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.9)),
+                url('../src/img/fundoS3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .portal-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 5%;
+        }
+
+        .welcome-section {
+            text-align: center;
+            padding: 3rem 0 5rem 0;
+        }
+
+        .welcome-title {
+            font-family: var(--font-display);
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .welcome-subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* --- PORTAL GRID --- */
+        .portal-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+
+        .portal-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .portal-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #60a5fa);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .portal-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px -10px rgba(56, 189, 248, 0.1);
+        }
+
+        .portal-card:hover::before {
+            opacity: 1;
+        }
+
+        .card-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .card-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .card-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- USER INFO SECTION --- */
+        .user-details {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 3rem;
+            margin-bottom: 4rem;
+        }
+
+        .details-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            color: white;
+            border-bottom: 1px solid var(--line-color);
+            padding-bottom: 1rem;
+        }
+
+        .details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+        }
+
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .detail-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .detail-value {
+            font-family: var(--font-display);
+            font-size: 1.2rem;
+            color: white;
+        }
+
+        /* --- ACTIONS SECTION --- */
+        .actions-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .action-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .action-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+            box-shadow: 0 15px 30px -10px rgba(56, 189, 248, 0.1);
+        }
+
+        .action-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .action-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .action-description {
+            color: var(--text-muted);
+            margin-bottom: 1.5rem;
+        }
+
+        .action-btn {
+            background: var(--accent);
+            color: var(--bg-dark);
+            border: none;
+            padding: 0.8rem 1.5rem;
+            font-family: var(--font-display);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .action-btn:hover {
+            background: white;
+            transform: scale(1.05);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: var(--bg-dark);
+            border-top: 1px solid var(--line-color);
+            padding: 2rem 5%;
+            text-align: center;
+            color: var(--text-muted);
+            margin-top: 4rem;
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 900px) {
+            header {
+                padding: 1rem 5%;
+            }
+
+            .user-info {
+                gap: 10px;
+            }
+
+            .user-name {
+                font-size: 0.9rem;
+            }
+
+            .logout-btn {
+                padding: 0.4rem 0.8rem;
+                font-size: 0.7rem;
+            }
+
+            .portal-container {
+                padding: 1rem 5%;
+            }
+
+            .welcome-section {
+                padding: 2rem 0 3rem 0;
+            }
+
+            .portal-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            .user-details,
+            .portal-card,
+            .action-card {
+                padding: 1.5rem;
+            }
+
+            .details-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .actions-section {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+
+            main {
+                background-attachment: scroll;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">CREDON</div>
+        <div class="user-info">
+            <span class="user-name" id="userName">Carregando...</span>
+            <button class="logout-btn" onclick="PortalAPI.logout()">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <div class="portal-container">
+            <div class="welcome-section">
+                <h1 class="welcome-title">Portal do Parceiro</h1>
+                <p class="welcome-subtitle">Bem-vindo ao seu painel de controle CredOn Brasil</p>
+            </div>
+
+            <div class="portal-grid">
+                <div class="portal-card">
+                    <div class="card-icon">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="card-title">Propostas Enviadas</h3>
+                    <div class="card-value">0</div>
+                    <p class="card-description">Total de propostas de crédito enviadas</p>
+                </div>
+
+                <div class="portal-card">
+                    <div class="card-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <h3 class="card-title">Aprovadas</h3>
+                    <div class="card-value">0</div>
+                    <p class="card-description">Propostas aprovadas e liberadas</p>
+                </div>
+
+                <div class="portal-card">
+                    <div class="card-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3 class="card-title">Comissão</h3>
+                    <div class="card-value">R$ 0,00</div>
+                    <p class="card-description">Total de comissões acumuladas</p>
+                </div>
+
+                <div class="portal-card">
+                    <div class="card-icon">
+                        <i class="fas fa-calendar"></i>
+                    </div>
+                    <h3 class="card-title">Este Mês</h3>
+                    <div class="card-value">0</div>
+                    <p class="card-description">Propostas enviadas no mês atual</p>
+                </div>
+            </div>
+
+            <div class="user-details">
+                <h2 class="details-title">Seus Dados</h2>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Nome Completo</span>
+                        <span class="detail-value" id="userFullName">Carregando...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">CPF</span>
+                        <span class="detail-value" id="userCpf">Carregando...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">E-mail</span>
+                        <span class="detail-value" id="userEmail">Carregando...</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Cadastro</span>
+                        <span class="detail-value" id="userCreatedAt">Carregando...</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions-section">
+                <div class="action-card" onclick="window.open('https://wa.me/5543988331584', '_blank')">
+                    <div class="action-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3 class="action-title">Suporte WhatsApp</h3>
+                    <p class="action-description">Fale conosco diretamente pelo WhatsApp para tirar dúvidas ou solicitar ajuda</p>
+                    <button class="action-btn">Abrir WhatsApp</button>
+                </div>
+
+                <div class="action-card" onclick="window.location.href='../simulador/simulador.html'">
+                    <div class="action-icon">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <h3 class="action-title">Simulador</h3>
+                    <p class="action-description">Use nosso simulador para calcular propostas de crédito para seus clientes</p>
+                    <button class="action-btn">Usar Simulador</button>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon">
+                        <i class="fas fa-file-alt"></i>
+                    </div>
+                    <h3 class="action-title">Materiais</h3>
+                    <p class="action-description">Acesse materiais de divulgação e treinamento para parceiros</p>
+                    <button class="action-btn">Ver Materiais</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; 2025 CredOn Brasil. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Script da API do portal -->
+    <script src="../src/js/portal_api.js"></script>
+
+    <script>
+        // Script adicional para funcionalidades específicas do portal
+        // O portal_api.js já cuida da inicialização e carregamento dos dados
+        
+        // Função para atualizar dados manualmente (se necessário)
+        function refreshUserData() {
+            PortalAPI.loadUserPortalData();
+        }
+
+        // Adiciona listeners para ações adicionais
+        document.addEventListener('DOMContentLoaded', function() {
+            // Adicionar aqui outras funcionalidades específicas do portal
+            console.log('Portal do Parceiro inicializado');
+        });
+    </script>
+</body>
+</html>

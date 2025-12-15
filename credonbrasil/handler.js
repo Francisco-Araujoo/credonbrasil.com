@@ -136,7 +136,7 @@ exports.login = async (event, context) => {
 
     const pool = getPool();
     const [rows] = await queryWithTimeout(pool,
-      'SELECT id, nome, email, cpf, senha FROM parceiros WHERE cpf = ? OR email = ? LIMIT 1', 
+      'SELECT id, nome, email, cpf, senha, created_at FROM parceiros WHERE cpf = ? OR email = ? LIMIT 1', 
       [cpf || '', email || '']
     );
 
@@ -162,6 +162,55 @@ exports.login = async (event, context) => {
   } catch (err) {
     console.error('ERRO NO LOGIN:', err);
     return { statusCode: 500, headers: jsonHeaders, body: JSON.stringify({ message: 'Erro interno', error: err.message }) };
+  }
+};
+
+// GET /parceiros/me - Buscar dados do usuário autenticado
+exports.getUserData = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const { userId } = event.queryStringParameters || {};
+
+    if (!userId) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'ID do usuário é obrigatório' }) 
+      };
+    }
+
+    const pool = getPool();
+    const [rows] = await queryWithTimeout(pool,
+      'SELECT id, nome, email, cpf, created_at FROM parceiros WHERE id = ? LIMIT 1', 
+      [userId]
+    );
+
+    if (rows.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Usuário não encontrado' }) 
+      };
+    }
+
+    const user = rows[0];
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ user }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR DADOS DO USUÁRIO:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
   }
 };
 

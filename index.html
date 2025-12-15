@@ -97,7 +97,7 @@
         /* --- LOGIN MODAL --- */
         .login-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(8px);
+            background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(8px);
             z-index: 99999;
             display: flex; align-items: center; justify-content: center;
             opacity: 0; visibility: hidden;
@@ -660,14 +660,14 @@
                 <div class="form-container">
                     <form id="form-client" class="login-form">
                         <div class="input-group">
-                            <input type="email" class="input-field" placeholder=" " id="c-email" required>
-                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Seu e-mail de cadastro</div>
+                            <input type="text" class="input-field" placeholder=" " name="cpf" id="c-cpf" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Seu CPF</div>
                         </div>
                         <div class="input-group">
-                            <input type="password" class="input-field" placeholder=" " id="c-pass" required>
+                            <input type="password" class="input-field" placeholder=" " name="senha" id="c-pass" required>
                             <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
                         </div>
-                        <button type="submit" class="btn-submit">Acessar Conta</button>
+                        <button type="submit" class="btn-submit">Acessar Portal</button>
                     </form>
                     <form id="form-admin" class="login-form" style="opacity: 0; pointer-events: none;">
                         <div class="input-group">
@@ -937,8 +937,8 @@
         // ============================================
         // CONFIGURAÇÃO DA API DE LOGIN
         // ============================================
-        // SUBSTITUA ESTA URL PELA SUA URL DO AWS API GATEWAY
-        const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com/parceiros/login"; 
+        // URL base da API AWS
+        const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com"; 
         // ============================================
 
         // --- 1. PRELOADER LÍQUIDO OTIMIZADO ---
@@ -996,7 +996,7 @@
             formClient.addEventListener('submit', async function(e) {
                 e.preventDefault();
                 
-                const emailInput = document.getElementById('c-email');
+                const cpfInput = document.getElementById('c-cpf');
                 const passInput = document.getElementById('c-pass');
                 const btnSubmit = formClient.querySelector('.btn-submit');
                 const originalText = btnSubmit.innerText;
@@ -1013,7 +1013,7 @@
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ 
-                            email: emailInput.value, 
+                            cpf: cpfInput.value, 
                             senha: passInput.value 
                         })
                     });
@@ -1029,7 +1029,7 @@
                         btnSubmit.style.color = "white";
 
                         setTimeout(() => {
-                            window.location.href = "portal_parceiros.html";
+                            window.location.href = "./pages/portal_parceiro.html";
                         }, 800);
                     } else {
                         // ERRO
@@ -1187,5 +1187,8 @@
             });
         }
     </script>
+
+    <!-- Script para login de parceiros -->
+    <script src="./src/js/login_parceiros.js"></script>
 </body>
 </html>
