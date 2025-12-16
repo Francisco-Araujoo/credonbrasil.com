@@ -368,7 +368,7 @@
         }
         .slider-value { font-family: var(--font-display); font-size: 1.5rem; color: white; font-weight: 500; }
 
-        input[type=range] { width: 100%; background: transparent; -webkit-appearance: none; cursor: pointer; }
+        input[type=range] { width: 100%; background: transparent; appearance: none; -webkit-appearance: none; cursor: pointer; }
         input[type=range]::-webkit-slider-runnable-track { width: 100%; height: 6px; background: #1e293b; border-radius: 3px; transition: all 0.2s ease; }
         input[type=range]::-webkit-slider-thumb {
             -webkit-appearance: none; height: 24px; width: 24px; border-radius: 50%; background: white;
@@ -671,14 +671,14 @@
                     </form>
                     <form id="form-admin" class="login-form" style="opacity: 0; pointer-events: none;">
                         <div class="input-group">
-                            <input type="text" class="input-field" placeholder=" " id="a-user" required>
-                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">ID Administrativo</div>
+                            <input type="email" class="input-field" placeholder=" " id="a-email" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Email do Administrador</div>
                         </div>
                         <div class="input-group">
                             <input type="password" class="input-field" placeholder=" " id="a-pass" required>
-                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Chave de Acesso</div>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
                         </div>
-                        <button type="submit" class="btn-submit" style="background: var(--bg-dark); border: 1px solid white; color: white;">Entrar Admin</button>
+                        <button type="submit" class="btn-submit" style="background: #2563eb; border: 1px solid #2563eb; color: white;">Entrar Admin</button>
                     </form>
                 </div>
             </div>
@@ -1021,16 +1021,69 @@
                     const data = await response.json();
 
                     if (response.ok) {
-                        // SUCESSO
+                        // SUCESSO - redirecionamento direto
                         localStorage.setItem('credon_user', JSON.stringify(data.user));
                         
                         btnSubmit.innerText = "SUCESSO!";
-                        btnSubmit.style.background = "#22c55e"; // Verde
+                        btnSubmit.style.background = "#22c55e";
                         btnSubmit.style.color = "white";
 
-                        setTimeout(() => {
-                            window.location.href = "./pages/portal_parceiro.html";
-                        }, 800);
+                        // Redirecionamento imediato sem delay
+                        window.location.href = "./pages/portal_parceiro.html";
+                    } else {
+                        // ERRO
+                        alert(data.message || "Credenciais inválidas.");
+                        btnSubmit.innerText = originalText;
+                        btnSubmit.disabled = false;
+                    }
+                } catch (error) {
+                    console.error("Erro:", error);
+                    alert("Erro de conexão com o servidor.");
+                    btnSubmit.innerText = originalText;
+                    btnSubmit.disabled = false;
+                }
+            });
+        }
+
+        // --- LOGIN DE ADMIN ---
+        if (formAdmin) {
+            formAdmin.addEventListener('submit', async function(e) {
+                e.preventDefault();
+                
+                const emailInput = document.getElementById('a-email');
+                const passInput = document.getElementById('a-pass');
+                const btnSubmit = formAdmin.querySelector('.btn-submit');
+                const originalText = btnSubmit.innerText;
+
+                // Feedback visual
+                btnSubmit.innerText = "AUTENTICANDO...";
+                btnSubmit.disabled = true;
+
+                try {
+                    // Remove barra final se houver
+                    const cleanUrl = API_BASE_URL.replace(/\/$/, "");
+                    
+                    const response = await fetch(`${cleanUrl}/admin/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            email: emailInput.value, 
+                            senha: passInput.value 
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        // SUCESSO - redirecionamento direto
+                        localStorage.setItem('credon_admin', JSON.stringify(data.user));
+                        
+                        btnSubmit.innerText = "SUCESSO!";
+                        btnSubmit.style.background = "#22c55e";
+                        btnSubmit.style.color = "white";
+
+                        // Redirecionamento imediato sem delay
+                        window.location.href = "./pages/portal_admin.html";
                     } else {
                         // ERRO
                         alert(data.message || "Credenciais inválidas.");
@@ -1187,8 +1240,5 @@
             });
         }
     </script>
-
-    <!-- Script para login de parceiros -->
-    <script src="./src/js/login_parceiros.js"></script>
 </body>
 </html>

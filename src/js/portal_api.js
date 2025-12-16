@@ -10,6 +10,30 @@
   const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com";
 
   /**
+   * Verificar autenticação do usuário
+   * @returns {Object|null} Dados do usuário ou null se não autenticado
+   */
+  function checkUserAuth() {
+    const userData = localStorage.getItem('credon_user');
+    if (!userData) {
+      // Redireciona para o login se não estiver autenticado
+      alert('Sessão expirada. Faça login novamente.');
+      window.location.href = '../index.html';
+      return null;
+    }
+
+    try {
+      return JSON.parse(userData);
+    } catch (error) {
+      console.error('Erro ao decodificar dados do usuário:', error);
+      // Remove dados corrompidos e redireciona
+      localStorage.removeItem('credon_user');
+      window.location.href = '../index.html';
+      return null;
+    }
+  }
+
+  /**
    * Busca dados atualizados do usuário
    * @param {string} userId - ID do usuário
    * @returns {Promise<Object>} Dados do usuário
@@ -212,13 +236,11 @@
    * Inicializa o portal
    */
   function initPortal() {
-    // Verifica se há usuário logado
-    const localUser = localStorage.getItem('credon_user');
-    
-    if (!localUser) {
-      window.location.href = '../index.html';
-      return;
-    }
+    // Verifica autenticação
+    const user = checkUserAuth();
+    if (!user) return; // Já foi redirecionado
+
+    console.log('Portal do Parceiro inicializando para usuário:', user.nome);
 
     // Carrega dados do usuário
     loadUserPortalData();

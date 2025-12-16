@@ -56,6 +56,41 @@ functions:
           path: /parceiros/me
           method: get
 
+  adminCadastro:
+    handler: handler.adminCadastro
+    events:
+      - httpApi:
+          path: /admin/cadastro
+          method: post
+
+  adminLogin:
+    handler: handler.adminLogin
+    events:
+      - httpApi:
+          path: /admin/login
+          method: post
+
+  adminListParceiros:
+    handler: handler.adminListParceiros
+    events:
+      - httpApi:
+          path: /admin/parceiros
+          method: get
+
+  adminGetParceiro:
+    handler: handler.adminGetParceiro
+    events:
+      - httpApi:
+          path: /admin/parceiros/view
+          method: get
+
+  adminUpdateParceiroSenha:
+    handler: handler.adminUpdateParceiroSenha
+    events:
+      - httpApi:
+          path: /admin/parceiros/senha
+          method: put
+
   hello:
     handler: handler.hello
     events:

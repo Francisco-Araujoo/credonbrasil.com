@@ -214,6 +214,307 @@ exports.getUserData = async (event, context) => {
   }
 };
 
+// POST /admin/cadastro
+exports.adminCadastro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    console.log('Dados recebidos (Admin Cadastro):', body); 
+
+    const { nome, email, senha } = body;
+
+    if (!nome || !email || !senha) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Campos obrigatórios ausentes' }) 
+      };
+    }
+
+    const pool = getPool();
+
+    // Verifica duplicação
+    const [existing] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE email = ? LIMIT 1', 
+      [email]
+    );
+
+    if (existing.length > 0) {
+      return { 
+        statusCode: 409, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'E-mail já cadastrado' }) 
+      };
+    }
+
+    // Hash da senha e insert
+    const hash = await bcrypt.hash(senha, 10);
+    const [result] = await queryWithTimeout(pool,
+      'INSERT INTO admin (nome, email, senha) VALUES (?, ?, ?)', 
+      [nome, email, hash]
+    );
+
+    return { 
+      statusCode: 201, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Admin cadastrado com sucesso', id: result.insertId }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO CRÍTICO NO CADASTRO ADMIN:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno no servidor', error: err.message }) 
+    };
+  }
+};
+
+// POST /admin/login
+exports.adminLogin = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { email, senha } = body;
+
+    if (!email || !senha) {
+      return { statusCode: 400, headers: jsonHeaders, body: JSON.stringify({ message: 'Informe e-mail e senha' }) };
+    }
+
+    const pool = getPool();
+    const [rows] = await queryWithTimeout(pool,
+      'SELECT id, nome, email, senha, created_at FROM admin WHERE email = ? LIMIT 1', 
+      [email]
+    );
+
+    if (rows.length === 0) {
+      return { statusCode: 401, headers: jsonHeaders, body: JSON.stringify({ message: 'Credenciais inválidas' }) };
+    }
+
+    const user = rows[0];
+    const valid = await bcrypt.compare(senha, user.senha);
+
+    if (!valid) {
+      return { statusCode: 401, headers: jsonHeaders, body: JSON.stringify({ message: 'Credenciais inválidas' }) };
+    }
+
+    delete user.senha; 
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Login efetuado com sucesso', user, type: 'admin' }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO NO LOGIN ADMIN:', err);
+    return { statusCode: 500, headers: jsonHeaders, body: JSON.stringify({ message: 'Erro interno', error: err.message }) };
+  }
+};
+
+// GET /admin/parceiros - Listar todos os parceiros
+exports.adminListParceiros = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const { adminId } = event.queryStringParameters || {};
+
+    if (!adminId) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'ID do admin é obrigatório' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Acesso negado' }) 
+      };
+    }
+
+    // Busca todos os parceiros (sem senha e CPF)
+    const [parceiros] = await queryWithTimeout(pool,
+      'SELECT id, nome, email, created_at FROM parceiros ORDER BY created_at DESC'
+    );
+
+    // Conta total de parceiros
+    const [countResult] = await queryWithTimeout(pool,
+      'SELECT COUNT(*) as total FROM parceiros'
+    );
+
+    const total = countResult[0].total;
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ parceiros, total }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR PARCEIROS:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
+// GET /admin/parceiros/{id} - Ver dados de um parceiro específico
+exports.adminGetParceiro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const { adminId, parceiroId } = event.queryStringParameters || {};
+
+    if (!adminId || !parceiroId) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'ID do admin e do parceiro são obrigatórios' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Acesso negado' }) 
+      };
+    }
+
+    // Busca dados do parceiro (sem senha e CPF)
+    const [rows] = await queryWithTimeout(pool,
+      'SELECT id, nome, email, created_at FROM parceiros WHERE id = ? LIMIT 1', 
+      [parceiroId]
+    );
+
+    if (rows.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Parceiro não encontrado' }) 
+      };
+    }
+
+    const parceiro = rows[0];
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ parceiro }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR PARCEIRO:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
+// PUT /admin/parceiros/{id}/senha - Alterar senha de um parceiro
+exports.adminUpdateParceiroSenha = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { adminId, parceiroId, novaSenha } = body;
+
+    if (!adminId || !parceiroId || !novaSenha) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'ID do admin, do parceiro e nova senha são obrigatórios' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Acesso negado' }) 
+      };
+    }
+
+    // Verifica se o parceiro existe
+    const [parceiroCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM parceiros WHERE id = ? LIMIT 1', 
+      [parceiroId]
+    );
+
+    if (parceiroCheck.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Parceiro não encontrado' }) 
+      };
+    }
+
+    // Hash da nova senha e atualiza
+    const hash = await bcrypt.hash(novaSenha, 10);
+    await queryWithTimeout(pool,
+      'UPDATE parceiros SET senha = ? WHERE id = ?', 
+      [hash, parceiroId]
+    );
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Senha do parceiro alterada com sucesso' }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO ALTERAR SENHA DO PARCEIRO:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
 exports.hello = async (event) => {
   return {
     statusCode: 200,

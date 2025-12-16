@@ -490,8 +490,29 @@
 
         // Adiciona listeners para ações adicionais
         document.addEventListener('DOMContentLoaded', function() {
-            // Adicionar aqui outras funcionalidades específicas do portal
             console.log('Portal do Parceiro inicializado');
+            
+            // Animação de entrada rápida
+            const elements = [
+                '.welcome-section',
+                '.portal-grid .portal-card',
+                '.user-details',
+                '.actions-section .action-card'
+            ];
+            
+            elements.forEach((selector, index) => {
+                const els = document.querySelectorAll(selector);
+                els.forEach((el, i) => {
+                    el.style.opacity = '0';
+                    el.style.transform = 'translateY(15px)';
+                    
+                    setTimeout(() => {
+                        el.style.transition = 'all 0.4s ease';
+                        el.style.opacity = '1';
+                        el.style.transform = 'translateY(0)';
+                    }, 50 + (index * 50) + (i * 20));
+                });
+            });
         });
     </script>
 </body>
