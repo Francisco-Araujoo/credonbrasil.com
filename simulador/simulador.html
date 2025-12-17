@@ -376,7 +376,7 @@
                 <label>Carência (Meses - Juros Only)</label>
                 <div class="input-wrapper">
                     <span class="input-prefix">#</span>
-                    <input type="number" id="carencia" value="0">
+                    <input type="number" id="carencia" value="0" onblur="this.value = parseInt(this.value, 10)">
                 </div>
                 <small style="color:#94a3b8; font-size:0.75rem; font-weight:500">Paga juros, não amortiza durante o período.</small>
             </div>
@@ -724,8 +724,10 @@
 
             const taxaInput = document.getElementById('taxa').value;
             const i_am = parseFloat(taxaInput) / 100;
-            const n = parseInt(document.getElementById('prazo').value);
-            const carencia = parseInt(document.getElementById('carencia').value) || 0;
+            
+            // CORREÇÃO: Forçando base 10 para evitar erros com "02" ou "03"
+            const n = parseInt(document.getElementById('prazo').value, 10);
+            const carencia = parseInt(document.getElementById('carencia').value, 10) || 0;
             
             let emissaoInput = parseFloat(document.getElementById('emissao').value) || 0;
             let seguroInput = parseFloat(document.getElementById('seguro').value) || 0;
