@@ -242,6 +242,22 @@
             box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5); 
         }
 
+        /* Estado desabilitado do botão */
+        button.btn-next:disabled, .btn-next:disabled {
+            background-color: #94a3b8 !important; /* Cinza quando desabilitado */
+            color: #ffffff !important;
+            cursor: not-allowed !important;
+            transform: none !important;
+            box-shadow: none !important;
+            opacity: 0.6 !important;
+        }
+
+        button.btn-next:disabled:hover, .btn-next:disabled:hover {
+            background-color: #94a3b8 !important;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
         /* --- UTILS --- */
         .step-section { display: none; opacity: 0; }
         .step-section.active { display: block; opacity: 1; }
@@ -421,17 +437,21 @@
                     <div class="form-row gsap-elem-2">
                         <div class="form-group">
                             <label>CPF</label>
-                            <input type="text" class="custom-input" name="cpf" placeholder="000.000.000-00" required>
+                            <input type="text" class="custom-input" name="cpf" placeholder="000.000.000-00" maxlength="14" id="cpfInput" required>
                         </div>
                         <div class="form-group">
                             <label>WhatsApp</label>
-                            <input type="text" class="custom-input" name="whatsapp" placeholder="(00) 00000-0000" required>
+                            <input type="text" class="custom-input" name="whatsapp" placeholder="(00) 00000-0000" maxlength="15" id="whatsappInput" required>
                         </div>
                     </div>
 
                     <div class="form-group gsap-elem-2">
                         <label>E-mail Corporativo ou Pessoal</label>
-                        <input type="email" class="custom-input" name="email" required>
+                        <input type="email" class="custom-input" name="email" id="emailInput" placeholder="seuemail@exemplo.com" required>
+                        <div id="emailError" class="status-msg status-error" style="margin-top: 0.5rem;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Por favor, digite um e-mail válido.</span>
+                        </div>
                     </div>
 
                     <h2 style="margin-top: 2rem;">Dados da Empresa</h2>
@@ -442,7 +462,7 @@
 
                     <div class="form-group gsap-elem-2">
                         <label>CNPJ</label>
-                        <input type="text" class="custom-input" name="cnpj" placeholder="00.000.000/0001-00">
+                        <input type="text" class="custom-input" name="cnpj" placeholder="00.000.000/0001-00" maxlength="18" id="cnpjInput">
                     </div>
 
                     <div class="form-row gsap-elem-2">
@@ -458,13 +478,17 @@
 
                     <div class="gsap-elem-2" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="aceite_termos" required>
+                            <input type="checkbox" name="aceite_termos" id="aceiteTermos" required>
                             Declaro que li e aceito as diretrizes de parceria comercial.
                         </label>
                         <label class="checkbox-wrapper">
-                            <input type="checkbox" name="aceite_lgpd" required>
+                            <input type="checkbox" name="aceite_lgpd" id="aceiteLgpd" required>
                             Concordo com o tratamento dos meus dados conforme a LGPD.
                         </label>
+                        <div id="termsError" class="status-msg status-error" style="margin-top: 1rem;">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Você deve aceitar as diretrizes de parceria e a LGPD para continuar.</span>
+                        </div>
                         <p class="legal-links">
                             Ao prosseguir, você aceita as 
                             <a href="diretrizes_parceria.html">Diretrizes de Parceria Comercial</a> 
@@ -473,7 +497,7 @@
                         </p>
                     </div>
 
-                    <button type="submit" class="btn-next gsap-elem-2" id="btnFinalizar">
+                    <button type="submit" class="btn-next gsap-elem-2" id="btnFinalizar" disabled>
                         Finalizar Cadastro <i class="fas fa-check"></i>
                     </button>
                 </form>
@@ -494,14 +518,150 @@
     </div>
 
     <script>
-        const API_URL = "https://SEU_ID_API.execute-api.us-east-1.amazonaws.com/parceiros/pre-cadastro";
+        const API_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com/parceiros/pre-cadastro";
 
+        // --- MÁSCARAS DE FORMATAÇÃO ---
+        function formatCPF(value) {
+            return value
+                .replace(/\D/g, '')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})/, '$1-$2')
+                .replace(/(-\d{2})\d+?$/, '$1');
+        }
+
+        function formatCNPJ(value) {
+            return value
+                .replace(/\D/g, '')
+                .replace(/(\d{2})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1/$2')
+                .replace(/(\d{4})(\d{1,2})/, '$1-$2')
+                .replace(/(-\d{2})\d+?$/, '$1');
+        }
+
+        function formatWhatsApp(value) {
+            return value
+                .replace(/\D/g, '')
+                .replace(/(\d{2})(\d)/, '($1) $2')
+                .replace(/(\d{4})(\d)/, '$1-$2')
+                .replace(/(\d{4})-(\d)(\d{4})/, '$1$2-$3')
+                .replace(/(-\d{4})\d+?$/, '$1');
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // Aplicar máscaras aos inputs
         document.addEventListener("DOMContentLoaded", () => {
+            // CPF
+            const cpfInput = document.getElementById('cpfInput');
+            if (cpfInput) {
+                cpfInput.addEventListener('input', function(e) {
+                    this.value = formatCPF(this.value);
+                    validateForm(); // Validar formulário a cada mudança
+                });
+            }
+
+            // CNPJ  
+            const cnpjInput = document.getElementById('cnpjInput');
+            if (cnpjInput) {
+                cnpjInput.addEventListener('input', function(e) {
+                    this.value = formatCNPJ(this.value);
+                    validateForm(); // Validar formulário a cada mudança
+                });
+            }
+
+            // WhatsApp
+            const whatsappInput = document.getElementById('whatsappInput');
+            if (whatsappInput) {
+                whatsappInput.addEventListener('input', function(e) {
+                    this.value = formatWhatsApp(this.value);
+                    validateForm(); // Validar formulário a cada mudança
+                });
+            }
+
+            // E-mail validation
+            const emailInput = document.getElementById('emailInput');
+            const emailError = document.getElementById('emailError');
+            if (emailInput && emailError) {
+                emailInput.addEventListener('blur', function(e) {
+                    if (this.value && !validateEmail(this.value)) {
+                        emailError.style.display = 'flex';
+                    } else {
+                        emailError.style.display = 'none';
+                    }
+                });
+                emailInput.addEventListener('input', validateForm); // Validar a cada mudança
+            }
+
+            // Adicionar listeners para todos os campos obrigatórios
+            const requiredInputs = ['nome_completo', 'cidade', 'uf'];
+            requiredInputs.forEach(fieldName => {
+                const input = document.querySelector(`input[name="${fieldName}"]`);
+                if (input) {
+                    input.addEventListener('input', validateForm);
+                }
+            });
+
+            // Adicionar listeners para os checkboxes
+            const aceiteTermos = document.getElementById('aceiteTermos');
+            const aceiteLgpd = document.getElementById('aceiteLgpd');
+            if (aceiteTermos) aceiteTermos.addEventListener('change', validateForm);
+            if (aceiteLgpd) aceiteLgpd.addEventListener('change', validateForm);
+
+            // Animações iniciais
             gsap.from(".form-card", { x: 50, opacity: 0, duration: 1, ease: "power3.out" }); 
-            // Exclui botões das animações para evitar que fiquem com opacity 0
             gsap.from(".gsap-elem:not(.btn-next)", { y: 20, opacity: 0, duration: 0.8, stagger: 0.1, delay: 0.3 });
             gsap.from(".blob-container", { x: -100, opacity: 0, duration: 1.2, ease: "power2.out" });
         });
+
+        // Função para validar se o formulário está completo
+        function validateForm() {
+            const btn = document.getElementById('btnFinalizar');
+            if (!btn) return;
+
+            // Verificar campos obrigatórios
+            const requiredFields = {
+                'nome_completo': document.querySelector('input[name="nome_completo"]'),
+                'cpf': document.getElementById('cpfInput'),
+                'whatsapp': document.getElementById('whatsappInput'),
+                'email': document.getElementById('emailInput'),
+                'cidade': document.querySelector('input[name="cidade"]'),
+                'uf': document.querySelector('input[name="uf"]')
+            };
+
+            // Verificar se todos os campos obrigatórios estão preenchidos
+            let allFieldsFilled = true;
+            for (const [fieldName, input] of Object.entries(requiredFields)) {
+                if (!input || !input.value || input.value.trim() === '') {
+                    allFieldsFilled = false;
+                    break;
+                }
+            }
+
+            // Verificar se e-mail é válido
+            const emailInput = document.getElementById('emailInput');
+            const emailValid = emailInput && emailInput.value && validateEmail(emailInput.value);
+
+            // Verificar se os termos foram aceitos
+            const termosCheck = document.getElementById('aceiteTermos');
+            const lgpdCheck = document.getElementById('aceiteLgpd');
+            const termsAccepted = termosCheck && lgpdCheck && termosCheck.checked && lgpdCheck.checked;
+
+            // Habilitar/desabilitar botão
+            const formValid = allFieldsFilled && emailValid && termsAccepted;
+            
+            if (formValid) {
+                btn.disabled = false;
+                btn.style.cursor = 'pointer';
+            } else {
+                btn.disabled = true;
+                btn.style.cursor = 'not-allowed';
+            }
+        }
 
         const triagemData = {};
 
@@ -544,51 +704,96 @@
                     { opacity: 0, y: 20 }, 
                     { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.2 }
                 );
-                // Garante que o botão esteja visível
+                // Garante que o botão esteja visível e revalidar o form
                 gsap.set("#btnFinalizar", { opacity: 1, clearProps: "opacity,transform" });
+                // Validar formulário quando a etapa 2 aparecer
+                setTimeout(validateForm, 100);
             }});
         }
 
         document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // Verificar se o botão está habilitado antes de prosseguir
             const btn = document.getElementById('btnFinalizar');
+            if (btn.disabled) {
+                alert('Por favor, preencha todos os campos obrigatórios e aceite os termos.');
+                return;
+            }
+            
+            // Validar aceite obrigatório (dupla verificação)
+            const termosCheck = document.getElementById('aceiteTermos').checked;
+            const lgpdCheck = document.getElementById('aceiteLgpd').checked;
+            const errorDiv = document.getElementById('termsError');
+            
+            if (!termosCheck || !lgpdCheck) {
+                errorDiv.style.display = 'flex';
+                gsap.from(errorDiv, { y: -10, opacity: 0, duration: 0.3 });
+                return;
+            }
+            errorDiv.style.display = 'none';
+
+            // Validar e-mail (dupla verificação)
+            const emailInput = document.getElementById('emailInput');
+            const emailError = document.getElementById('emailError');
+            if (emailInput.value && !validateEmail(emailInput.value)) {
+                emailError.style.display = 'flex';
+                emailInput.focus();
+                return;
+            }
+            emailError.style.display = 'none';
+
+            // Validar campos obrigatórios (dupla verificação)
+            const requiredFields = ['nome_completo', 'cpf', 'whatsapp', 'email', 'cidade', 'uf'];
+            const formData = new FormData(e.target);
+            
+            for (let field of requiredFields) {
+                if (!formData.get(field) || formData.get(field).trim() === '') {
+                    alert(`Por favor, preencha o campo obrigatório: ${field.replace('_', ' ')}`);
+                    return;
+                }
+            }
+            
             const originalText = btn.innerHTML;
             btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
             btn.disabled = true;
-
-            const formData = new FormData(e.target);
             
             const payload = {
                 ...triagemData,
-                nome_completo: formData.get('nome_completo'),
-                cpf: formData.get('cpf'),
-                whatsapp: formData.get('whatsapp'),
-                email: formData.get('email'),
-                razao_social: formData.get('razao_social'),
-                cnpj: formData.get('cnpj'),
-                cidade: formData.get('cidade'),
-                uf: formData.get('uf'),
-                aceite_termos: formData.get('aceite_termos') === 'on',
-                aceite_lgpd: formData.get('aceite_lgpd') === 'on'
+                nome_completo: formData.get('nome_completo').trim(),
+                cpf: formData.get('cpf').replace(/\D/g, ''), // Remove formatação
+                whatsapp: formData.get('whatsapp').replace(/\D/g, ''), // Remove formatação
+                email: formData.get('email').trim(),
+                razao_social: formData.get('razao_social') ? formData.get('razao_social').trim() : null,
+                cnpj: formData.get('cnpj') ? formData.get('cnpj').replace(/\D/g, '') : null, // Remove formatação
+                cidade: formData.get('cidade') ? formData.get('cidade').trim() : null,
+                uf: formData.get('uf') ? formData.get('uf').trim().toUpperCase() : null,
+                aceite_termos: termosCheck,
+                aceite_lgpd: lgpdCheck
             };
 
             try {
-                // Simulação de delay para teste visual
-                await new Promise(r => setTimeout(r, 1500)); 
+                console.log('Enviando dados:', payload);
                 
-                // Aqui entraria a chamada fetch real
-                // const response = await fetch(API_URL, {
-                //     method: "POST",
-                //     headers: { "Content-Type": "application/json" },
-                //     body: JSON.stringify(payload)
-                // });
-
-                mostrarSucesso();
+                const response = await fetch(API_URL, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    console.log('Cadastro salvo com sucesso:', result);
+                    mostrarSucesso();
+                } else {
+                    throw new Error(result.message || `Erro ${response.status}: ${response.statusText}`);
+                }
             } catch (error) {
-                console.error(error);
-                alert("Ocorreu um erro ao enviar. Tente novamente.");
+                console.error('Erro ao enviar:', error);
+                alert(`Erro ao enviar cadastro: ${error.message}`);
                 btn.innerHTML = originalText;
-                btn.disabled = false;
+                validateForm(); // Revalidar o formulário para restaurar o estado do botão
             }
         });
 

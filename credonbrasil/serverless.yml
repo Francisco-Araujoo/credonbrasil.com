@@ -6,7 +6,8 @@ provider:
   name: aws
   runtime: nodejs20.x
   region: us-east-1
-  timeout: 10
+  timeout: 6  # Reduzido de 10s -> 6s (economia ~40%)
+  memorySize: 512  # Otimizado para performance/custo
   environment:
     # Credenciais Hardcoded conforme solicitado
     DB_HOST: "credonbrasil.cqzygi8o8twk.us-east-1.rds.amazonaws.com"
@@ -14,10 +15,10 @@ provider:
     # Aspas são obrigatórias aqui devido aos caracteres especiais
     DB_PASSWORD: "jahdaj7652635%Hod00HJsdbRms" 
     DB_NAME: "credonBrasil"
-    # Configurações de conexão
-    DB_CONN_LIMIT: "5"
-    DB_QUEUE_LIMIT: "100"
-    DB_CONNECT_TIMEOUT: "10000"
+    # Configurações de conexão otimizadas para custo
+    DB_CONN_LIMIT: "3"  # Reduzido de 5 -> 3
+    DB_QUEUE_LIMIT: "50"  # Reduzido de 100 -> 50
+    DB_CONNECT_TIMEOUT: "5000"  # Reduzido de 10s -> 5s
 
   httpApi:
     cors:
@@ -35,15 +36,10 @@ provider:
         - X-Amz-Security-Token
 
 functions:
-  cadastro:
-    handler: handler.cadastro
-    events:
-      - httpApi:
-          path: /parceiros/cadastro
-          method: post
-
+  # Funções leves e rápidas
   login:
     handler: handler.login
+    timeout: 4  # Login é rápido
     events:
       - httpApi:
           path: /parceiros/login
@@ -51,27 +47,50 @@ functions:
 
   getUserData:
     handler: handler.getUserData
+    timeout: 3  # Muito simples, 1 query apenas
     events:
       - httpApi:
           path: /parceiros/me
           method: get
 
-  adminCadastro:
-    handler: handler.adminCadastro
-    events:
-      - httpApi:
-          path: /admin/cadastro
-          method: post
-
   adminLogin:
     handler: handler.adminLogin
+    timeout: 4  # Login é rápido
     events:
       - httpApi:
           path: /admin/login
           method: post
 
+  # Funções de cadastro (podem ser mais lentas)
+  cadastro:
+    handler: handler.cadastro
+    timeout: 6  # Hash + validações
+    events:
+      - httpApi:
+          path: /parceiros/cadastro
+          method: post
+
+  adminCadastro:
+    handler: handler.adminCadastro
+    timeout: 6  # Hash + validações
+    events:
+      - httpApi:
+          path: /admin/cadastro
+          method: post
+
+  preCadastro:
+    handler: handler.preCadastro
+    timeout: 5  # Validações + insert
+    events:
+      - httpApi:
+          path: /parceiros/pre-cadastro
+          method: post
+
+  # Funções admin mais pesadas
   adminListParceiros:
     handler: handler.adminListParceiros
+    timeout: 8  # Pode listar muitos registros
+    memorySize: 256  # Menos memória para economizar
     events:
       - httpApi:
           path: /admin/parceiros
@@ -79,6 +98,7 @@ functions:
 
   adminGetParceiro:
     handler: handler.adminGetParceiro
+    timeout: 4  # 1 parceiro apenas
     events:
       - httpApi:
           path: /admin/parceiros/view
@@ -86,21 +106,9 @@ functions:
 
   adminUpdateParceiroSenha:
     handler: handler.adminUpdateParceiroSenha
+    timeout: 5  # Hash + update
     events:
       - httpApi:
           path: /admin/parceiros/senha
           method: put
 
-  preCadastro:
-    handler: handler.preCadastro
-    events:
-      - httpApi:
-          path: /parceiros/pre-cadastro
-          method: post
-
-  hello:
-    handler: handler.hello
-    events:
-      - httpApi:
-          path: /
-          method: get

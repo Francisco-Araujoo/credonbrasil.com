@@ -46,8 +46,8 @@ async function withRetries(fn, attempts = 2, initialDelay = 200) {
   throw lastErr;
 }
 
-// Wrapper para queries com timeout
-async function queryWithTimeout(pool, sql, params, timeoutMs = 8000) {
+// Wrapper para queries com timeout otimizado
+async function queryWithTimeout(pool, sql, params, timeoutMs = 4000) {  // Reduzido de 8s -> 4s
   const queryPromise = pool.query(sql, params);
   const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('DB query timeout')), timeoutMs));
   return await withRetries(() => Promise.race([queryPromise, timeoutPromise]));
@@ -515,14 +515,6 @@ exports.adminUpdateParceiroSenha = async (event, context) => {
   }
 };
 
-exports.hello = async (event) => {
-  return {
-    statusCode: 200,
-    headers: jsonHeaders,
-    body: JSON.stringify({ message: 'API Online', time: new Date().toISOString() }),
-  };
-};
-
 // POST /parceiros/pre-cadastro
 exports.preCadastro = async (event, context) => {
   context.callbackWaitsForEmptyEventLoop = false;
@@ -555,6 +547,23 @@ exports.preCadastro = async (event, context) => {
         statusCode: 400,
         headers: jsonHeaders,
         body: JSON.stringify({ message: 'Dados de triagem incompletos' })
+      };
+    }
+
+    // Validação campos obrigatórios básicos se fornecidos
+    if (nome_completo && !nome_completo.trim()) {
+      return {
+        statusCode: 400,
+        headers: jsonHeaders,
+        body: JSON.stringify({ message: 'Nome completo não pode estar vazio' })
+      };
+    }
+
+    if (email && !/\S+@\S+\.\S+/.test(email)) {
+      return {
+        statusCode: 400,
+        headers: jsonHeaders,
+        body: JSON.stringify({ message: 'E-mail inválido' })
       };
     }
 
