@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Pré-Cadastro Parceiro | CredOn</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+
+    <style>
+        /* --- VARIÁVEIS --- */
+        :root {
+            --primary: #2563eb;       
+            --primary-hover: #1d4ed8; 
+            --accent: #38bdf8;
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+
+            --bg-page: #ffffff;
+            --text-main: #020617;     
+            --text-muted: #64748b;    
+            --input-bg: #f1f5f9;      
+            --border-color: #cbd5e1;  
+        }
+
+        * { box-sizing: border-box; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            margin: 0; padding: 0;
+            background-color: var(--bg-page);
+            color: var(--text-main);
+            font-family: var(--font-body);
+            min-height: 100vh;      /* Permite rolagem vertical */
+            width: 100vw;
+            overflow-x: hidden;     /* Bloqueia rolagem lateral */
+            overflow-y: auto;       /* Libera rolagem vertical */
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        /* --- ELEMENTOS VISUAIS FIXOS --- */
+        .blob-container {
+            position: fixed; /* Fixo na tela */
+            top: 50%; 
+            left: 0;
+            transform: translateY(-50%);
+            width: 50vw; 
+            height: 115vh; 
+            z-index: 0;
+            border-radius: 0% 50% 50% 0% / 0% 40% 40% 0%; 
+            overflow: hidden;
+            box-shadow: 10px 0 40px rgba(37, 99, 235, 0.1);
+        }
+
+        .blob-image {
+            width: 100%; height: 100%;
+            background: url('/src/img/parceiros2.jpg') center/cover no-repeat;
+        }
+
+        .edge-decor-right {
+            position: fixed; top: 0; right: 0; width: 150px; height: 100%; z-index: 0;
+            background-image: 
+                linear-gradient(45deg, var(--primary) 25%, transparent 25%), 
+                linear-gradient(-45deg, var(--primary) 25%, transparent 25%), 
+                linear-gradient(45deg, transparent 75%, var(--primary) 75%), 
+                linear-gradient(-45deg, transparent 75%, var(--primary) 75%);
+            background-size: 20px 20px;
+            opacity: 0.03; 
+            pointer-events: none;
+        }
+
+        .edge-decor-bottom {
+            position: fixed; bottom: 0; left: 0; width: 100%; height: 100px; z-index: 0;
+            background: linear-gradient(to top, rgba(37, 99, 235, 0.04), transparent);
+            pointer-events: none;
+        }
+
+        .edge-decor-top-left {
+            position: fixed; top: 0; left: 0; width: 250px; height: 250px; z-index: 0;
+            background-image: radial-gradient(var(--accent) 1px, transparent 1px);
+            background-size: 15px 15px;
+            opacity: 0.06;
+            mask-image: radial-gradient(circle at top left, black, transparent 80%);
+            -webkit-mask-image: radial-gradient(circle at top left, black, transparent 80%);
+            pointer-events: none;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: absolute; top: 0; left: 0; width: 100%;
+            padding: 2rem 4rem;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 20; pointer-events: none;
+        }
+        .logo { 
+            font-family: var(--font-display); 
+            font-weight: 700; font-size: 1.8rem; letter-spacing: -1px; 
+            color: var(--primary);
+            pointer-events: auto;
+        }
+        .back-link { 
+            background: rgba(255,255,255,0.95);
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 0.8rem 1.5rem;
+            border-radius: 4px;
+            text-decoration: none; font-size: 0.85rem; font-weight: 700;
+            font-family: var(--font-display); text-transform: uppercase; letter-spacing: 1px;
+            display: flex; align-items: center; gap: 8px; transition: 0.3s;
+            pointer-events: auto;
+        }
+        .back-link:hover { border-color: var(--primary); color: var(--primary); }
+
+        /* --- FORMULÁRIO --- */
+        .form-wrapper {
+            position: relative; z-index: 10;
+            margin-right: 5%; 
+            width: 100%; max-width: 550px;
+            display: flex; align-items: center;
+            padding-top: 8rem;    /* Espaço topo */
+            padding-bottom: 5rem; /* Espaço fundo para scroll */
+        }
+
+        .form-card {
+            width: 100%; 
+            background: transparent;
+            padding: 2rem 0;
+            position: relative; 
+        }
+
+        h1 { 
+            font-family: var(--font-display); 
+            font-size: 2.5rem; margin: 0 0 0.5rem 0; 
+            line-height: 1; color: var(--text-main);
+            letter-spacing: -1px;
+        }
+        .subtitle { 
+            font-family: var(--font-body);
+            color: var(--text-muted); margin-bottom: 2rem; 
+            font-size: 1.05rem; line-height: 1.5; 
+        }
+        
+        h2 { 
+            font-family: var(--font-display); font-size: 1.3rem; margin-bottom: 1.5rem; 
+            color: var(--primary); 
+            border-left: 4px solid var(--accent); 
+            padding-left: 15px; 
+            font-weight: 700;
+        }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+        
+        label { 
+            display: block; color: var(--text-muted); margin-bottom: 0.5rem; 
+            font-family: var(--font-display);
+            font-size: 0.8rem; font-weight: 700; 
+            text-transform: uppercase; letter-spacing: 1px; 
+        }
+        
+        .custom-input {
+            width: 100%; 
+            background: var(--input-bg);
+            border: 1px solid var(--border-color);
+            padding: 1rem; border-radius: 4px;
+            color: var(--text-main); 
+            font-family: var(--font-body); font-size: 1rem;
+            transition: 0.3s;
+        }
+        .custom-input:focus { 
+            background: white;
+            border-color: var(--primary); 
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); 
+        }
+
+        /* --- RADIO CARDS --- */
+        .radio-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 2rem; }
+        .radio-option { position: relative; }
+        .radio-option input { position: absolute; opacity: 0; cursor: pointer; }
+        
+        .radio-card {
+            display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;
+            padding: 1.2rem 0.5rem; 
+            background: white; 
+            border: 1px solid var(--border-color);
+            border-radius: 4px; cursor: pointer; transition: 0.2s; height: 100%;
+        }
+        .radio-card i { font-size: 1.4rem; margin-bottom: 0.5rem; color: #94a3b8; transition: 0.2s; }
+        .radio-card span { 
+            font-family: var(--font-display); font-size: 0.75rem; font-weight: 700; 
+            color: var(--text-muted); text-transform: uppercase; line-height: 1.2; 
+        }
+
+        .radio-option input:checked + .radio-card {
+            background: #eff6ff; border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.1);
+        }
+        .radio-option input:checked + .radio-card i { color: var(--primary); }
+        .radio-option input:checked + .radio-card span { 
+            color: var(--primary); 
+        } /* <--- CHAVE DE FECHAMENTO CONFIRMADA */
+
+        /* --- BOTÃO FORÇADO --- */
+        button.btn-next, .btn-next {
+            width: 100%; 
+            background-color: #2563eb !important; /* Azul obrigatório */
+            color: #ffffff !important;           /* Branco obrigatório */
+            border: none;
+            
+            padding: 1.2rem; 
+            border-radius: 4px;
+            font-family: var(--font-display); 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            letter-spacing: 2px;
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 1rem;
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 10px;
+            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);
+            position: relative; 
+            z-index: 100;
+            -webkit-appearance: none;
+        }
+
+        button.btn-next:hover, .btn-next:hover { 
+            background-color: #1d4ed8 !important; 
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(37, 99, 235, 0.5); 
+        }
+
+        /* --- UTILS --- */
+        .step-section { display: none; opacity: 0; }
+        .step-section.active { display: block; opacity: 1; }
+        
+        .status-msg {
+            padding: 1rem; border-radius: 4px; margin-bottom: 1.5rem; display: none;
+            align-items: center; gap: 10px; font-size: 0.9rem;
+            font-family: var(--font-body);
+        }
+        .status-error { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+        
+        .checkbox-wrapper { 
+            display: flex; align-items: start; gap: 10px; margin-bottom: 1rem; 
+            font-size: 0.9rem; color: var(--text-muted); cursor: pointer; font-family: var(--font-body);
+        }
+        .checkbox-wrapper input { margin-top: 4px; accent-color: var(--primary); }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 1024px) {
+            body { 
+                flex-direction: column; height: auto; overflow-y: auto; justify-content: flex-start;
+            }
+            .blob-container {
+                width: 100%; height: 30vh;
+                top: 0; left: 0; transform: none;
+                border-radius: 0 0 50% 50% / 0 0 20% 20%;
+                position: relative; 
+                margin-bottom: -2rem; 
+            }
+            header { position: absolute; padding: 1.5rem; }
+            .logo { color: white; } 
+            .back-link { background: rgba(255,255,255,0.9); border: none; }
+
+            .form-wrapper { 
+                margin-right: 0; 
+                padding: 0 1.5rem 3rem 1.5rem; 
+                margin-top: 0; 
+                max-width: 100%; 
+            }
+            .radio-grid { grid-template-columns: repeat(3, 1fr); }
+            .back-link span { display: none; }
+            
+            .edge-decor-right, .edge-decor-bottom, .edge-decor-top-left { display: none; }
+        }
+        @media (max-width: 600px) {
+            .radio-grid { grid-template-columns: 1fr; }
+            h1 { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="blob-container">
+        <div class="blob-image"></div>
+    </div>
+
+    <div class="edge-decor-right"></div>
+    <div class="edge-decor-bottom"></div>
+    <div class="edge-decor-top-left"></div>
+
+    <header>
+        <div class="logo">CREDON</div>
+        <a href="../index.html" class="back-link"><i class="fas fa-arrow-left"></i> <span>Voltar</span></a>
+    </header>
+
+    <div class="form-wrapper">
+        <div class="form-card">
+            
+            <div id="step1" class="step-section active">
+                <div class="gsap-elem">
+                    <h1>Seja um Parceiro</h1>
+                    <p class="subtitle">Responda a 3 perguntas rápidas para verificarmos a elegibilidade do seu perfil.</p>
+                </div>
+
+                <form id="triagemForm">
+                    <div class="form-group gsap-elem">
+                        <label>Qual o tipo do seu CNPJ?</label>
+                        <div class="radio-grid">
+                            <label class="radio-option">
+                                <input type="radio" name="resp_tipo_cnpj" value="ME_EPP_LTDA">
+                                <div class="radio-card">
+                                    <i class="fas fa-building"></i>
+                                    <span>ME / LTDA</span>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="resp_tipo_cnpj" value="MEI">
+                                <div class="radio-card">
+                                    <i class="fas fa-store"></i>
+                                    <span>Sou MEI</span>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="resp_tipo_cnpj" value="NAO">
+                                <div class="radio-card">
+                                    <i class="fas fa-user"></i>
+                                    <span>Sem CNPJ</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group gsap-elem">
+                        <label>Possui carteira de clientes?</label>
+                        <div class="radio-grid">
+                            <label class="radio-option">
+                                <input type="radio" name="resp_perfil_clientes" value="JA_TENHO">
+                                <div class="radio-card">
+                                    <i class="fas fa-users"></i>
+                                    <span>Sim, já tenho</span>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="resp_perfil_clientes" value="TENHO_ACESSO">
+                                <div class="radio-card">
+                                    <i class="fas fa-network-wired"></i>
+                                    <span>Networking</span>
+                                </div>
+                            </label>
+                            <label class="radio-option">
+                                <input type="radio" name="resp_perfil_clientes" value="NAO">
+                                <div class="radio-card">
+                                    <i class="fas fa-times-circle"></i>
+                                    <span>Não tenho</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+
+                    <div class="form-group gsap-elem">
+                        <label>Expectativa de indicações mensais</label>
+                        <select class="custom-input" name="resp_volume_indicacoes" style="cursor: pointer;">
+                            <option value="1">Até 1 indicação</option>
+                            <option value="3-5" selected>De 3 a 5 indicações</option>
+                            <option value="6-10">De 6 a 10 indicações</option>
+                            <option value="10+">Acima de 10 indicações</option>
+                        </select>
+                    </div>
+
+                    <div id="triagemError" class="status-msg status-error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        <span>No momento, seu perfil não se enquadra nos requisitos mínimos.</span>
+                    </div>
+
+                    <button type="button" class="btn-next gsap-elem" onclick="validarTriagem()">
+                        Verificar Elegibilidade <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div id="step2" class="step-section">
+                <div class="gsap-elem-2">
+                    <h1 style="color: var(--primary);">Perfil Aprovado!</h1>
+                    <p class="subtitle">Preencha seus dados para finalizar o pré-cadastro.</p>
+                </div>
+
+                <form id="cadastroForm">
+                    <h2>Dados Pessoais</h2>
+                    <div class="form-group gsap-elem-2">
+                        <label>Nome Completo</label>
+                        <input type="text" class="custom-input" name="nome_completo" required>
+                    </div>
+                    
+                    <div class="form-row gsap-elem-2">
+                        <div class="form-group">
+                            <label>CPF</label>
+                            <input type="text" class="custom-input" name="cpf" placeholder="000.000.000-00" required>
+                        </div>
+                        <div class="form-group">
+                            <label>WhatsApp</label>
+                            <input type="text" class="custom-input" name="whatsapp" placeholder="(00) 00000-0000" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group gsap-elem-2">
+                        <label>E-mail Corporativo ou Pessoal</label>
+                        <input type="email" class="custom-input" name="email" required>
+                    </div>
+
+                    <h2 style="margin-top: 2rem;">Dados da Empresa</h2>
+                    <div class="form-group gsap-elem-2">
+                        <label>Razão Social</label>
+                        <input type="text" class="custom-input" name="razao_social">
+                    </div>
+
+                    <div class="form-group gsap-elem-2">
+                        <label>CNPJ</label>
+                        <input type="text" class="custom-input" name="cnpj" placeholder="00.000.000/0001-00">
+                    </div>
+
+                    <div class="form-row gsap-elem-2">
+                        <div class="form-group">
+                            <label>Cidade</label>
+                            <input type="text" class="custom-input" name="cidade" required>
+                        </div>
+                        <div class="form-group">
+                            <label>UF</label>
+                            <input type="text" class="custom-input" name="uf" maxlength="2" placeholder="SP" style="text-transform: uppercase;" required>
+                        </div>
+                    </div>
+
+                    <div class="gsap-elem-2" style="margin-top: 2rem; border-top: 1px solid var(--border-color); padding-top: 1.5rem;">
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="aceite_termos" required>
+                            Declaro que li e aceito as diretrizes de parceria comercial.
+                        </label>
+                        <label class="checkbox-wrapper">
+                            <input type="checkbox" name="aceite_lgpd" required>
+                            Concordo com o tratamento dos meus dados conforme a LGPD.
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-next gsap-elem-2" id="btnFinalizar">
+                        Finalizar Cadastro <i class="fas fa-check"></i>
+                    </button>
+                </form>
+            </div>
+
+            <div id="stepSuccess" class="step-section" style="text-align: center; padding: 2rem 0;">
+                <div style="background: #ecfdf5; width: 90px; height: 90px; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem auto;">
+                    <i class="fas fa-check" style="font-size: 2.5rem; color: #10b981;"></i>
+                </div>
+                <h1 style="color: #10b981;">Cadastro Recebido!</h1>
+                <p class="subtitle">Nossa equipe de compliance analisará seus dados em até 48 horas. Você receberá o retorno via e-mail e WhatsApp.</p>
+                <a href="../index.html" class="btn-next" style="width: auto; display: inline-flex; padding: 1rem 3rem; background: var(--text-main); color: white;">
+                    Voltar ao Início
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        const API_URL = "https://SEU_ID_API.execute-api.us-east-1.amazonaws.com/parceiros/pre-cadastro";
+
+        document.addEventListener("DOMContentLoaded", () => {
+            gsap.from(".form-card", { x: 50, opacity: 0, duration: 1, ease: "power3.out" }); 
+            gsap.from(".gsap-elem", { y: 20, opacity: 0, duration: 0.8, stagger: 0.1, delay: 0.3 });
+            gsap.from(".blob-container", { x: -100, opacity: 0, duration: 1.2, ease: "power2.out" });
+        });
+
+        const triagemData = {};
+
+        function validarTriagem() {
+            const form = document.getElementById('triagemForm');
+            const formData = new FormData(form);
+            
+            triagemData.resp_tipo_cnpj = formData.get('resp_tipo_cnpj');
+            triagemData.resp_perfil_clientes = formData.get('resp_perfil_clientes');
+            triagemData.resp_volume_indicacoes = formData.get('resp_volume_indicacoes');
+
+            const errorBox = document.getElementById('triagemError');
+            
+            if (!triagemData.resp_tipo_cnpj || !triagemData.resp_perfil_clientes) {
+                alert("Por favor, responda todas as perguntas.");
+                return;
+            }
+
+            if (triagemData.resp_tipo_cnpj === 'NAO' || triagemData.resp_perfil_clientes === 'NAO') {
+                errorBox.style.display = 'flex';
+                gsap.from(errorBox, { y: -10, opacity: 0, duration: 0.3 });
+                return;
+            }
+
+            errorBox.style.display = 'none';
+            avancarEtapa();
+        }
+
+        function avancarEtapa() {
+            const step1 = document.getElementById('step1');
+            const step2 = document.getElementById('step2');
+
+            gsap.to(step1, { opacity: 0, x: -50, duration: 0.5, onComplete: () => {
+                step1.classList.remove('active');
+                step2.classList.add('active');
+                
+                gsap.fromTo(step2, { opacity: 0, x: 50 }, { opacity: 1, x: 0, duration: 0.5 });
+                gsap.fromTo(".gsap-elem-2", 
+                    { opacity: 0, y: 20 }, 
+                    { opacity: 1, y: 0, duration: 0.6, stagger: 0.1, delay: 0.2 }
+                );
+            }});
+        }
+
+        document.getElementById('cadastroForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('btnFinalizar');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+            btn.disabled = true;
+
+            const formData = new FormData(e.target);
+            
+            const payload = {
+                ...triagemData,
+                nome_completo: formData.get('nome_completo'),
+                cpf: formData.get('cpf'),
+                whatsapp: formData.get('whatsapp'),
+                email: formData.get('email'),
+                razao_social: formData.get('razao_social'),
+                cnpj: formData.get('cnpj'),
+                cidade: formData.get('cidade'),
+                uf: formData.get('uf'),
+                aceite_termos: formData.get('aceite_termos') === 'on',
+                aceite_lgpd: formData.get('aceite_lgpd') === 'on'
+            };
+
+            try {
+                // Simulação de delay para teste visual
+                await new Promise(r => setTimeout(r, 1500)); 
+                
+                // Aqui entraria a chamada fetch real
+                // const response = await fetch(API_URL, {
+                //     method: "POST",
+                //     headers: { "Content-Type": "application/json" },
+                //     body: JSON.stringify(payload)
+                // });
+
+                mostrarSucesso();
+            } catch (error) {
+                console.error(error);
+                alert("Ocorreu um erro ao enviar. Tente novamente.");
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        });
+
+        function mostrarSucesso() {
+            const step2 = document.getElementById('step2');
+            const stepSuccess = document.getElementById('stepSuccess');
+
+            gsap.to(step2, { opacity: 0, x: -50, duration: 0.5, onComplete: () => {
+                step2.classList.remove('active');
+                stepSuccess.classList.add('active');
+                gsap.fromTo(stepSuccess, { opacity: 0, scale: 0.9 }, { opacity: 1, scale: 1, duration: 0.5 });
+            }});
+        }
+    </script>
+</body>
+</html>

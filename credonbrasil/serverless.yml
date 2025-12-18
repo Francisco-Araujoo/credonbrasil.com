@@ -91,6 +91,13 @@ functions:
           path: /admin/parceiros/senha
           method: put
 
+  preCadastro:
+    handler: handler.preCadastro
+    events:
+      - httpApi:
+          path: /parceiros/pre-cadastro
+          method: post
+
   hello:
     handler: handler.hello
     events:

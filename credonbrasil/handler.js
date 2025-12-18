@@ -522,3 +522,109 @@ exports.hello = async (event) => {
     body: JSON.stringify({ message: 'API Online', time: new Date().toISOString() }),
   };
 };
+
+// POST /parceiros/pre-cadastro
+exports.preCadastro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    console.log('Dados recebidos (Pré-Cadastro):', body);
+
+    const {
+      resp_tipo_cnpj,
+      resp_perfil_clientes,
+      resp_volume_indicacoes,
+      nome_completo,
+      cpf,
+      whatsapp,
+      email,
+      razao_social,
+      cnpj,
+      cidade,
+      uf,
+      aceite_termos,
+      aceite_lgpd
+    } = body;
+
+    // Validação Básica da Fase 1
+    if (!resp_tipo_cnpj || !resp_perfil_clientes || !resp_volume_indicacoes) {
+      return {
+        statusCode: 400,
+        headers: jsonHeaders,
+        body: JSON.stringify({ message: 'Dados de triagem incompletos' })
+      };
+    }
+
+    // Cálculo de Elegibilidade (Regra de Negócio Backend)
+    // Regra: Reprova se não tiver CNPJ (NAO) OU não tiver clientes (NAO)
+    let status_elegibilidade = 'aprovado';
+    if (resp_tipo_cnpj === 'NAO' || resp_perfil_clientes === 'NAO') {
+      status_elegibilidade = 'reprovado';
+    }
+
+    const pool = getPool();
+
+    // Verifica se já existe pré-cadastro com esse CPF ou CNPJ (se fornecidos)
+    if (cpf || cnpj) {
+        const queryCheck = `SELECT id FROM pre_cadastros WHERE (cpf = ? AND cpf IS NOT NULL) OR (cnpj = ? AND cnpj IS NOT NULL) LIMIT 1`;
+        const [existing] = await queryWithTimeout(pool, queryCheck, [cpf || '', cnpj || '']);
+        
+        if (existing.length > 0) {
+             return {
+                statusCode: 409,
+                headers: jsonHeaders,
+                body: JSON.stringify({ message: 'CPF ou CNPJ já possui uma solicitação em análise.' })
+             };
+        }
+    }
+
+    const sql = `
+      INSERT INTO pre_cadastros (
+        resp_tipo_cnpj, resp_perfil_clientes, resp_volume_indicacoes, status_elegibilidade,
+        nome_completo, cpf, whatsapp, email,
+        razao_social, cnpj, cidade, uf,
+        aceite_termos, aceite_lgpd
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      resp_tipo_cnpj,
+      resp_perfil_clientes,
+      resp_volume_indicacoes,
+      status_elegibilidade,
+      nome_completo || null,
+      cpf || null,
+      whatsapp || null,
+      email || null,
+      razao_social || null,
+      cnpj || null,
+      cidade || null,
+      uf || null,
+      aceite_termos ? 1 : 0,
+      aceite_lgpd ? 1 : 0
+    ];
+
+    const [result] = await queryWithTimeout(pool, sql, values);
+
+    return {
+      statusCode: 201,
+      headers: jsonHeaders,
+      body: JSON.stringify({ 
+          message: 'Pré-cadastro realizado com sucesso', 
+          id: result.insertId,
+          status: status_elegibilidade 
+      })
+    };
+
+  } catch (err) {
+    console.error('ERRO NO PRE-CADASTRO:', err);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
