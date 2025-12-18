@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Diretrizes de Parceria Comercial – CREDON</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #2563eb;
+      --primary-hover: #1d4ed8;
+      --accent: #38bdf8;
+      --text-main: #0f172a;
+      --text-muted: #475569;
+      --border: #e2e8f0;
+      --bg: #ffffff;
+      --font-display: 'Space Grotesk', sans-serif;
+      --font-body: 'Outfit', sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; background: var(--bg); color: var(--text-main);
+      font-family: var(--font-body), system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      line-height: 1.6;
+    }
+    /* --- Background decor --- */
+    .bg-wrap { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+    .bg-grid {
+      position: absolute; inset: -10%;
+      background-image:
+        repeating-linear-gradient(90deg, rgba(37,99,235,0.08) 0, rgba(37,99,235,0.08) 1px, transparent 1px, transparent 22px),
+        repeating-linear-gradient(0deg, rgba(56,189,248,0.06) 0, rgba(56,189,248,0.06) 1px, transparent 1px, transparent 26px);
+      mask-image: radial-gradient(120% 80% at 10% 10%, #000 30%, transparent 75%);
+      -webkit-mask-image: radial-gradient(120% 80% at 10% 10%, #000 30%, transparent 75%);
+    }
+    .bg-vignette { position: absolute; inset: 0; background: radial-gradient(80% 60% at 80% 20%, rgba(37,99,235,0.12), transparent 60%); }
+    .bg-tint { position: absolute; inset: 0; background: linear-gradient(115deg, rgba(37,99,235,0.08) 0%, rgba(56,189,248,0.06) 45%, transparent 75%); }
+    .wave { position: absolute; width: 140%; left: -20%; opacity: 0.55; }
+    .wave svg { width: 100%; height: auto; display: block; }
+    .wave--top { top: 8%; }
+    .wave--bottom { bottom: 6%; transform: scaleY(-1); opacity: 0.5; }
+    .wave path { fill: none; stroke: var(--primary); stroke-opacity: 0.22; stroke-width: 1.5; }
+    .wave path.accent { stroke: var(--accent); stroke-opacity: 0.18; }
+    .drift { animation: driftX 60s linear infinite alternate; will-change: transform; }
+    .drift.slow { animation-duration: 85s; }
+    @keyframes driftX { from { transform: translateX(-2%); } to { transform: translateX(2%); } }
+    @media (prefers-reduced-motion: reduce) { .drift { animation: none; } }
+    header { padding: 1.25rem 1rem; border-bottom: 1px solid var(--border); }
+    .container { max-width: 920px; margin: 0 auto; padding: 2rem 1rem; position: relative; z-index: 1; }
+    h1 { font-family: var(--font-display); font-size: clamp(2rem, 3.6vw, 2.75rem); margin: 0 0 0.5rem; letter-spacing: -0.5px; line-height: 1.1; font-weight: 700; }
+    .subtitle { color: var(--text-muted); margin: 0 0 2rem; font-size: 1.05rem; line-height: 1.7; }
+    h2 { font-family: var(--font-display); margin-top: 2rem; font-size: 1.35rem; color: var(--primary); font-weight: 700; }
+    p { margin: 0.75rem 0; }
+    ul { margin: 0.5rem 0 0.75rem 1.25rem; }
+    li { margin: 0.25rem 0; }
+    .card { background: rgba(255,255,255,0.92); border: 1px solid rgba(37,99,235,0.10); border-radius: 10px; padding: 1.25rem; margin-top: 1rem; box-shadow: 0 10px 25px rgba(2,6,23,0.04); }
+    a { color: var(--primary); text-decoration: underline; }
+    .back { display: inline-block; margin-top: 2rem; padding: 0.75rem 1rem; border: 1px solid var(--border); border-radius: 6px; color: var(--primary); text-decoration: none; font-weight: 600; }
+    .back:hover { background: #f8fafc; border-color: var(--primary); }
+  </style>
+  <meta name="robots" content="noindex" />
+    
+</head>
+<body>
+  <!-- Subtle animated background -->
+  <div class="bg-wrap" aria-hidden="true">
+    <div class="bg-grid"></div>
+    <div class="bg-vignette"></div>
+    <div class="bg-tint"></div>
+    <div class="wave wave--top drift">
+      <svg viewBox="0 0 1600 300" preserveAspectRatio="none">
+        <path d="M0,150 C200,120 300,80 500,100 C700,120 900,200 1100,180 C1300,160 1500,100 1600,120" />
+        <path class="accent" d="M0,190 C250,160 350,140 540,160 C760,185 940,120 1160,150 C1360,178 1500,160 1600,170" />
+      </svg>
+    </div>
+    <div class="wave wave--bottom drift slow">
+      <svg viewBox="0 0 1600 300" preserveAspectRatio="none">
+        <path d="M0,160 C220,140 380,200 560,180 C780,160 980,120 1180,140 C1380,160 1500,200 1600,190" />
+        <path class="accent" d="M0,210 C260,190 420,160 620,175 C820,190 1000,155 1200,170 C1400,185 1520,210 1600,205" />
+      </svg>
+    </div>
+  </div>
+  <header>
+    <div class="container">
+      <strong style="color: var(--primary); font-family: 'Space Grotesk', sans-serif;">CREDON</strong>
+    </div>
+  </header>
+  <main class="container">
+    <h1>Diretrizes de Parceria Comercial – CREDON</h1>
+    <p class="subtitle">As presentes Diretrizes de Parceria Comercial regulam a atuação dos parceiros comerciais da CREDON, aplicando-se a todas as indicações, cadastros e operações intermediadas por meio da plataforma. Ao aceitar estas diretrizes, o PARCEIRO declara estar ciente e de acordo com as regras abaixo.</p>
+
+    <div class="card">
+      <h2>1. Natureza da Parceria</h2>
+      <p><strong>1.1.</strong> A parceria possui caráter estritamente comercial e indicativo, não gerando qualquer vínculo empregatício, societário ou de representação exclusiva entre as partes.</p>
+      <p><strong>1.2.</strong> O PARCEIRO atua de forma autônoma, sendo responsável por sua organização, prospecção e abordagem de clientes.</p>
+    </div>
+
+    <div class="card">
+      <h2>2. Elegibilidade e Responsabilidade</h2>
+      <p><strong>2.1.</strong> O PARCEIRO declara possuir CNPJ ativo, inclusive na modalidade MEI, e estar apto a emitir Nota Fiscal para fins de recebimento de comissões.</p>
+      <p><strong>2.2.</strong> O PARCEIRO é integralmente responsável pela veracidade das informações fornecidas sobre seus clientes e operações cadastradas.</p>
+      <p><strong>2.3.</strong> A CREDON poderá recusar, suspender ou cancelar qualquer operação que não atenda aos critérios internos de análise, sem que isso gere direito a indenização ou comissão.</p>
+    </div>
+
+    <div class="card">
+      <h2>3. Conduta Comercial</h2>
+      <p><strong>3.1.</strong> É expressamente proibido:</p>
+      <ul>
+        <li>Prometer aprovação de crédito;</li>
+        <li>Garantir taxas, prazos ou valores sem validação da CREDON;</li>
+        <li>Utilizar informações enganosas, abusivas ou fora dos materiais oficiais;</li>
+        <li>Realizar qualquer prática que viole normas legais, éticas ou regulatórias.</li>
+      </ul>
+      <p><strong>3.2.</strong> O PARCEIRO compromete-se a atuar com boa-fé, transparência e responsabilidade, zelando pela imagem da CREDON.</p>
+    </div>
+
+    <div class="card">
+      <h2>4. Uso da Marca e Materiais</h2>
+      <p><strong>4.1.</strong> O PARCEIRO poderá utilizar exclusivamente os materiais oficiais disponibilizados na Central de Materiais da plataforma.</p>
+      <p><strong>4.2.</strong> É vedada qualquer alteração de conteúdo, layout, textos, valores ou promessas sem autorização expressa da CREDON.</p>
+      <p><strong>4.3.</strong> O uso indevido da marca poderá acarretar suspensão imediata da parceria.</p>
+    </div>
+
+    <div class="card">
+      <h2>5. Comissionamento</h2>
+      <p><strong>5.1.</strong> O direito à comissão somente será adquirido após:</p>
+      <ul>
+        <li>Aprovação da operação;</li>
+        <li>Efetiva liberação do crédito ao cliente;</li>
+        <li>Liberação da comissão pela CREDON;</li>
+        <li>Envio da Nota Fiscal pelo PARCEIRO.</li>
+      </ul>
+      <p><strong>5.2.</strong> O envio da Nota Fiscal é obrigatório para pagamento da comissão, respeitando prazos, valores e orientações informadas pela CREDON.</p>
+      <p><strong>5.3.</strong> A ausência, atraso ou inconsistência na Nota Fiscal poderá postergar o pagamento para o período subsequente.</p>
+    </div>
+
+    <div class="card">
+      <h2>6. Confidencialidade</h2>
+      <p><strong>6.1.</strong> O PARCEIRO compromete-se a manter sigilo absoluto sobre dados, informações, processos e condições comerciais às quais tiver acesso.</p>
+      <p><strong>6.2.</strong> As informações obtidas devem ser utilizadas exclusivamente para fins da parceria.</p>
+    </div>
+
+    <div class="card">
+      <h2>7. Suspensão e Encerramento</h2>
+      <p><strong>7.1.</strong> A CREDON poderá suspender ou encerrar a parceria a qualquer momento, em caso de:</p>
+      <ul>
+        <li>Descumprimento destas diretrizes;</li>
+        <li>Conduta inadequada;</li>
+        <li>Risco reputacional, jurídico ou operacional.</li>
+      </ul>
+    </div>
+
+    <div class="card">
+      <h2>8. Disposições Gerais</h2>
+      <p><strong>8.1.</strong> A CREDON poderá atualizar estas Diretrizes a qualquer tempo, mediante publicação na plataforma.</p>
+      <p><strong>8.2.</strong> O aceite eletrônico possui pleno valor jurídico, vinculando o PARCEIRO às condições aqui estabelecidas.</p>
+    </div>
+
+    <a class="back" href="pre_cadastro.html">Voltar ao Pré-cadastro</a>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+  <script>
+    (function(){
+      const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (reduce || typeof gsap === 'undefined') return;
+      gsap.from('header strong', { y: -10, opacity: 0, duration: 0.6, ease: 'power2.out' });
+      gsap.from('main h1', { y: 10, opacity: 0, duration: 0.6, ease: 'power2.out', delay: 0.05 });
+      gsap.from('main .subtitle', { y: 10, opacity: 0, duration: 0.6, ease: 'power2.out', delay: 0.12 });
+      gsap.from('main .card', { y: 18, opacity: 0, duration: 0.55, stagger: 0.08, ease: 'power2.out', delay: 0.2 });
+      gsap.from('main .card li', { x: -6, opacity: 0, duration: 0.3, stagger: 0.02, ease: 'power2.out', delay: 0.35 });
+    })();
+  </script>
+</body>
+</html>
