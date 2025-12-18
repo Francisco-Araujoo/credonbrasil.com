@@ -45,8 +45,7 @@
     const res = await fetch(endpoint, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-      credentials: 'include'
+      body: JSON.stringify(payload)
     });
     const text = await res.text();
     let json;
@@ -55,53 +54,122 @@
   }
 
   function defaultOnSuccess(respBody) {
-    // store user
+    // Armazenar dados do usuário
     try {
       if (respBody && respBody.user) {
         localStorage.setItem('credon_user', JSON.stringify(respBody.user));
       }
     } catch (e) { /* ignore storage errors */ }
-    // redirecionar para o portal do parceiro
-    window.location.href = './pages/portal_parceiro.html';
+    
+    // Redirecionamento direto - sem animação
+    setTimeout(() => {
+      window.location.href = './pages/portal_parceiro.html';
+    }, 800); // Reduzido para 0.8s - entrada rápida
   }
 
+
+
   async function handleSubmit(e, options) {
+    console.log('Login Parceiros - handleSubmit chamado', e, options);
     e.preventDefault();
     const form = e.target;
+    const submitBtn = form.querySelector('.btn-submit');
+    const originalText = submitBtn?.textContent || 'Acessar Portal';
     const apiBase = options.apiBase || window.API_URL || window.LOGIN_API_URL || '';
-
-    showMessage(form, 'Entrando...', 'gray');
+    
+    console.log('Login Parceiros - API Base URL:', apiBase);
 
     const senhaEl = form.querySelector('[name="senha"]') || form.querySelector('[name="password"]');
     const senha = senhaEl ? senhaEl.value.trim() : '';
-    const cpf = getFieldValue(form, ['cpf', 'documento', 'login']);
-    const email = getFieldValue(form, ['email', 'mail']);
-
-    if ((!cpf && !email) || !senha) {
+    
+    // Buscar o campo CPF/Email (pode conter qualquer um dos dois)
+    const cpfEmailEl = form.querySelector('[name="cpf"]') || form.querySelector('[name="email"]');
+    const cpfEmailValue = cpfEmailEl ? cpfEmailEl.value.trim() : '';
+    
+    if (!cpfEmailValue || !senha) {
       showMessage(form, 'Informe CPF ou e-mail e a senha', 'red');
       return;
     }
 
-    const payload = {};
-    if (cpf) payload.cpf = cpf;
-    if (email && !cpf) payload.email = email;
-    payload.senha = senha;
+    // Animação de loading no botão
+    if (submitBtn) {
+      submitBtn.disabled = true;
+      submitBtn.style.background = '#6b7280';
+      submitBtn.style.borderColor = '#6b7280';
+      submitBtn.style.transform = 'scale(0.95)';
+      submitBtn.textContent = 'Entrando...';
+    }
+
+    const payload = { senha };
+    // Detectar se é email ou CPF automaticamente
+    if (cpfEmailValue.includes('@')) {
+      payload.email = cpfEmailValue;
+    } else {
+      payload.cpf = cpfEmailValue;
+    }
 
     try {
       const resp = await submitLogin(apiBase, payload);
       if (resp.ok) {
-        showMessage(form, resp.body.message || 'Sucesso', 'green');
+        // Animação de sucesso
+        if (submitBtn) {
+          submitBtn.style.background = '#10b981';
+          submitBtn.style.borderColor = '#10b981';
+          submitBtn.style.transform = 'scale(1.02)';
+          submitBtn.textContent = 'Sucesso!';
+          
+          // Efeito de brilho
+          submitBtn.style.boxShadow = '0 0 20px rgba(16, 185, 129, 0.6)';
+        }
+        
+        showMessage(form, resp.body.message || 'Login realizado com sucesso!', '#10b981');
+        
         if (options && typeof options.onSuccess === 'function') {
           options.onSuccess(resp.body);
         } else {
           defaultOnSuccess(resp.body);
         }
       } else {
+        // Animação de erro
+        if (submitBtn) {
+          submitBtn.style.background = '#ef4444';
+          submitBtn.style.borderColor = '#ef4444';
+          submitBtn.style.transform = 'scale(0.98)';
+          submitBtn.textContent = 'Erro!';
+          
+          // Voltar ao estado original após 2s
+          setTimeout(() => {
+            submitBtn.disabled = false;
+            submitBtn.style.background = '';
+            submitBtn.style.borderColor = '';
+            submitBtn.style.transform = 'scale(1)';
+            submitBtn.style.boxShadow = '';
+            submitBtn.textContent = originalText;
+          }, 2000);
+        }
+        
         const errMsg = (resp.body && resp.body.message) ? resp.body.message : `Erro ${resp.status}`;
         showMessage(form, errMsg, 'red');
         if (options && typeof options.onError === 'function') options.onError(resp);
       }
     } catch (err) {
+      // Animação de erro de conexão
+      if (submitBtn) {
+        submitBtn.style.background = '#ef4444';
+        submitBtn.style.borderColor = '#ef4444';
+        submitBtn.style.transform = 'scale(0.98)';
+        submitBtn.textContent = 'Sem conexão!';
+        
+        setTimeout(() => {
+          submitBtn.disabled = false;
+          submitBtn.style.background = '';
+          submitBtn.style.borderColor = '';
+          submitBtn.style.transform = 'scale(1)';
+          submitBtn.style.boxShadow = '';
+          submitBtn.textContent = originalText;
+        }, 2000);
+      }
+      
       showMessage(form, 'Erro de conexão', 'red');
       if (options && typeof options.onError === 'function') options.onError(err);
     }
@@ -119,7 +187,19 @@
 
   // Auto-initialize if a form with id=loginForm exists
   document.addEventListener('DOMContentLoaded', function () {
-    initLogin();
+    console.log('Login Parceiros - DOM carregado');
+    const formClient = document.querySelector('#form-client');
+    if (formClient) {
+      console.log('Login Parceiros - Formulário encontrado, inicializando...');
+      const result = initLogin({ formSelector: '#form-client' });
+      if (result) {
+        console.log('Login Parceiros - Inicializado com sucesso');
+      } else {
+        console.error('Login Parceiros - Falha na inicialização');
+      }
+    } else {
+      console.warn('Login Parceiros - Formulário #form-client não encontrado');
+    }
   });
 
   // Expose to window

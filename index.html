@@ -13,6 +13,11 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollToPlugin.min.js"></script>
+    
+    <!-- Scripts de autenticação -->
+    <script src="./src/js/auth_manager.js"></script>
+    <script src="./src/js/login_parceiros.js"></script>
+    <script src="./src/js/login_admin.js"></script>
 
     <style>
         :root {
@@ -633,11 +638,11 @@
                     </form>
                     <form id="form-admin" class="login-form" style="opacity: 0; pointer-events: none;">
                         <div class="input-group">
-                            <input type="email" class="input-field" placeholder=" " id="a-email" required>
+                            <input type="email" name="email" class="input-field" placeholder=" " id="a-email" required>
                             <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Email do Administrador</div>
                         </div>
                         <div class="input-group">
-                            <input type="password" class="input-field" placeholder=" " id="a-pass" required>
+                            <input type="password" name="senha" class="input-field" placeholder=" " id="a-pass" required>
                             <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
                         </div>
                         <button type="submit" class="btn-submit" style="background: #2563eb; border: 1px solid #2563eb; color: white;">Entrar Admin</button>
@@ -1113,6 +1118,10 @@
         gsap.registerPlugin(ScrollTrigger, ScrollToPlugin);
 
         const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com"; 
+        
+        // Definir variável global para os scripts de login
+        window.API_URL = API_BASE_URL;
+        window.LOGIN_API_URL = API_BASE_URL; 
 
         document.addEventListener("DOMContentLoaded", () => {
             const tl = gsap.timeline();
@@ -1219,14 +1228,6 @@
             }
         }
 
-        // ... (Rest of Login and Slider Logic remains the same) ...
-        if (formClient) {
-            formClient.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                // ...existing logic...
-            });
-        }
-        // ...existing slider logic...
 
         const valSlider = document.getElementById('range-val');
         const monthSlider = document.getElementById('range-month');

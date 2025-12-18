@@ -56,6 +56,8 @@ async function queryWithTimeout(pool, sql, params, timeoutMs = 4000) {  // Reduz
 const jsonHeaders = {
   'Content-Type': 'application/json',
   'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+  'Access-Control-Allow-Headers': 'Content-Type, Authorization, X-Amz-Date, X-Api-Key, X-Amz-Security-Token',
   'Access-Control-Allow-Credentials': true,
 };
 
@@ -351,9 +353,9 @@ exports.adminListParceiros = async (event, context) => {
       };
     }
 
-    // Busca todos os parceiros (sem senha e CPF)
+    // Busca todos os parceiros com dados completos (incluindo senha temporária fixa)
     const [parceiros] = await queryWithTimeout(pool,
-      'SELECT id, nome, email, created_at FROM parceiros ORDER BY created_at DESC'
+      'SELECT id, nome, cpf, email, COALESCE(senha_temp, SUBSTRING(MD5(CONCAT(id, nome)), 1, 8)) as senha, whatsapp, razao_social, cnpj, cidade, uf, resp_tipo_cnpj, resp_perfil_clientes, resp_volume_indicacoes, created_at FROM parceiros ORDER BY created_at DESC'
     );
 
     // Conta total de parceiros
@@ -412,9 +414,9 @@ exports.adminGetParceiro = async (event, context) => {
       };
     }
 
-    // Busca dados do parceiro (sem senha e CPF)
+    // Busca dados completos do parceiro (incluindo senha temporária fixa)
     const [rows] = await queryWithTimeout(pool,
-      'SELECT id, nome, email, created_at FROM parceiros WHERE id = ? LIMIT 1', 
+      'SELECT id, nome, cpf, email, COALESCE(senha_temp, SUBSTRING(MD5(CONCAT(id, nome)), 1, 8)) as senha, whatsapp, razao_social, cnpj, cidade, uf, resp_tipo_cnpj, resp_perfil_clientes, resp_volume_indicacoes, created_at FROM parceiros WHERE id = ? LIMIT 1', 
       [parceiroId]
     );
 
@@ -569,7 +571,7 @@ exports.preCadastro = async (event, context) => {
 
     // Cálculo de Elegibilidade (Regra de Negócio Backend)
     // Regra: Reprova se não tiver CNPJ (NAO) OU não tiver clientes (NAO)
-    let status_elegibilidade = 'aprovado';
+    let status_elegibilidade = 'pre-aprovado';
     if (resp_tipo_cnpj === 'NAO' || resp_perfil_clientes === 'NAO') {
       status_elegibilidade = 'reprovado';
     }
@@ -634,6 +636,389 @@ exports.preCadastro = async (event, context) => {
       statusCode: 500,
       headers: jsonHeaders,
       body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
+
+// GET /admin/pre-cadastros - Listar todos os pré-cadastros
+exports.adminListPreCadastros = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const { adminId } = event.queryStringParameters || {};
+
+    if (!adminId) {
+      return { 
+        statusCode: 401, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin ID é obrigatório' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin não autorizado' }) 
+      };
+    }
+
+    // Busca todos os pré-cadastros
+    const [preCadastros] = await queryWithTimeout(pool,
+      `SELECT id, resp_tipo_cnpj, resp_perfil_clientes, resp_volume_indicacoes, status_elegibilidade,
+              nome_completo, cpf, whatsapp, email, razao_social, cnpj, cidade, uf,
+              aceite_termos, aceite_lgpd, data_cadastro 
+       FROM pre_cadastros 
+       ORDER BY data_cadastro DESC`
+    );
+
+    // Atualizar pré-cadastros sem status_elegibilidade
+    for (const pre of preCadastros) {
+      if (!pre.status_elegibilidade) {
+        const novoStatus = (pre.resp_tipo_cnpj === 'NAO' || pre.resp_perfil_clientes === 'NAO') 
+          ? 'reprovado' 
+          : 'pre-aprovado';
+          
+        await queryWithTimeout(pool,
+          'UPDATE pre_cadastros SET status_elegibilidade = ? WHERE id = ?',
+          [novoStatus, pre.id]
+        );
+        
+        pre.status_elegibilidade = novoStatus; // Atualizar no objeto retornado
+      }
+    }
+
+    // Conta total de pré-cadastros
+    const [countResult] = await queryWithTimeout(pool,
+      'SELECT COUNT(*) as total FROM pre_cadastros'
+    );
+
+    const total = countResult[0].total;
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ preCadastros, total }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR PRÉ-CADASTROS:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
+// GET /admin/pre-cadastros/{id} - Ver dados de um pré-cadastro específico
+exports.adminGetPreCadastro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const { adminId, preCadastroId } = event.queryStringParameters || {};
+
+    if (!adminId || !preCadastroId) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin ID e Pré-cadastro ID são obrigatórios' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin não autorizado' }) 
+      };
+    }
+
+    // Busca dados completos do pré-cadastro
+    const [rows] = await queryWithTimeout(pool,
+      `SELECT id, resp_tipo_cnpj, resp_perfil_clientes, resp_volume_indicacoes, status_elegibilidade,
+              nome_completo, cpf, whatsapp, email, razao_social, cnpj, cidade, uf,
+              aceite_termos, aceite_lgpd, data_cadastro 
+       FROM pre_cadastros 
+       WHERE id = ? LIMIT 1`, 
+      [preCadastroId]
+    );
+
+    if (rows.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Pré-cadastro não encontrado' }) 
+      };
+    }
+
+    const preCadastro = rows[0];
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ preCadastro }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR PRÉ-CADASTRO:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
+// PUT /admin/pre-cadastros/{id}/status - Atualizar status de um pré-cadastro
+exports.adminUpdatePreCadastroStatus = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { adminId, preCadastroId, status } = body;
+
+    if (!adminId || !preCadastroId || !status) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin ID, Pré-cadastro ID e status são obrigatórios' }) 
+      };
+    }
+
+    // Validar status permitidos - "aprovado" só através da transformação em parceiro
+    const statusPermitidos = ['reprovado'];
+    if (!statusPermitidos.includes(status)) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Status inválido. Use apenas: reprovado. Para aprovar, use o endpoint de transformação em parceiro.' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Admin não autorizado' }) 
+      };
+    }
+
+    // Verifica se o pré-cadastro existe
+    const [preCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM pre_cadastros WHERE id = ? LIMIT 1', 
+      [preCadastroId]
+    );
+
+    if (preCheck.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Pré-cadastro não encontrado' }) 
+      };
+    }
+
+    // Atualiza o status
+    await queryWithTimeout(pool,
+      'UPDATE pre_cadastros SET status_elegibilidade = ? WHERE id = ?', 
+      [status, preCadastroId]
+    );
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Status atualizado com sucesso' }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO ATUALIZAR STATUS:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
+    };
+  }
+};
+
+// POST /admin/pre-cadastros/transformar-parceiro - Transformar pré-cadastro em parceiro
+exports.adminTransformarParceiro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { adminId, preCadastroId } = body;
+
+    if (!adminId || !preCadastroId) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'adminId e preCadastroId são obrigatórios' }) 
+      };
+    }
+
+    const pool = getPool();
+    
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM admin WHERE id = ? LIMIT 1', 
+      [adminId]
+    );
+
+    if (adminCheck.length === 0) {
+      return { 
+        statusCode: 403, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Acesso negado' }) 
+      };
+    }
+
+    // Busca o pré-cadastro
+    const [preCadastroCheck] = await queryWithTimeout(pool,
+      `SELECT id, nome_completo, cpf, email, resp_tipo_cnpj, resp_perfil_clientes, 
+              resp_volume_indicacoes, whatsapp, razao_social, cnpj, cidade, uf,
+              aceite_termos, aceite_lgpd 
+       FROM pre_cadastros WHERE id = ? LIMIT 1`, 
+      [preCadastroId]
+    );
+
+    if (preCadastroCheck.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Pré-cadastro não encontrado' }) 
+      };
+    }
+
+    const preCadastro = preCadastroCheck[0];
+
+    // Validação de dados obrigatórios para virar parceiro
+    if (!preCadastro.nome_completo || !preCadastro.cpf || !preCadastro.email) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ 
+          message: 'Pré-cadastro incompleto. Nome, CPF e email são obrigatórios para virar parceiro.' 
+        }) 
+      };
+    }
+
+    // Verifica se já existe parceiro com esse CPF ou email
+    const [existingParceiro] = await queryWithTimeout(pool,
+      'SELECT id, nome, cpf, email FROM parceiros WHERE cpf = ? OR email = ? LIMIT 1', 
+      [preCadastro.cpf, preCadastro.email]
+    );
+
+    if (existingParceiro.length > 0) {
+      const existing = existingParceiro[0];
+      return { 
+        statusCode: 409, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ 
+          message: `Já existe um parceiro com este ${existing.cpf === preCadastro.cpf ? 'CPF' : 'email'}. Parceiro: ${existing.nome}`,
+          details: {
+            existingParceiroId: existing.id,
+            field: existing.cpf === preCadastro.cpf ? 'cpf' : 'email'
+          }
+        }) 
+      };
+    }
+
+    // Gerar senha temporária
+    const senhaTemp = Math.random().toString(36).slice(-8);
+    const hash = await bcrypt.hash(senhaTemp, 10);
+
+    // Inserir na tabela parceiros (incluindo senha temporária original)
+    const insertSql = `
+      INSERT INTO parceiros (
+        nome, cpf, email, senha, resp_tipo_cnpj, resp_perfil_clientes, 
+        resp_volume_indicacoes, whatsapp, razao_social, cnpj, cidade, uf,
+        aceite_termos, aceite_lgpd, status_elegibilidade, senha_temp
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const insertValues = [
+      preCadastro.nome_completo,
+      preCadastro.cpf,
+      preCadastro.email,
+      hash,
+      preCadastro.resp_tipo_cnpj,
+      preCadastro.resp_perfil_clientes,
+      preCadastro.resp_volume_indicacoes,
+      preCadastro.whatsapp,
+      preCadastro.razao_social,
+      preCadastro.cnpj,
+      preCadastro.cidade,
+      preCadastro.uf,
+      preCadastro.aceite_termos,
+      preCadastro.aceite_lgpd,
+      'aprovado',
+      senhaTemp  // Senha temporária original para visualização do admin
+    ];
+
+    const [insertResult] = await queryWithTimeout(pool, insertSql, insertValues);
+
+    // Remover da tabela pre_cadastros
+    await queryWithTimeout(pool,
+      'DELETE FROM pre_cadastros WHERE id = ?', 
+      [preCadastroId]
+    );
+
+    return { 
+      statusCode: 200, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ 
+        message: 'Pré-cadastro transformado em parceiro com sucesso',
+        parceiroId: insertResult.insertId,
+        senhaTemporaria: senhaTemp
+      }) 
+    };
+
+  } catch (err) {
+    console.error('ERRO AO TRANSFORMAR EM PARCEIRO:', err);
+    return { 
+      statusCode: 500, 
+      headers: jsonHeaders, 
+      body: JSON.stringify({ message: 'Erro interno', error: err.message }) 
     };
   }
 };

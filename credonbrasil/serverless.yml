@@ -27,6 +27,8 @@ provider:
       allowedMethods:
         - GET
         - POST
+        - PUT
+        - DELETE
         - OPTIONS
       allowedHeaders:
         - Content-Type
@@ -111,4 +113,39 @@ functions:
       - httpApi:
           path: /admin/parceiros/senha
           method: put
+
+  # Novos endpoints para pré-cadastros
+  adminListPreCadastros:
+    handler: handler.adminListPreCadastros
+    timeout: 8  # Pode listar muitos registros
+    memorySize: 256  # Menos memória para economizar
+    events:
+      - httpApi:
+          path: /admin/pre-cadastros
+          method: get
+
+  adminGetPreCadastro:
+    handler: handler.adminGetPreCadastro
+    timeout: 4  # 1 pré-cadastro apenas
+    events:
+      - httpApi:
+          path: /admin/pre-cadastros/view
+          method: get
+
+  adminUpdatePreCadastroStatus:
+    handler: handler.adminUpdatePreCadastroStatus
+    timeout: 5  # Update + validações
+    events:
+      - httpApi:
+          path: /admin/pre-cadastros/status
+          method: put
+
+  # Novo endpoint para transformar pré-cadastro em parceiro
+  adminTransformarParceiro:
+    handler: handler.adminTransformarParceiro
+    timeout: 6  # Insert + hash + delete
+    events:
+      - httpApi:
+          path: /admin/pre-cadastros/transformar-parceiro
+          method: post
 

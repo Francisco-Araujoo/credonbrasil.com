@@ -14,23 +14,7 @@
    * @returns {Object|null} Dados do usuário ou null se não autenticado
    */
   function checkUserAuth() {
-    const userData = localStorage.getItem('credon_user');
-    if (!userData) {
-      // Redireciona para o login se não estiver autenticado
-      alert('Sessão expirada. Faça login novamente.');
-      window.location.href = '../index.html';
-      return null;
-    }
-
-    try {
-      return JSON.parse(userData);
-    } catch (error) {
-      console.error('Erro ao decodificar dados do usuário:', error);
-      // Remove dados corrompidos e redireciona
-      localStorage.removeItem('credon_user');
-      window.location.href = '../index.html';
-      return null;
-    }
+    return window.AuthManager ? window.AuthManager.checkUserAuth() : null;
   }
 
   /**
@@ -44,8 +28,7 @@
         method: 'GET',
         headers: {
           'Content-Type': 'application/json'
-        },
-        credentials: 'include'
+        }
       });
 
       const data = await response.json();
@@ -223,12 +206,17 @@
    * Função de logout
    */
   function logout() {
-    try {
-      localStorage.removeItem('credon_user');
-      window.location.href = '../index.html';
-    } catch (error) {
-      console.error('Erro durante logout:', error);
-      window.location.href = '../index.html';
+    if (window.AuthManager) {
+      window.AuthManager.logoutUser();
+    } else {
+      // Fallback se AuthManager não estiver disponível
+      try {
+        localStorage.removeItem('credon_user');
+        window.location.href = '../index.html';
+      } catch (error) {
+        console.error('Erro durante logout:', error);
+        window.location.href = '../index.html';
+      }
     }
   }
 

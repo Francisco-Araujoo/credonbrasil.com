@@ -114,6 +114,118 @@
         main {
             padding-top: 100px;
             min-height: 100vh;
+            background: var(--bg-dark);
+            display: flex;
+        }
+
+        /* --- SIDEBAR --- */
+        .admin-sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 280px;
+            height: calc(100vh - 100px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--line-color);
+            transition: all 0.3s ease;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .admin-sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--accent);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-sidebar.collapsed .sidebar-title {
+            opacity: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-nav a span {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .admin-sidebar.collapsed .sidebar-nav a span {
+            opacity: 0;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 2rem;
+            right: -18px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            border: 2px solid var(--bg-dark);
+        }
+
+        .sidebar-toggle:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            margin-left: 280px;
+            min-height: calc(100vh - 100px);
+            flex: 1;
+            transition: margin-left 0.3s ease;
             background-image: 
                 linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.9)),
                 url('../src/img/fundoS3.jpg');
@@ -122,37 +234,57 @@
             background-attachment: fixed;
         }
 
-        .admin-container {
-            max-width: 1400px;
+        .main-content.sidebar-collapsed {
+            margin-left: 60px;
+        }
+
+        .content-container {
+            padding: 2rem;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 5%;
         }
 
-        .welcome-section {
-            text-align: center;
-            padding: 3rem 0 5rem 0;
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
         }
 
-        .welcome-title {
+        .page-title {
             font-family: var(--font-display);
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            margin-bottom: 1rem;
+            font-size: 2.5rem;
             color: white;
+            margin: 0;
         }
 
-        .welcome-subtitle {
-            font-size: 1.2rem;
-            color: var(--text-muted);
-            max-width: 600px;
-            margin: 0 auto;
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* --- ADMIN SECTIONS --- */
+        .admin-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .admin-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         /* --- DASHBOARD STATS --- */
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-            margin-bottom: 4rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
 
         .stat-card {
@@ -196,7 +328,7 @@
 
         .stat-title {
             font-family: var(--font-display);
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             margin-bottom: 1rem;
             color: white;
         }
@@ -214,28 +346,28 @@
             font-size: 0.9rem;
         }
 
-        /* --- PARCEIROS SECTION --- */
-        .parceiros-section {
+        /* --- CONTENT CARDS --- */
+        .content-card {
             background: rgba(15, 23, 42, 0.8);
             backdrop-filter: blur(10px);
             border: 1px solid var(--line-color);
             border-radius: 12px;
-            padding: 3rem;
-            margin-bottom: 4rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
         }
 
-        .section-header {
+        .card-header {
             display: flex;
-            justify-content: between;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 2rem;
-            border-bottom: 1px solid var(--line-color);
             padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
         }
 
-        .section-title {
+        .card-title {
             font-family: var(--font-display);
-            font-size: 2rem;
+            font-size: 1.5rem;
             color: white;
         }
 
@@ -251,20 +383,19 @@
             text-transform: uppercase;
             letter-spacing: 1px;
             transition: all 0.3s;
-            margin-left: auto;
         }
 
         .refresh-btn:hover {
             background: #1d4ed8;
         }
 
-        /* --- PARCEIROS LIST --- */
-        .parceiros-list {
+        /* --- ITEM LISTS --- */
+        .item-list {
             display: grid;
             gap: 1rem;
         }
 
-        .parceiro-card {
+        .item-card {
             background: rgba(30, 41, 59, 0.5);
             border: 1px solid var(--line-color);
             border-radius: 8px;
@@ -272,37 +403,270 @@
             transition: all 0.3s;
             cursor: pointer;
             display: grid;
-            grid-template-columns: 1fr auto auto;
+            grid-template-columns: 1fr auto;
             align-items: center;
             gap: 1rem;
         }
 
-        .parceiro-card:hover {
-            border-color: var(--accent);
+        .item-card:hover {
             background: rgba(30, 41, 59, 0.8);
+            border-color: var(--accent);
             transform: translateX(5px);
         }
 
-        .parceiro-info {
+        /* --- PRÉ-CADASTROS STYLES --- */
+        .pre-cadastro-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .pre-cadastro-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .pre-main-info {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .pre-person-info h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .pre-person-info .email {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .pre-person-info .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .pre-business-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line-color);
+        }
+
+        .info-item {
             display: flex;
             flex-direction: column;
             gap: 0.3rem;
         }
 
-        .parceiro-name {
-            font-family: var(--font-display);
-            font-size: 1.1rem;
-            color: white;
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        .parceiro-email {
+        .info-value {
+            font-size: 1rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .pre-status {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-pendente {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+            border: 1px solid rgba(156, 163, 175, 0.3);
+        }
+
+        .status-em_analise {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+            border: 1px solid rgba(59, 130, 246, 0.3);
+        }
+
+        .status-pre-aprovado {
+            background: rgba(251, 191, 36, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        .status-aprovado {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+
+        .status-reprovado {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+
+        .pre-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid var(--line-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-display);
+        }
+
+        .action-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        /* --- PARCEIROS CARD STYLES --- */
+        .parceiro-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .parceiro-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .parceiro-main-info {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .parceiro-person-info h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .parceiro-person-info .email {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .parceiro-person-info .date {
             color: var(--text-muted);
             font-size: 0.9rem;
         }
 
-        .parceiro-date {
-            color: var(--text-muted);
+        .parceiro-business-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line-color);
+            margin-bottom: 1.5rem;
+        }
+
+        .parceiro-senha-section {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+        }
+
+        .senha-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .senha-label {
             font-size: 0.8rem;
+            color: var(--accent);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        .senha-display {
+            font-family: 'Courier New', monospace;
+            font-size: 1.1rem;
+            color: white;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 0.8rem;
+            border-radius: 6px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            margin-bottom: 0.5rem;
+            user-select: all;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .senha-display:hover {
+            background: rgba(56, 189, 248, 0.1);
+            border-color: var(--accent);
+        }
+
+        .copy-senha-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-display);
+            margin-right: 0.5rem;
+        }
+
+        .copy-senha-btn:hover {
+            background: #1d4ed8;
+            transform: scale(1.05);
         }
 
         .parceiro-actions {
@@ -314,16 +678,37 @@
             background: transparent;
             border: 1px solid var(--line-color);
             color: white;
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
             cursor: pointer;
             transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-display);
         }
 
         .action-btn-small:hover {
             background: var(--accent);
             border-color: var(--accent);
+        }
+
+        .action-btn.success {
+            background: rgba(16, 185, 129, 0.2);
+            border-color: #10b981;
+            color: #10b981;
+        }
+
+        .action-btn.success:hover {
+            background: #10b981;
+            border-color: #10b981;
+            color: white;
+        }
+
+        .action-btn.danger:hover {
+            background: #ef4444;
+            border-color: #ef4444;
+            color: white;
         }
 
         .loading-spinner {
@@ -482,6 +867,21 @@
             background: rgba(255, 255, 255, 0.1);
         }
 
+        /* --- ESTILOS ADICIONAIS PARA MODAL DE SENHA --- */
+        .btn-modal i {
+            margin-right: 0.5rem;
+        }
+
+        #passwordDisplay {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #passwordDisplay:hover {
+            background: rgba(56, 189, 248, 0.1) !important;
+            border-color: var(--accent) !important;
+        }
+
         /* --- FOOTER --- */
         footer {
             background: var(--bg-dark);
@@ -511,45 +911,101 @@
                 font-size: 0.7rem;
             }
 
-            .admin-container {
-                padding: 1rem 5%;
+            .admin-sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                transition: transform 0.3s ease;
+                z-index: 1100;
             }
 
-            .welcome-section {
-                padding: 2rem 0 3rem 0;
+            .admin-sidebar.collapsed {
+                width: 100%;
+                transform: translateX(-100%);
+            }
+
+            .admin-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .main-content.sidebar-collapsed {
+                margin-left: 0;
+            }
+
+            .content-container {
+                padding: 1rem;
+            }
+
+            .page-header {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: flex-start;
+            }
+
+            .page-title {
+                font-size: 2rem;
             }
 
             .stats-grid {
                 grid-template-columns: 1fr;
-                gap: 1.5rem;
+                gap: 1rem;
             }
 
-            .parceiros-section,
             .stat-card {
                 padding: 1.5rem;
             }
 
-            .parceiro-card {
+            .content-card {
+                padding: 1.5rem;
+            }
+
+            .pre-cadastro-card {
+                padding: 1.5rem;
+            }
+
+            .pre-main-info {
                 grid-template-columns: 1fr;
-                text-align: center;
                 gap: 1rem;
+                text-align: center;
             }
 
-            .parceiro-actions {
-                justify-content: center;
-            }
-
-            main {
-                background-attachment: scroll;
+            .pre-business-info {
+                grid-template-columns: 1fr;
+                gap: 1rem;
             }
 
             .modal {
                 min-width: 300px;
                 padding: 1.5rem;
             }
+
+            /* Mobile sidebar overlay */
+            .admin-sidebar::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100vw;
+                height: 100vh;
+                background: rgba(0, 0, 0, 0.5);
+                backdrop-filter: blur(4px);
+                opacity: 0;
+                pointer-events: none;
+                transition: opacity 0.3s ease;
+                z-index: -1;
+            }
+
+            .admin-sidebar.mobile-open::before {
+                opacity: 1;
+                pointer-events: auto;
+            }
         }
     </style>
 </head>
+<body>
 <body>
     <header>
         <div class="logo">
@@ -558,60 +1014,145 @@
         </div>
         <div class="user-info">
             <span class="user-name" id="adminName">Carregando...</span>
-            <button class="logout-btn" onclick="AdminAPI.logout()">
+            <button class="logout-btn" onclick="logoutAdmin()">
                 <i class="fas fa-sign-out-alt"></i> Sair
             </button>
         </div>
     </header>
 
     <main>
-        <div class="admin-container">
-            <div class="welcome-section">
-                <h1 class="welcome-title">Portal do Administrador</h1>
-                <p class="welcome-subtitle">Gerenciamento completo da plataforma CredOn Brasil</p>
+        <!-- Sidebar -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="sidebar-header">
+                <h3 class="sidebar-title">Navegação</h3>
             </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" data-section="dashboard" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" data-section="precadastros">
+                    <i class="fas fa-clipboard-list"></i>
+                    <span>Pré-cadastros</span>
+                </a>
+                <a href="#" data-section="parceiros">
+                    <i class="fas fa-users"></i>
+                    <span>Parceiros</span>
+                </a>
+                <a href="#" data-section="relatorios">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Relatórios</span>
+                </a>
+            </nav>
+        </aside>
 
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-users"></i>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="content-container">
+                <div class="page-header">
+                    <h1 class="page-title">Dashboard</h1>
+                </div>
+
+                <!-- Dashboard Section -->
+                <div class="admin-section active" id="dashboardSection">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="stat-title">Parceiros</h3>
+                            <div class="stat-value" id="totalParceiros">0</div>
+                            <p class="stat-description">Cadastrados na plataforma</p>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clipboard-list"></i>
+                            </div>
+                            <h3 class="stat-title">Pré-cadastros</h3>
+                            <div class="stat-value" id="totalPreCadastros">0</div>
+                            <p class="stat-description">Leads de potenciais</p>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <h3 class="stat-title">Pendentes</h3>
+                            <div class="stat-value" id="preCadastrosPendentes">0</div>
+                            <p class="stat-description">Aguardando análise</p>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 class="stat-title">Aprovados</h3>
+                            <div class="stat-value" id="preCadastrosAprovados">0</div>
+                            <p class="stat-description">Prontos para contato</p>
+                        </div>
                     </div>
-                    <h3 class="stat-title">Total de Parceiros</h3>
-                    <div class="stat-value" id="totalParceiros">0</div>
-                    <p class="stat-description">Parceiros cadastrados na plataforma</p>
-                </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-user-plus"></i>
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Atividade Recente</h3>
+                        </div>
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-chart-line" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                            <p>Dados de atividade em desenvolvimento</p>
+                        </div>
                     </div>
-                    <h3 class="stat-title">Novos Este Mês</h3>
-                    <div class="stat-value" id="novosEesteMes">0</div>
-                    <p class="stat-description">Parceiros cadastrados no mês atual</p>
                 </div>
 
-                <div class="stat-card">
-                    <div class="stat-icon">
-                        <i class="fas fa-chart-line"></i>
+                <!-- Pré-cadastros Section -->
+                <div class="admin-section" id="precadastrosSection">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Pré-cadastros de Parceiros</h3>
+                        </div>
+                        
+                        <div id="preCadastrosList">
+                            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                <div class="loading-spinner"></div>
+                                <p style="margin-top: 1rem;">Carregando pré-cadastros...</p>
+                            </div>
+                        </div>
                     </div>
-                    <h3 class="stat-title">Atividade Geral</h3>
-                    <div class="stat-value">100%</div>
-                    <p class="stat-description">Status operacional da plataforma</p>
-                </div>
-            </div>
-
-            <div class="parceiros-section">
-                <div class="section-header">
-                    <h2 class="section-title">Gerenciar Parceiros</h2>
-                    <button class="refresh-btn" onclick="AdminAPI.loadParceiros()">
-                        <i class="fas fa-sync"></i> Atualizar
-                    </button>
                 </div>
 
-                <div class="parceiros-list" id="parceirosList">
-                    <div style="text-align: center; padding: 2rem; color: var(--text-muted);">
-                        <div class="loading-spinner"></div>
-                        <p style="margin-top: 1rem;">Carregando parceiros...</p>
+                <!-- Parceiros Section -->
+                <div class="admin-section" id="parceirosSection">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Parceiros Ativos</h3>
+                        </div>
+                        
+                        <div class="item-list" id="parceirosList">
+                            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                <div class="loading-spinner"></div>
+                                <p style="margin-top: 1rem;">Carregando parceiros...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Relatórios Section -->
+                <div class="admin-section" id="relatoriosSection">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Relatórios e Analytics</h3>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 5rem; color: var(--text-muted);">
+                            <i class="fas fa-chart-pie" style="font-size: 4rem; margin-bottom: 1.5rem; opacity: 0.3;"></i>
+                            <h3 style="margin-bottom: 1rem; color: white;">Relatórios em Desenvolvimento</h3>
+                            <p>Sistema de analytics e relatórios será implementado em breve</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -652,11 +1193,104 @@
         </div>
     </div>
 
+    <!-- Modal para visualizar pré-cadastro -->
+    <div class="modal-overlay" id="preCadastroModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Dados do Pré-Cadastro de Parceiro</h3>
+                <button class="close-modal" onclick="AdminAPI.closePreCadastroModal()">&times;</button>
+            </div>
+            <div class="modal-content">
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados Pessoais</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo</label>
+                        <input type="text" id="preNome" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <input type="text" id="preCpf" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <input type="email" id="preEmail" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">WhatsApp</label>
+                        <input type="text" id="preWhatsapp" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Cidade</label>
+                        <input type="text" id="preCidade" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">UF</label>
+                        <input type="text" id="preEstado" class="form-input" disabled>
+                    </div>
+                </div>
+
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados Empresariais</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Razão Social</label>
+                        <input type="text" id="preRazaoSocial" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CNPJ</label>
+                        <input type="text" id="preCnpj" class="form-input" disabled>
+                    </div>
+                </div>
+
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Qualificação como Parceiro</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Possui CNPJ?</label>
+                        <span id="preTipoCnpj" style="color: var(--text-muted); font-weight: 600;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Tem Clientes?</label>
+                        <span id="prePerfilClientes" style="color: var(--text-muted); font-weight: 600;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Volume de Indicações</label>
+                        <span id="preVolumeIndicacoes" style="color: var(--text-muted); font-weight: 600;">-</span>
+                    </div>
+                </div>
+
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Status e Aceites</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Status de Elegibilidade</label>
+                        <input type="text" id="preStatusElegibilidade" class="form-input" disabled>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Aceite Termos</label>
+                        <span id="preAceiteTermos" style="color: var(--text-muted); font-weight: 600;">-</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Aceite LGPD</label>
+                        <span id="preAceiteLgpd" style="color: var(--text-muted); font-weight: 600;">-</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Data de Cadastro</label>
+                    <span id="preCreatedAt" style="color: var(--text-muted); font-weight: 600;">-</span>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal btn-secondary" onclick="AdminAPI.closePreCadastroModal()">Fechar</button>
+                <button class="btn-modal btn-primary" onclick="AdminAPI.updatePreCadastroStatus(AdminAPI.currentPreCadastro?.id)">Alterar Status</button>
+            </div>
+        </div>
+    </div>
+
     <footer>
         <p>&copy; 2025 CredOn Brasil. Todos os direitos reservados.</p>
     </footer>
 
-    <!-- Script da API do admin -->
+    <!-- Scripts necessários -->
+    <script src="../src/js/auth_manager.js"></script>
     <script src="../src/js/admin_api.js"></script>
 
     <script>
@@ -664,30 +1298,113 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Portal do Admin inicializado');
             
-            // Animação de entrada rápida
-            const elements = [
-                '.welcome-section',
-                '.stats-grid .stat-card',
-                '.parceiros-section'
-            ];
+            // Verificar autenticação primeiro
+            const admin = AuthManager.checkAdminAuth();
+            if (!admin) {
+                return; // AuthManager já redireciona
+            }
+
+            // Inicializar AdminAPI com dados do admin logado
+            AdminAPI.init();
             
-            elements.forEach((selector, index) => {
-                const els = document.querySelectorAll(selector);
-                els.forEach((el, i) => {
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(15px)';
+            // Inicializar sidebar
+            initSidebar();
+            
+            // Animação de entrada simples e rápida dos elementos
+            initPageAnimations();
+        });
+
+        function initSidebar() {
+            // Configurar sidebar toggle
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const sidebar = document.getElementById('adminSidebar');
+            const mainContent = document.getElementById('mainContent');
+            
+            if (sidebarToggle && sidebar) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('collapsed');
+                    mainContent.classList.toggle('sidebar-collapsed');
+                });
+            }
+            
+            // Configurar navegação da sidebar
+            const sidebarLinks = document.querySelectorAll('.sidebar-nav a');
+            sidebarLinks.forEach(link => {
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const target = this.getAttribute('data-section');
+                    showSection(target);
                     
-                    setTimeout(() => {
-                        el.style.transition = 'all 0.4s ease';
-                        el.style.opacity = '1';
-                        el.style.transform = 'translateY(0)';
-                    }, 50 + (index * 50) + (i * 20));
+                    // Atualizar link ativo
+                    sidebarLinks.forEach(l => l.classList.remove('active'));
+                    this.classList.add('active');
                 });
             });
             
-            // Verifica se está logado como admin
-            AdminAPI.checkAuth();
-        });
+            // Mostrar dashboard por padrão
+            showSection('dashboard');
+        }
+
+        function showSection(sectionName) {
+            // Esconder todas as seções
+            const sections = document.querySelectorAll('.admin-section');
+            sections.forEach(section => {
+                section.style.display = 'none';
+                section.classList.remove('active');
+            });
+            
+            // Mostrar seção selecionada
+            const targetSection = document.getElementById(sectionName + 'Section');
+            if (targetSection) {
+                targetSection.style.display = 'block';
+                targetSection.classList.add('active');
+                
+                // Animar entrada
+                setTimeout(() => {
+                    targetSection.style.opacity = '0';
+                    targetSection.style.transform = 'translateY(20px)';
+                    targetSection.style.transition = 'all 0.4s ease';
+                    
+                    requestAnimationFrame(() => {
+                        targetSection.style.opacity = '1';
+                        targetSection.style.transform = 'translateY(0)';
+                    });
+                }, 50);
+            }
+            
+            // Atualizar título
+            const pageTitle = document.querySelector('.page-title');
+            if (pageTitle) {
+                const titles = {
+                    'dashboard': 'Dashboard',
+                    'precadastros': 'Pré-cadastros de Parceiros', 
+                    'parceiros': 'Parceiros Ativos',
+                    'relatorios': 'Relatórios e Analytics'
+                };
+                pageTitle.textContent = titles[sectionName] || 'Portal Admin';
+            }
+        }
+
+        function initPageAnimations() {
+            // Animação simples de entrada
+            const elements = document.querySelectorAll('.admin-section.active > *');
+            
+            elements.forEach((el, i) => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(15px)';
+                
+                setTimeout(() => {
+                    el.style.transition = 'all 0.3s ease';
+                    el.style.opacity = '1';
+                    el.style.transform = 'translateY(0)';
+                }, i * 50);
+            });
+        }
+        
+        // Função de logout para o header
+        function logoutAdmin() {
+            AuthManager.logoutAdmin();
+        }
     </script>
 </body>
 </html>
