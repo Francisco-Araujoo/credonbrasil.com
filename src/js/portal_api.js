@@ -234,6 +234,200 @@
     loadUserPortalData();
   }
 
+  /**
+   * Criar nova operação
+   * @param {Object} operacaoData - Dados da operação
+   * @returns {Promise<Object>} Resposta da API
+   */
+  async function criarOperacao(operacaoData) {
+    try {
+      const user = checkUserAuth();
+      if (!user || !user.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      // Adiciona o ID do parceiro aos dados
+      const dataWithParceiro = {
+        ...operacaoData,
+        parceiro_id: user.id
+      };
+
+      const response = await fetch(`${API_BASE_URL}/operacoes/criar`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataWithParceiro)
+      });
+
+      // Tentar parsear a resposta; se falhar, gerar um objeto padrão
+      let data;
+      try {
+        data = await response.json();
+      } catch (e) {
+        data = { message: 'Resposta inválida da API', raw: await response.text().catch(() => '') };
+      }
+
+      if (!response.ok) {
+        // Log detalhado para depuração
+        console.error('Falha ao criar operação', {
+          status: response.status,
+          statusText: response.statusText,
+          body: data
+        });
+
+        const detailedMsgParts = [
+          data.message || 'Erro ao criar operação',
+          `HTTP ${response.status}`,
+          data.details || data.error || (data.raw ? String(data.raw).slice(0, 300) : null)
+        ].filter(Boolean);
+
+        throw new Error(detailedMsgParts.join(' | '));
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao criar operação:', error?.message || error);
+      throw error;
+    }
+  }
+
+  /**
+   * Listar operações do parceiro
+   * @returns {Promise<Object>} Lista de operações e estatísticas
+   */
+  async function listarOperacoes() {
+    try {
+      const user = checkUserAuth();
+      if (!user || !user.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/operacoes/parceiro?parceiro_id=${user.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Erro ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao listar operações:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Buscar operação específica
+   * @param {string} operacaoId - ID da operação
+   * @returns {Promise<Object>} Dados da operação
+   */
+  async function buscarOperacao(operacaoId) {
+    try {
+      const user = checkUserAuth();
+      if (!user || !user.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const response = await fetch(`${API_BASE_URL}/operacoes/buscar?operacao_id=${operacaoId}&parceiro_id=${user.id}`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Erro ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao buscar operação:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Atualizar operação
+   * @param {string} operacaoId - ID da operação
+   * @param {Object} updateData - Dados para atualizar
+   * @returns {Promise<Object>} Resposta da API
+   */
+  async function atualizarOperacao(operacaoId, updateData) {
+    try {
+      const user = checkUserAuth();
+      if (!user || !user.id) {
+        throw new Error('Usuário não autenticado');
+      }
+
+      const dataWithIds = {
+        ...updateData,
+        operacao_id: operacaoId,
+        parceiro_id: user.id
+      };
+
+      const response = await fetch(`${API_BASE_URL}/operacoes/atualizar`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(dataWithIds)
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.message || `Erro ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error('Erro ao atualizar operação:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Formatar valor monetário
+   * @param {number} value - Valor numérico
+   * @returns {string} Valor formatado
+   */
+  function formatMoney(value) {
+    if (!value || isNaN(value)) return 'R$ 0,00';
+    
+    return new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL'
+    }).format(value);
+  }
+
+  /**
+   * Obter rótulo do status
+   * @param {string} status - Status da operação
+   * @returns {string} Rótulo do status
+   */
+  function getStatusLabel(status) {
+    const statusLabels = {
+      'rascunho': 'Rascunho',
+      'recebida': 'Recebida',
+      'em_analise': 'Em Análise',
+      'pendencia_docs': 'Pendência de Documentos',
+      'aprovada': 'Aprovada',
+      'recusada': 'Recusada',
+      'cancelada': 'Cancelada'
+    };
+    
+    return statusLabels[status] || status;
+  }
+
   // Exposição das funções para o escopo global
   window.PortalAPI = {
     loadUserPortalData,
@@ -241,7 +435,14 @@
     formatCpfMask,
     formatDate,
     logout,
-    initPortal
+    initPortal,
+    // Novas funções para operações
+    criarOperacao,
+    listarOperacoes,
+    buscarOperacao,
+    atualizarOperacao,
+    formatMoney,
+    getStatusLabel
   };
 
   // Auto-inicialização quando o DOM estiver pronto

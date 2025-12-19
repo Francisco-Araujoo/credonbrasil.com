@@ -1044,6 +1044,10 @@
                     <i class="fas fa-users"></i>
                     <span>Parceiros</span>
                 </a>
+                <a href="#" data-section="propostas">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Propostas</span>
+                </a>
                 <a href="#" data-section="relatorios">
                     <i class="fas fa-chart-bar"></i>
                     <span>Relatórios</span>
@@ -1141,6 +1145,24 @@
                     </div>
                 </div>
 
+                <!-- Propostas Section -->
+                <div class="admin-section" id="propostasSection">
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Propostas de Operações</h3>
+                            <div>
+                                <button class="refresh-btn" onclick="AdminAPI.loadOperacoes()"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                            </div>
+                        </div>
+                        <div id="operacoesList">
+                            <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                                <div class="loading-spinner"></div>
+                                <p style="margin-top: 1rem;">Carregando propostas...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Relatórios Section -->
                 <div class="admin-section" id="relatoriosSection">
                     <div class="content-card">
@@ -1189,6 +1211,74 @@
             <div class="modal-actions">
                 <button class="btn-modal btn-secondary" onclick="AdminAPI.closeModal()">Cancelar</button>
                 <button class="btn-modal btn-primary" onclick="AdminAPI.updatePassword()">Alterar Senha</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para visualizar operação/proposta -->
+    <div class="modal-overlay" id="operacaoModal">
+        <div class="modal" style="max-width: 800px; width: 95%;">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalhes da Proposta</h3>
+                <button class="close-modal" onclick="AdminAPI.closeOperacaoModal()">&times;</button>
+            </div>
+            <div class="modal-content" style="max-height: 70vh; overflow-y: auto;">
+                <!-- Dados do Cliente -->
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados do Cliente</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Nome Completo</label>
+                        <span id="opClienteNome" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">CPF</label>
+                        <span id="opClienteCpf" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Email</label>
+                        <span id="opClienteEmail" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Telefone</label>
+                        <span id="opClienteTelefone" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                </div>
+
+                <!-- Dados da Operação -->
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados da Operação</h4>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
+                    <div class="form-group">
+                        <label class="form-label">Tipo de Operação</label>
+                        <span id="opTipo" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <span id="opStatus" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor Pretendido</label>
+                        <span id="opValorPretendido" style="color: var(--accent); font-weight: 600;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Valor do Imóvel</label>
+                        <span id="opValorImovel" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                    <div class="form-group">
+                        <label class="form-label">Imóvel</label>
+                        <span id="opImovel" style="color: white; font-weight: 500;">—</span>
+                    </div>
+                </div>
+
+                <!-- Galeria de Documentos -->
+                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Documentos Enviados</h4>
+                <div id="opDocsGallery" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem;">
+                    <!-- Imagens serão inseridas aqui -->
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="btn-modal btn-secondary" onclick="AdminAPI.closeOperacaoModal()">Fechar</button>
+                <button class="btn-modal btn-primary" style="background: #10b981;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'aprovada')">Aceitar</button>
+                <button class="btn-modal btn-primary" style="background: #ef4444;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'recusada')">Recusar</button>
             </div>
         </div>
     </div>
@@ -1359,6 +1449,11 @@
                 targetSection.style.display = 'block';
                 targetSection.classList.add('active');
                 
+                // Carregar dados específicos da seção
+                if (sectionName === 'propostas') {
+                    AdminAPI.loadOperacoes();
+                }
+                
                 // Animar entrada
                 setTimeout(() => {
                     targetSection.style.opacity = '0';
@@ -1378,10 +1473,20 @@
                 const titles = {
                     'dashboard': 'Dashboard',
                     'precadastros': 'Pré-cadastros de Parceiros', 
+                    'propostas': 'Propostas (Operações)',
                     'parceiros': 'Parceiros Ativos',
                     'relatorios': 'Relatórios e Analytics'
                 };
                 pageTitle.textContent = titles[sectionName] || 'Portal Admin';
+            }
+
+            // Carregar dados específicos da seção
+            if (sectionName === 'propostas') {
+                AdminAPI.loadOperacoes();
+            } else if (sectionName === 'precadastros') {
+                AdminAPI.loadPreCadastros();
+            } else if (sectionName === 'parceiros') {
+                AdminAPI.loadParceiros();
             }
         }
 

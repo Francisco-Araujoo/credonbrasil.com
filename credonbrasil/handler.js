@@ -1022,3 +1022,670 @@ exports.adminTransformarParceiro = async (event, context) => {
     };
   }
 };
+
+// =============================================
+// HANDLERS PARA OPERAÇÕES
+// =============================================
+
+// POST /operacoes/criar - Criar nova operação
+exports.criarOperacao = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+  
+  let sql, values; // Declarar no escopo da função
+
+  try {
+    console.log('=== DEBUG CRIAR OPERAÇÃO ===');
+    console.log('Event:', JSON.stringify(event, null, 2));
+    
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    console.log('Dados recebidos (Criar Operação):', JSON.stringify(body, null, 2));
+
+    const {
+      parceiro_id,
+      // Etapa 1 - Tipo
+      tipo_operacao,
+      // Etapa 2 - Dados do Cliente
+      cliente_nome_completo,
+      cliente_cpf,
+      cliente_telefone,
+      cliente_email,
+      cliente_cep,
+      cliente_endereco,
+      cliente_renda_faixa,
+      cliente_profissao,
+      cliente_restricoes,
+      cliente_casado,
+      cliente_conjuge_nome,
+      cliente_conjuge_cpf,
+      // Etapa 3 - Dados do Imóvel
+      imovel_tipo,
+      imovel_cidade,
+      imovel_uf,
+      imovel_endereco_completo,
+      imovel_valor_estimado,
+      imovel_situacao,
+      imovel_titular,
+      // Etapa 4 - Dados da Operação
+      operacao_valor_imovel,
+      operacao_valor_pretendido,
+      operacao_finalidade,
+      operacao_prazo_desejado,
+      // Etapa 5 - Documentos
+      docs_cliente_rg_cnh,
+      docs_cliente_cpf,
+      docs_cliente_renda,
+      docs_cliente_residencia,
+      docs_cliente_extratos,
+      docs_cliente_conjuge,
+      docs_imovel_matricula,
+      docs_imovel_iptu,
+      docs_imovel_escritura,
+      docs_imovel_fotos,
+      docs_outros,
+      // Controles
+      status_operacao,
+      aceite_lgpd,
+      aceite_declaracao
+    } = body;
+
+    // Validação obrigatória - parceiro_id deve existir
+    if (!parceiro_id) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Campo obrigatório: parceiro_id' }) 
+      };
+    }
+
+    // Validação obrigatória - tipo_operacao deve existir  
+    if (!tipo_operacao) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Campo obrigatório: tipo_operacao' }) 
+      };
+    }
+
+    const pool = getPool();
+
+    // Verificar se o parceiro existe (CRÍTICO para foreign key)
+    console.log('Verificando parceiro_id:', parceiro_id);
+    const [parceiroCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM parceiros WHERE id = ? LIMIT 1', 
+      [parceiro_id]
+    );
+    
+    console.log('Resultado verificação parceiro:', parceiroCheck);
+
+    if (parceiroCheck.length === 0) {
+      console.log('ERRO: Parceiro não encontrado');
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Usuário não encontrado. Faça login novamente.' }) 
+      };
+    }
+    
+    console.log('✓ Parceiro validado, criando operação...');
+
+    // Usar valores padrão para campos NOT NULL se não preenchidos
+    const cliente_nome_final = cliente_nome_completo || 'Nome não informado';
+    const cliente_cpf_final = cliente_cpf || '000.000.000-00';
+    const cliente_telefone_final = cliente_telefone || '(00) 0000-0000';
+    const cliente_email_final = cliente_email || 'email@exemplo.com';
+
+    // Sanitizações para campos ENUM e formatos específicos
+    const allowedTipoOperacao = new Set(['home_equity', 'aquisicao_imovel']);
+    const allowedImovelTipo = new Set(['casa', 'apartamento', 'comercial', 'terreno']);
+    const allowedImovelSituacao = new Set(['quitado', 'financiado']);
+    const allowedRestricoes = new Set(['sim', 'nao', 'nao_sei']);
+
+    const tipo_operacao_final = allowedTipoOperacao.has((tipo_operacao || '').toLowerCase())
+      ? (tipo_operacao || '').toLowerCase()
+      : 'home_equity';
+
+    const imovel_tipo_final = allowedImovelTipo.has((imovel_tipo || '').toLowerCase())
+      ? (imovel_tipo || '').toLowerCase()
+      : 'casa';
+
+    const imovel_situacao_final = allowedImovelSituacao.has((imovel_situacao || '').toLowerCase())
+      ? (imovel_situacao || '').toLowerCase()
+      : 'quitado';
+
+    const cliente_restricoes_final = allowedRestricoes.has((cliente_restricoes || '').toLowerCase())
+      ? (cliente_restricoes || '').toLowerCase()
+      : null;
+
+    const imovel_uf_final = ((imovel_uf || 'SP').toString().toUpperCase().replace(/[^A-Z]/g, '')).slice(0,2) || 'SP';
+
+    // Normalização robusta de valores monetários que podem vir formatados (ex.: R$ 1.234,56)
+    function normalizeMoney(val, fallback) {
+      if (val === null || val === undefined) return fallback;
+      if (typeof val === 'number' && isFinite(val)) return val;
+      let s = String(val).trim();
+      if (!s) return fallback;
+      // mantém apenas dígitos, vírgula e ponto
+      s = s.replace(/[^0-9.,-]/g, '');
+      // se tiver vírgula, assume que a vírgula é separador decimal
+      if (s.includes(',')) {
+        // remove pontos de milhar
+        s = s.replace(/\./g, '');
+        // troca vírgula por ponto
+        s = s.replace(/,/g, '.');
+      }
+      const n = parseFloat(s);
+      return isFinite(n) && !isNaN(n) ? n : fallback;
+    }
+
+    function normalizeBool(val, fallback = 0) {
+      const truthy = new Set(['1','true','on','yes','sim',1,true]);
+      const falsy = new Set(['0','false','off','no','nao','não',0,false]);
+      if (truthy.has(val)) return 1;
+      if (typeof val === 'string' && truthy.has(val.toLowerCase())) return 1;
+      if (falsy.has(val)) return 0;
+      if (typeof val === 'string' && falsy.has(val.toLowerCase())) return 0;
+      return fallback;
+    }
+
+    // Contar campos corretamente: 40 campos
+    sql = `
+      INSERT INTO operacoes (
+        parceiro_id, tipo_operacao,
+        cliente_nome_completo, cliente_cpf, cliente_telefone, cliente_email, 
+        cliente_cep, cliente_endereco, cliente_renda_faixa, cliente_profissao, 
+        cliente_restricoes, cliente_casado, cliente_conjuge_nome, cliente_conjuge_cpf,
+        imovel_tipo, imovel_cidade, imovel_uf, imovel_endereco_completo, 
+        imovel_valor_estimado, imovel_situacao, imovel_titular,
+        operacao_valor_imovel, operacao_valor_pretendido, operacao_finalidade, operacao_prazo_desejado,
+        docs_cliente_rg_cnh, docs_cliente_cpf, docs_cliente_renda, docs_cliente_residencia, 
+        docs_cliente_extratos, docs_cliente_conjuge, docs_imovel_matricula, docs_imovel_iptu, 
+        docs_imovel_escritura, docs_imovel_fotos, docs_outros,
+        status_operacao, aceite_lgpd, aceite_declaracao, enviado_em
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const imovel_valor_estimado_final = normalizeMoney(imovel_valor_estimado, 100000);
+    const operacao_valor_imovel_final = normalizeMoney(operacao_valor_imovel, 100000);
+    const operacao_valor_pretendido_final = normalizeMoney(operacao_valor_pretendido, 50000);
+
+    values = [
+      parceiro_id, tipo_operacao_final,
+      cliente_nome_final, cliente_cpf_final, cliente_telefone_final, cliente_email_final,
+      cliente_cep || null, cliente_endereco || null, cliente_renda_faixa || null, cliente_profissao || null,
+      cliente_restricoes_final, normalizeBool(cliente_casado, 0), cliente_conjuge_nome || null, cliente_conjuge_cpf || null,
+      imovel_tipo_final, imovel_cidade || 'Não informada', imovel_uf_final, imovel_endereco_completo || 'Endereço não informado',
+      imovel_valor_estimado_final, imovel_situacao_final, imovel_titular || 'Titular não informado',
+      operacao_valor_imovel_final, operacao_valor_pretendido_final, 
+      operacao_finalidade || 'Finalidade não informada', operacao_prazo_desejado || '12 meses',
+      docs_cliente_rg_cnh || null, docs_cliente_cpf || null, docs_cliente_renda || null, docs_cliente_residencia || null,
+      docs_cliente_extratos || null, docs_cliente_conjuge || null, docs_imovel_matricula || null, docs_imovel_iptu || null,
+      docs_imovel_escritura || null, docs_imovel_fotos || null, docs_outros || null,
+      status_operacao || 'rascunho', normalizeBool(aceite_lgpd, 0), normalizeBool(aceite_declaracao, 0),
+      status_operacao === 'recebida' ? new Date() : null
+    ];
+
+    console.log('SQL preparado:', sql);
+    console.log('Values preparados (total:', values.length, '):', values);
+
+    const [result] = await queryWithTimeout(pool, sql, values);
+
+    console.log('✓ Operação criada com ID:', result.insertId);
+
+    return {
+      statusCode: 201,
+      headers: jsonHeaders,
+      body: JSON.stringify({ 
+        message: 'Operação criada com sucesso', 
+        id: result.insertId,
+        status: status_operacao || 'rascunho'
+      })
+    };
+
+  } catch (err) {
+    console.error('=== ERRO DETALHADO ===');
+    console.error('Tipo:', err.constructor.name);
+    console.error('Message:', err.message);
+    console.error('Code:', err.code);
+    console.error('Errno:', err.errno);
+    console.error('SQL State:', err.sqlState);
+    console.error('SQL Message:', err.sqlMessage);
+    console.error('Stack completo:', err.stack);
+    if (sql) console.error('SQL que falhou:', sql);
+    if (values) console.error('Valores que falharam:', values);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ 
+        message: 'Erro interno', 
+        error: err.message, 
+        details: err.sqlMessage || err.toString() 
+      })
+    };
+  }
+};
+
+// GET /operacoes/parceiro - Listar operações de um parceiro
+exports.listarOperacoesParceiro = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const { parceiro_id } = event.queryStringParameters || {};
+
+    if (!parceiro_id) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Parâmetro obrigatório: parceiro_id' }) 
+      };
+    }
+
+    const pool = getPool();
+
+    // Verifica se o parceiro existe
+    const [parceiroCheck] = await queryWithTimeout(pool,
+      'SELECT id FROM parceiros WHERE id = ? LIMIT 1', 
+      [parceiro_id]
+    );
+
+    if (parceiroCheck.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Parceiro não encontrado' }) 
+      };
+    }
+
+    // Busca todas as operações do parceiro
+    const [operacoes] = await queryWithTimeout(pool,
+      `SELECT id, tipo_operacao, cliente_nome_completo, cliente_cpf, 
+              operacao_valor_pretendido, status_operacao, created_at, enviado_em, updated_at
+       FROM operacoes 
+       WHERE parceiro_id = ? 
+       ORDER BY created_at DESC`,
+      [parceiro_id]
+    );
+
+    // Calcula estatísticas
+    const [stats] = await queryWithTimeout(pool,
+      `SELECT 
+         COUNT(*) as total,
+         COUNT(CASE WHEN status_operacao = 'rascunho' THEN 1 END) as rascunho,
+         COUNT(CASE WHEN status_operacao = 'recebida' THEN 1 END) as recebida,
+         COUNT(CASE WHEN status_operacao = 'em_analise' THEN 1 END) as em_analise,
+         COUNT(CASE WHEN status_operacao = 'aprovada' THEN 1 END) as aprovada,
+         COUNT(CASE WHEN status_operacao = 'recusada' THEN 1 END) as recusada
+       FROM operacoes 
+       WHERE parceiro_id = ?`,
+      [parceiro_id]
+    );
+
+    return {
+      statusCode: 200,
+      headers: jsonHeaders,
+      body: JSON.stringify({ 
+        operacoes,
+        estatisticas: stats[0]
+      })
+    };
+
+  } catch (err) {
+    console.error('ERRO AO LISTAR OPERAÇÕES:', err);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
+
+// GET /operacoes/buscar - Buscar operação específica
+exports.buscarOperacao = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const { operacao_id, parceiro_id } = event.queryStringParameters || {};
+
+    if (!operacao_id || !parceiro_id) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Parâmetros obrigatórios: operacao_id, parceiro_id' }) 
+      };
+    }
+
+    const pool = getPool();
+
+    // Busca a operação específica
+    const [rows] = await queryWithTimeout(pool,
+      'SELECT * FROM operacoes WHERE id = ? AND parceiro_id = ? LIMIT 1',
+      [operacao_id, parceiro_id]
+    );
+
+    if (rows.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Operação não encontrada' }) 
+      };
+    }
+
+    const operacao = rows[0];
+
+    return {
+      statusCode: 200,
+      headers: jsonHeaders,
+      body: JSON.stringify({ operacao })
+    };
+
+  } catch (err) {
+    console.error('ERRO AO BUSCAR OPERAÇÃO:', err);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
+
+// PUT /operacoes/atualizar - Atualizar operação
+exports.atualizarOperacao = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { operacao_id, parceiro_id, ...updateData } = body;
+
+    if (!operacao_id || !parceiro_id) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Campos obrigatórios: operacao_id, parceiro_id' }) 
+      };
+    }
+
+    const pool = getPool();
+
+    // Verifica se a operação existe e pertence ao parceiro
+    const [operacaoCheck] = await queryWithTimeout(pool,
+      'SELECT id, status_operacao FROM operacoes WHERE id = ? AND parceiro_id = ? LIMIT 1',
+      [operacao_id, parceiro_id]
+    );
+
+    if (operacaoCheck.length === 0) {
+      return { 
+        statusCode: 404, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Operação não encontrada' }) 
+      };
+    }
+
+    // Constrói a query de update dinamicamente
+    const updateFields = [];
+    const updateValues = [];
+
+    const allowedFields = [
+      'tipo_operacao', 'cliente_nome_completo', 'cliente_cpf', 'cliente_telefone', 'cliente_email',
+      'cliente_cep', 'cliente_endereco', 'cliente_renda_faixa', 'cliente_profissao', 'cliente_restricoes',
+      'cliente_casado', 'cliente_conjuge_nome', 'cliente_conjuge_cpf', 'imovel_tipo', 'imovel_cidade',
+      'imovel_uf', 'imovel_endereco_completo', 'imovel_valor_estimado', 'imovel_situacao', 'imovel_titular',
+      'operacao_valor_imovel', 'operacao_valor_pretendido', 'operacao_finalidade', 'operacao_prazo_desejado',
+      'docs_cliente_rg_cnh', 'docs_cliente_cpf', 'docs_cliente_renda', 'docs_cliente_residencia',
+      'docs_cliente_extratos', 'docs_cliente_conjuge', 'docs_imovel_matricula', 'docs_imovel_iptu',
+      'docs_imovel_escritura', 'docs_imovel_fotos', 'docs_outros', 'status_operacao', 'aceite_lgpd', 'aceite_declaracao'
+    ];
+
+    for (const field of allowedFields) {
+      if (updateData[field] !== undefined) {
+        updateFields.push(`${field} = ?`);
+        if (field.includes('valor_')) {
+          updateValues.push(parseFloat(updateData[field]));
+        } else if (field === 'cliente_casado' || field === 'aceite_lgpd' || field === 'aceite_declaracao') {
+          updateValues.push(updateData[field] ? 1 : 0);
+        } else {
+          updateValues.push(updateData[field]);
+        }
+      }
+    }
+
+    // Se o status foi alterado para 'recebida', define enviado_em
+    if (updateData.status_operacao === 'recebida') {
+      updateFields.push('enviado_em = ?');
+      updateValues.push(new Date());
+    }
+
+    if (updateFields.length === 0) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Nenhum campo válido para atualizar' }) 
+      };
+    }
+
+    updateValues.push(operacao_id, parceiro_id);
+
+    const sql = `UPDATE operacoes SET ${updateFields.join(', ')} WHERE id = ? AND parceiro_id = ?`;
+    
+    await queryWithTimeout(pool, sql, updateValues);
+
+    return {
+      statusCode: 200,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Operação atualizada com sucesso' })
+    };
+
+  } catch (err) {
+    console.error('ERRO AO ATUALIZAR OPERAÇÃO:', err);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
+
+// POST /operacoes/upload-documento - Upload de documento (placeholder)
+exports.uploadDocumento = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') {
+      return { statusCode: 200, headers: jsonHeaders, body: '' };
+    }
+
+    // Por enquanto, apenas retorna sucesso simulado
+    // Em uma implementação real, você salvaria o arquivo no S3 ou outro storage
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { operacao_id, parceiro_id, tipo_documento, arquivo_nome } = body;
+
+    if (!operacao_id || !parceiro_id || !tipo_documento) {
+      return { 
+        statusCode: 400, 
+        headers: jsonHeaders, 
+        body: JSON.stringify({ message: 'Campos obrigatórios: operacao_id, parceiro_id, tipo_documento' }) 
+      };
+    }
+
+    // Simula URL do arquivo salvo
+    const arquivo_url = `https://storage.exemplo.com/operacoes/${operacao_id}/${tipo_documento}_${Date.now()}.pdf`;
+
+    return {
+      statusCode: 200,
+      headers: jsonHeaders,
+      body: JSON.stringify({ 
+        message: 'Documento enviado com sucesso',
+        arquivo_url,
+        tipo_documento
+      })
+    };
+
+  } catch (err) {
+    console.error('ERRO AO FAZER UPLOAD:', err);
+    return {
+      statusCode: 500,
+      headers: jsonHeaders,
+      body: JSON.stringify({ message: 'Erro interno', error: err.message })
+    };
+  }
+};
+
+// =============================================
+// ADMIN - OPERAÇÕES
+// =============================================
+
+// GET /admin/operacoes - Listar todas as operações (admin)
+exports.adminListOperacoes = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const { adminId, status } = event.queryStringParameters || {};
+
+    if (!adminId) {
+      return { statusCode: 400, headers: jsonHeaders, body: JSON.stringify({ message: 'ID do admin é obrigatório' }) };
+    }
+
+    const pool = getPool();
+
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool, 'SELECT id FROM admin WHERE id = ? LIMIT 1', [adminId]);
+    if (adminCheck.length === 0) {
+      return { statusCode: 403, headers: jsonHeaders, body: JSON.stringify({ message: 'Acesso negado' }) };
+    }
+
+    // Monta a query com filtro opcional de status
+    const where = [];
+    const params = [];
+    if (status) {
+      where.push('o.status_operacao = ?');
+      params.push(status);
+    }
+
+    const sql = `
+      SELECT 
+        o.id, o.tipo_operacao, o.cliente_nome_completo, o.cliente_cpf,
+        o.operacao_valor_pretendido, o.status_operacao, o.created_at, o.enviado_em, o.updated_at,
+        p.id AS parceiro_id, p.nome AS parceiro_nome, p.email AS parceiro_email
+      FROM operacoes o
+      JOIN parceiros p ON p.id = o.parceiro_id
+      ${where.length ? 'WHERE ' + where.join(' AND ') : ''}
+      ORDER BY o.created_at DESC
+    `;
+
+    const [rows] = await queryWithTimeout(pool, sql, params);
+
+    return { statusCode: 200, headers: jsonHeaders, body: JSON.stringify({ operacoes: rows }) };
+  } catch (err) {
+    console.error('ERRO AO LISTAR OPERAÇÕES (ADMIN):', err);
+    return { statusCode: 500, headers: jsonHeaders, body: JSON.stringify({ message: 'Erro interno', error: err.message }) };
+  }
+};
+
+// GET /admin/operacoes/view - Detalhar operação (admin)
+exports.adminGetOperacao = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const { adminId, operacaoId } = event.queryStringParameters || {};
+
+    if (!adminId || !operacaoId) {
+      return { statusCode: 400, headers: jsonHeaders, body: JSON.stringify({ message: 'Parâmetros obrigatórios: adminId, operacaoId' }) };
+    }
+
+    const pool = getPool();
+
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool, 'SELECT id FROM admin WHERE id = ? LIMIT 1', [adminId]);
+    if (adminCheck.length === 0) {
+      return { statusCode: 403, headers: jsonHeaders, body: JSON.stringify({ message: 'Acesso negado' }) };
+    }
+
+    const sql = `
+      SELECT o.*, p.nome AS parceiro_nome, p.email AS parceiro_email
+      FROM operacoes o
+      JOIN parceiros p ON p.id = o.parceiro_id
+      WHERE o.id = ?
+      LIMIT 1
+    `;
+    const [rows] = await queryWithTimeout(pool, sql, [operacaoId]);
+
+    if (rows.length === 0) {
+      return { statusCode: 404, headers: jsonHeaders, body: JSON.stringify({ message: 'Operação não encontrada' }) };
+    }
+
+    return { statusCode: 200, headers: jsonHeaders, body: JSON.stringify({ operacao: rows[0] }) };
+  } catch (err) {
+    console.error('ERRO AO BUSCAR OPERAÇÃO (ADMIN):', err);
+    return { statusCode: 500, headers: jsonHeaders, body: JSON.stringify({ message: 'Erro interno', error: err.message }) };
+  }
+};
+
+// PUT /admin/operacoes/status - Atualizar status da operação (admin)
+exports.adminUpdateOperacaoStatus = async (event, context) => {
+  context.callbackWaitsForEmptyEventLoop = false;
+
+  try {
+    if (event.httpMethod === 'OPTIONS') return { statusCode: 200, headers: jsonHeaders };
+
+    const body = event.body ? JSON.parse(event.body) : {};
+    const { adminId, operacaoId, status_operacao } = body;
+
+    if (!adminId || !operacaoId || !status_operacao) {
+      return { statusCode: 400, headers: jsonHeaders, body: JSON.stringify({ message: 'Campos obrigatórios: adminId, operacaoId, status_operacao' }) };
+    }
+
+    const allowed = new Set(['rascunho','recebida','em_analise','pendencia_docs','aprovada','recusada','cancelada']);
+    if (!allowed.has(String(status_operacao).toLowerCase())) {
+      return { statusCode: 400, headers: jsonHeaders, body: JSON.stringify({ message: 'Status inválido' }) };
+    }
+
+    const pool = getPool();
+
+    // Verifica se o admin existe
+    const [adminCheck] = await queryWithTimeout(pool, 'SELECT id FROM admin WHERE id = ? LIMIT 1', [adminId]);
+    if (adminCheck.length === 0) {
+      return { statusCode: 403, headers: jsonHeaders, body: JSON.stringify({ message: 'Acesso negado' }) };
+    }
+
+    // Verifica se a operação existe
+    const [opCheck] = await queryWithTimeout(pool, 'SELECT id FROM operacoes WHERE id = ? LIMIT 1', [operacaoId]);
+    if (opCheck.length === 0) {
+      return { statusCode: 404, headers: jsonHeaders, body: JSON.stringify({ message: 'Operação não encontrada' }) };
+    }
+
+    // Atualiza status; se for 'recebida', define enviado_em
+    const updates = ['status_operacao = ?'];
+    const params = [String(status_operacao).toLowerCase()];
+    if (String(status_operacao).toLowerCase() === 'recebida') {
+      updates.push('enviado_em = ?');
+      params.push(new Date());
+    }
+    params.push(operacaoId);
+
+    const sql = `UPDATE operacoes SET ${updates.join(', ')} WHERE id = ?`;
+    await queryWithTimeout(pool, sql, params);
+
+    return { statusCode: 200, headers: jsonHeaders, body: JSON.stringify({ message: 'Status atualizado com sucesso' }) };
+  } catch (err) {
+    console.error('ERRO AO ATUALIZAR STATUS (ADMIN):', err);
+    return { statusCode: 500, headers: jsonHeaders, body: JSON.stringify({ message: 'Erro interno', error: err.message }) };
+  }
+};

@@ -1,2 +1,5 @@
 node_modules
 .serverless
+t.txt
+credon_db
+.credon_db

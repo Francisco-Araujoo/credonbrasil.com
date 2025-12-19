@@ -4,8 +4,10 @@ class AdminAPI {
     static currentAdmin = null;
     static parceiros = [];
     static preCadastros = [];
+    static operacoes = [];
     static currentParceiro = null;
     static currentPreCadastro = null;
+    static currentOperacao = null;
 
     // Funções utilitárias de formatação
     static formatCPF(cpf) {
@@ -84,6 +86,7 @@ class AdminAPI {
             await Promise.all([
                 this.loadParceiros(),
                 this.loadPreCadastros(),
+                this.loadOperacoes(),
                 this.loadStats()
             ]);
             
@@ -99,6 +102,201 @@ class AdminAPI {
         } catch (error) {
             console.error('Erro ao atualizar dados:', error);
             this.showError('Erro ao atualizar dados');
+        }
+    }
+
+    // ===== OPERAÇÕES (PROPOSTAS) =====
+    static async loadOperacoes(filter = {}) {
+        if (!this.currentAdmin) return;
+        try {
+            const params = new URLSearchParams({ adminId: this.currentAdmin.id });
+            if (filter.status) params.set('status', filter.status);
+            const response = await fetch(`${this.API_BASE_URL}/admin/operacoes?${params.toString()}`, {
+                method: 'GET',
+                headers: { 'Content-Type': 'application/json' }
+            });
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const data = await response.json();
+            this.operacoes = data.operacoes || [];
+            this.renderOperacoes();
+        } catch (err) {
+            console.error('Erro ao carregar operações:', err);
+            this.showError('Erro ao carregar propostas');
+        }
+    }
+
+    static renderOperacoes() {
+        const listEl = document.getElementById('operacoesList');
+        if (!listEl) return;
+
+        if (!this.operacoes.length) {
+            listEl.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    <i class="fas fa-file-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
+                    <p>Nenhuma proposta encontrada</p>
+                </div>
+            `;
+            return;
+        }
+
+        const html = this.operacoes.map(op => {
+            const created = this.formatDate(op.created_at);
+            const valor = this.formatCurrency(op.operacao_valor_pretendido);
+            const status = this.getStatusTextOperacao(op.status_operacao);
+            return `
+                <div class="pre-cadastro-card" data-id="${op.id}" onclick="AdminAPI.viewOperacao(${op.id})">
+                    <div class="pre-main-info">
+                        <div class="pre-person-info">
+                            <h3>${this.sanitizeHTML(op.cliente_nome_completo)} <small style="color: var(--text-muted); font-weight: 400;">(${this.sanitizeHTML(op.tipo_operacao)})</small></h3>
+                            <div class="email">Parceiro: ${this.sanitizeHTML(op.parceiro_nome)} &lt;${this.sanitizeHTML(op.parceiro_email)}&gt;</div>
+                            <div class="date">Criada em: ${created}</div>
+                        </div>
+                        <div class="pre-status">
+                            <span class="status-badge status-${op.status_operacao}">${status}</span>
+                        </div>
+                        <div class="pre-actions" onclick="event.stopPropagation()">
+                            <button class="action-btn success" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'aprovada')"><i class="fas fa-check"></i> Aceitar</button>
+                            <button class="action-btn danger" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'recusada')"><i class="fas fa-times"></i> Recusar</button>
+                        </div>
+                    </div>
+                    <div class="pre-business-info">
+                        <div class="info-item"><span class="info-label">CPF</span><span class="info-value">${this.formatCPF(op.cliente_cpf)}</span></div>
+                        <div class="info-item"><span class="info-label">Valor Pretendido</span><span class="info-value">${valor}</span></div>
+                        <div class="info-item"><span class="info-label">Status</span><span class="info-value">${status}</span></div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+
+        listEl.innerHTML = html;
+    }
+
+    static async viewOperacao(operacaoId) {
+        if (!this.currentAdmin) return;
+        try {
+            const params = new URLSearchParams({ adminId: this.currentAdmin.id, operacaoId });
+            const resp = await fetch(`${this.API_BASE_URL}/admin/operacoes/view?${params.toString()}`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            const data = await resp.json();
+            this.currentOperacao = data.operacao;
+            this.showOperacaoModal();
+        } catch (err) {
+            console.error('Erro ao buscar operação:', err);
+            this.showError('Erro ao carregar dados da proposta');
+        }
+    }
+
+    static showOperacaoModal() {
+        const modal = document.getElementById('operacaoModal');
+        if (!modal || !this.currentOperacao) return;
+
+        // Preencher campos básicos
+        const op = this.currentOperacao;
+        const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val || '—'; };
+        setText('opClienteNome', op.cliente_nome_completo);
+        setText('opClienteCpf', this.formatCPF(op.cliente_cpf));
+        setText('opClienteEmail', op.cliente_email);
+        setText('opClienteTelefone', this.formatPhone(op.cliente_telefone));
+        setText('opTipo', op.tipo_operacao);
+        setText('opStatus', this.getStatusTextOperacao(op.status_operacao));
+        setText('opValorPretendido', this.formatCurrency(op.operacao_valor_pretendido));
+        setText('opValorImovel', this.formatCurrency(op.operacao_valor_imovel));
+        setText('opImovel', `${op.imovel_tipo || ''} - ${op.imovel_cidade || ''}/${op.imovel_uf || ''}`);
+
+        // Galeria de imagens / documentos - exibir como imagens clicáveis
+        const gallery = document.getElementById('opDocsGallery');
+        if (gallery) {
+            const docFields = [
+                'docs_cliente_rg_cnh','docs_cliente_cpf','docs_cliente_renda','docs_cliente_residencia',
+                'docs_cliente_extratos','docs_cliente_conjuge','docs_imovel_matricula','docs_imovel_iptu',
+                'docs_imovel_escritura','docs_imovel_fotos','docs_outros'
+            ];
+            const urls = [];
+            docFields.forEach(f => {
+                if (op[f]) {
+                    const parts = String(op[f]).split(',').map(s => s.trim()).filter(Boolean);
+                    urls.push(...parts);
+                }
+            });
+            if (!urls.length) {
+                gallery.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Nenhum documento foi enviado</div>';
+            } else {
+                gallery.innerHTML = urls.map((url, index) => {
+                    const cleanUrl = this.sanitizeURL(url);
+                    return `
+                        <div style="display: inline-block; margin: 10px; cursor: pointer; position: relative;" onclick="window.open('${cleanUrl}', '_blank', 'noopener,noreferrer')">
+                            <img src="${cleanUrl}" 
+                                 alt="Documento ${index + 1}" 
+                                 loading="lazy"
+                                 style="
+                                     width: 140px; 
+                                     height: 100px; 
+                                     object-fit: cover; 
+                                     border: 2px solid var(--line-color); 
+                                     border-radius: 8px; 
+                                     transition: all 0.3s ease; 
+                                     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                                     cursor: pointer;
+                                     display: block;
+                                 " 
+                                 onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(56,189,248,0.3)';" 
+                                 onmouseout="this.style.borderColor='var(--line-color)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';" 
+                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
+                            <div style="
+                                     display: none; 
+                                     width: 140px; 
+                                     height: 100px; 
+                                     background: linear-gradient(135deg, var(--accent), #0ea5e9); 
+                                     color: white; 
+                                     border-radius: 8px; 
+                                     align-items: center; 
+                                     justify-content: center; 
+                                     flex-direction: column;
+                                     font-size: 12px; 
+                                     font-weight: 600;
+                                     cursor: pointer;
+                                     transition: all 0.3s ease;
+                                 "
+                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(56,189,248,0.4)';"
+                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
+                                <i class="fas fa-file-pdf" style="font-size: 24px; margin-bottom: 8px;"></i>
+                                <span>Documento ${index + 1}</span>
+                                <small style="opacity: 0.8; margin-top: 4px;">Clique para abrir</small>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        modal.style.display = 'block';
+        modal.classList.add('show');
+    }
+
+    static closeOperacaoModal() {
+        const modal = document.getElementById('operacaoModal');
+        if (modal) {
+            modal.classList.remove('show');
+            setTimeout(() => { modal.style.display = 'none'; this.currentOperacao = null; }, 300);
+        }
+    }
+
+    static async updateOperacaoStatus(operacaoId, status) {
+        if (!this.currentAdmin) return;
+        try {
+            const resp = await fetch(`${this.API_BASE_URL}/admin/operacoes/status`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ adminId: this.currentAdmin.id, operacaoId, status_operacao: status })
+            });
+            if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            await resp.json().catch(() => ({}));
+            this.showSuccess('Status atualizado');
+            await this.loadOperacoes();
+            this.closeOperacaoModal();
+        } catch (err) {
+            console.error('Erro ao atualizar status:', err);
+            this.showError('Erro ao atualizar status da proposta');
         }
     }
 
@@ -436,6 +634,31 @@ class AdminAPI {
 
     static showSuccess(message) {
         alert('SUCESSO: ' + message);
+    }
+
+    static getStatusTextOperacao(status) {
+        const map = {
+            'rascunho':'Rascunho','recebida':'Recebida','em_analise':'Em Análise','pendencia_docs':'Pendência de Docs','aprovada':'Aprovada','recusada':'Recusada','cancelada':'Cancelada'
+        };
+        return map[status] || status;
+    }
+
+    static formatCurrency(value) {
+        if (value === null || value === undefined || isNaN(value)) return 'R$ 0,00';
+        try {
+            return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(Number(value));
+        } catch (_) {
+            return 'R$ 0,00';
+        }
+    }
+
+    static sanitizeURL(u) {
+        try {
+            const url = new URL(u);
+            return url.toString();
+        } catch (_) {
+            return '#';
+        }
     }
 
     // ===== PRÉ-CADASTROS =====

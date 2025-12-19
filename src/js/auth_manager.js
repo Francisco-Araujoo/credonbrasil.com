@@ -86,6 +86,11 @@
     // Verificar se está logado (qualquer tipo)
     isLoggedIn() {
       return this.getLoggedUserType() !== null;
+    },
+
+    // Alias para checkUserAuth() - para compatibilidade
+    getUserData() {
+      return this.checkUserAuth();
     }
   };
 

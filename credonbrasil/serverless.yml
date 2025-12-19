@@ -149,3 +149,80 @@ functions:
           path: /admin/pre-cadastros/transformar-parceiro
           method: post
 
+  # =============================================
+  # ENDPOINTS PARA OPERAÇÕES
+  # =============================================
+  
+  # Criar nova operação
+  criarOperacao:
+    handler: handler.criarOperacao
+    timeout: 8  # Pode ser pesado com uploads
+    events:
+      - httpApi:
+          path: /operacoes/criar
+          method: post
+
+  # Listar operações de um parceiro
+  listarOperacoesParceiro:
+    handler: handler.listarOperacoesParceiro
+    timeout: 6  # Lista + estatísticas
+    events:
+      - httpApi:
+          path: /operacoes/parceiro
+          method: get
+
+  # Buscar operação específica
+  buscarOperacao:
+    handler: handler.buscarOperacao
+    timeout: 4  # Query simples
+    events:
+      - httpApi:
+          path: /operacoes/buscar
+          method: get
+
+  # Atualizar operação
+  atualizarOperacao:
+    handler: handler.atualizarOperacao
+    timeout: 5  # Update dinâmico
+    events:
+      - httpApi:
+          path: /operacoes/atualizar
+          method: put
+
+  # Upload de documento
+  uploadDocumento:
+    handler: handler.uploadDocumento
+    timeout: 10  # Upload pode ser lento
+    memorySize: 1024  # Mais memória para processar arquivos
+    events:
+      - httpApi:
+          path: /operacoes/upload-documento
+          method: post
+
+  # =============================================
+  # ADMIN - OPERAÇÕES
+  # =============================================
+  adminListOperacoes:
+    handler: handler.adminListOperacoes
+    timeout: 8
+    events:
+      - httpApi:
+          path: /admin/operacoes
+          method: get
+
+  adminGetOperacao:
+    handler: handler.adminGetOperacao
+    timeout: 4
+    events:
+      - httpApi:
+          path: /admin/operacoes/view
+          method: get
+
+  adminUpdateOperacaoStatus:
+    handler: handler.adminUpdateOperacaoStatus
+    timeout: 5
+    events:
+      - httpApi:
+          path: /admin/operacoes/status
+          method: put
+

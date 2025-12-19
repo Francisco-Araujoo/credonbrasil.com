@@ -94,6 +94,118 @@
         main {
             padding-top: 100px;
             min-height: 100vh;
+            background: var(--bg-dark);
+            display: flex;
+        }
+
+        /* --- SIDEBAR --- */
+        .parceiro-sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 280px;
+            height: calc(100vh - 100px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--line-color);
+            transition: all 0.3s ease;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .parceiro-sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--accent);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .parceiro-sidebar.collapsed .sidebar-title {
+            opacity: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-nav a span {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .parceiro-sidebar.collapsed .sidebar-nav a span {
+            opacity: 0;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 2rem;
+            right: -18px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            border: 2px solid var(--bg-dark);
+        }
+
+        .sidebar-toggle:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            margin-left: 280px;
+            min-height: calc(100vh - 100px);
+            flex: 1;
+            transition: margin-left 0.3s ease;
             background-image: 
                 linear-gradient(to bottom, rgba(2, 6, 23, 0.95), rgba(2, 6, 23, 0.9)),
                 url('../src/img/fundoS3.jpg');
@@ -102,10 +214,44 @@
             background-attachment: fixed;
         }
 
-        .portal-container {
-            max-width: 1400px;
+        .main-content.sidebar-collapsed {
+            margin-left: 60px;
+        }
+
+        .content-container {
+            padding: 2rem;
+            max-width: 1200px;
             margin: 0 auto;
-            padding: 2rem 5%;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+        }
+
+        /* --- PORTAL SECTIONS --- */
+        .portal-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .portal-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
         }
 
         .welcome-section {
@@ -177,8 +323,770 @@
         .card-title {
             font-family: var(--font-display);
             font-size: 1.5rem;
-            margin-bottom: 1rem;
+            margin-bottom: 2rem;
             color: white;
+            margin: 0;
+        }
+
+        /* --- WIZARD STYLES --- */
+        .wizard-container {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+        }
+
+        .wizard-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 3rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .step-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            opacity: 0.5;
+            transition: all 0.3s;
+        }
+
+        .step-indicator.active {
+            opacity: 1;
+        }
+
+        .step-indicator.completed {
+            opacity: 1;
+            color: var(--accent);
+        }
+
+        .step-number {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--text-muted);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+
+        .step-indicator.active .step-number {
+            background: var(--accent);
+        }
+
+        .step-indicator.completed .step-number {
+            background: var(--accent);
+        }
+
+        .step-label {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+        }
+
+        .wizard-form {
+            margin-bottom: 2rem;
+        }
+
+        .wizard-step {
+            display: none;
+            animation: fadeInUp 0.4s ease;
+        }
+
+        .wizard-step.active {
+            display: block;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .step-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .step-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            margin-bottom: 2rem;
+            text-align: center;
+            color: white;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: white;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            padding: 1rem;
+            border: 1px solid var(--line-color);
+            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.5);
+            color: white;
+            font-family: var(--font-body);
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .radio-card {
+            position: relative;
+            cursor: pointer;
+        }
+
+        .radio-card input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .card-content {
+            background: rgba(15, 23, 42, 0.5);
+            border: 2px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .radio-card:hover .card-content {
+            border-color: var(--accent);
+            background: rgba(15, 23, 42, 0.7);
+        }
+
+        .radio-card input[type="radio"]:checked + .card-content {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .card-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .card-content h4 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .card-content p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+
+        .checkbox-label input[type="checkbox"] {
+            width: auto !important;
+            margin: 0;
+        }
+
+        .checkbox-label span {
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .conjuge-section {
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--line-color);
+        }
+
+        .section-subtitle {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+        }
+
+        .help-text {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+        }
+
+        .calculation-summary {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .calculation-summary h4 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .calc-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+            color: white;
+        }
+
+        .calc-item.highlight {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: var(--accent);
+            border-top: 1px solid var(--line-color);
+            padding-top: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .documents-section {
+            margin-bottom: 2rem;
+        }
+
+        .doc-category {
+            margin-bottom: 2.5rem;
+            padding: 1.5rem;
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .doc-category h4 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+
+        .upload-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .upload-item label {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: white;
+        }
+
+        .upload-item input[type="file"] {
+            padding: 0.8rem;
+            border: 2px dashed var(--line-color);
+            border-radius: 6px;
+            background: transparent;
+            color: white;
+            transition: all 0.3s;
+        }
+
+        .upload-item input[type="file"]:hover {
+            border-color: var(--accent);
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .upload-status {
+            font-size: 0.8rem;
+            padding: 0.25rem;
+            border-radius: 4px;
+            text-align: center;
+            display: none;
+        }
+
+        .upload-status.success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            display: block;
+        }
+
+        .upload-status.error {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            display: block;
+        }
+
+        .upload-info {
+            background: rgba(59, 130, 246, 0.1);
+            border: 1px solid #3b82f6;
+            border-radius: 6px;
+            padding: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .upload-info p {
+            color: #93c5fd;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .upload-info p:last-child {
+            margin-bottom: 0;
+        }
+
+        .review-sections {
+            margin-bottom: 2rem;
+        }
+
+        .review-section {
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .review-section h4 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .review-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .review-grid p {
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .final-agreements {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--accent);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .wizard-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 1rem;
+            padding-top: 2rem;
+            border-top: 1px solid var(--line-color);
+        }
+
+        .nav-btn {
+            padding: 1rem 2rem;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-display);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+            min-width: 120px;
+        }
+
+        .nav-btn.primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .nav-btn.primary:hover {
+            background: #0ea5e9;
+            transform: translateY(-2px);
+        }
+
+        .nav-btn.secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid var(--line-color);
+        }
+
+        .nav-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: white;
+        }
+
+        .nav-btn.draft {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .nav-btn.draft:hover {
+            background: #d97706;
+        }
+
+        .nav-btn.success {
+            background: #10b981;
+            color: white;
+            font-size: 1.1rem;
+            padding: 1.2rem 3rem;
+        }
+
+        .nav-btn.success:hover {
+            background: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* --- STATS GRID --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+            border-color: var(--accent);
+        }
+
+        .stat-icon {
+            font-size: 2rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .stat-title {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+        }
+
+        /* --- OPERATIONS TABLE --- */
+        .filter-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .filter-controls select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--line-color);
+            border-radius: 6px;
+            background: rgba(15, 23, 42, 0.5);
+            color: white;
+            font-family: var(--font-body);
+        }
+
+        .operations-table {
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 120px 120px 150px 100px;
+            background: rgba(15, 23, 42, 0.9);
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .th {
+            padding: 1rem 0.5rem;
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: var(--accent);
+            text-align: center;
+            border-right: 1px solid var(--line-color);
+        }
+
+        .th:last-child {
+            border-right: none;
+        }
+
+        .table-body {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .table-row {
+            display: grid;
+            grid-template-columns: 120px 1fr 120px 120px 120px 150px 100px;
+            border-bottom: 1px solid var(--line-color);
+            transition: all 0.3s;
+        }
+
+        .table-row:hover {
+            background: rgba(56, 189, 248, 0.05);
+        }
+
+        .table-row.empty-state {
+            grid-template-columns: 1fr;
+            padding: 3rem;
+            text-align: center;
+            border: none;
+        }
+
+        .empty-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            color: var(--text-muted);
+        }
+
+        .empty-content i {
+            font-size: 3rem;
+            color: var(--accent);
+        }
+
+        .td {
+            padding: 1rem 0.5rem;
+            border-right: 1px solid var(--line-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-size: 0.9rem;
+        }
+
+        .td:last-child {
+            border-right: none;
+        }
+
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-rascunho {
+            background: rgba(156, 163, 175, 0.2);
+            color: #9ca3af;
+        }
+
+        .status-recebida {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .status-em_analise {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+        }
+
+        .status-pendencia_docs {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+
+        .status-aprovada {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+        }
+
+        .status-recusada {
+            background: rgba(220, 38, 38, 0.2);
+            color: #dc2626;
+        }
+
+        .status-cancelada {
+            background: rgba(107, 114, 128, 0.2);
+            color: #6b7280;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: center;
+        }
+
+        .action-btn-small {
+            padding: 0.4rem 0.8rem;
+            border: none;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .action-btn-small.view {
+            background: var(--accent);
+            color: white;
+        }
+
+        .action-btn-small.edit {
+            background: #f59e0b;
+            color: white;
+        }
+
+        .action-btn-small:hover {
+            transform: translateY(-1px);
+            opacity: 0.9;
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal {
+            background: rgba(15, 23, 42, 0.95);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: scale(0.9);
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show .modal {
+            transform: scale(1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            color: white;
+            transform: rotate(90deg);
+        }
+
+        .modal-content {
+            color: white;
+        }
+
+        .detail-section {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            background: rgba(15, 23, 42, 0.3);
+        }
+
+        .detail-section h4 {
+            font-family: var(--font-display);
+            color: var(--accent);
+            margin-bottom: 1rem;
         }
 
         .card-value {
@@ -328,8 +1236,26 @@
                 font-size: 0.7rem;
             }
 
-            .portal-container {
-                padding: 1rem 5%;
+            .parceiro-sidebar {
+                width: 100%;
+                transform: translateX(-100%);
+                z-index: 1100;
+            }
+
+            .parceiro-sidebar.mobile-open {
+                transform: translateX(0);
+            }
+
+            .main-content {
+                margin-left: 0;
+            }
+
+            .sidebar-toggle {
+                display: none;
+            }
+
+            .content-container {
+                padding: 1rem;
             }
 
             .welcome-section {
@@ -343,7 +1269,8 @@
 
             .user-details,
             .portal-card,
-            .action-card {
+            .action-card,
+            .content-card {
                 padding: 1.5rem;
             }
 
@@ -357,7 +1284,7 @@
                 gap: 1.5rem;
             }
 
-            main {
+            .main-content {
                 background-attachment: scroll;
             }
         }
@@ -375,102 +1302,701 @@
     </header>
 
     <main>
-        <div class="portal-container">
-            <div class="welcome-section">
-                <h1 class="welcome-title">Portal do Parceiro</h1>
-                <p class="welcome-subtitle">Bem-vindo ao seu painel de controle CredOn Brasil</p>
+        <!-- Sidebar -->
+        <aside class="parceiro-sidebar" id="parceiroSidebar">
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <div class="sidebar-header">
+                <h3 class="sidebar-title">Navegação</h3>
             </div>
+            
+            <nav class="sidebar-nav">
+                <a href="#" data-section="dashboard" class="active">
+                    <i class="fas fa-tachometer-alt"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" data-section="nova-operacao">
+                    <i class="fas fa-plus-circle"></i>
+                    <span>Nova Operação</span>
+                </a>
+                <a href="#" data-section="minhas-operacoes">
+                    <i class="fas fa-list-ul"></i>
+                    <span>Minhas Operações</span>
+                </a>
+                <a href="#" data-section="central-materiais">
+                    <i class="fas fa-folder-open"></i>
+                    <span>Central de Materiais</span>
+                </a>
+                <a href="#" data-section="comissoes">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>Comissões</span>
+                </a>
+                <a href="#" data-section="perfil-suporte">
+                    <i class="fas fa-user-cog"></i>
+                    <span>Meu Perfil / Suporte</span>
+                </a>
+            </nav>
+        </aside>
 
-            <div class="portal-grid">
-                <div class="portal-card">
-                    <div class="card-icon">
-                        <i class="fas fa-handshake"></i>
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="content-container">
+                <!-- Dashboard Section -->
+                <div class="portal-section active" id="dashboard">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
                     </div>
-                    <h3 class="card-title">Propostas Enviadas</h3>
-                    <div class="card-value">0</div>
-                    <p class="card-description">Total de propostas de crédito enviadas</p>
+                    
+                    <div class="portal-grid">
+                        <div class="portal-card">
+                            <div class="card-icon">
+                                <i class="fas fa-handshake"></i>
+                            </div>
+                            <h3 class="card-title">Propostas Enviadas</h3>
+                            <div class="card-value">0</div>
+                            <p class="card-description">Total de propostas de crédito enviadas</p>
+                        </div>
+
+                        <div class="portal-card">
+                            <div class="card-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <h3 class="card-title">Aprovadas</h3>
+                            <div class="card-value">0</div>
+                            <p class="card-description">Propostas aprovadas e liberadas</p>
+                        </div>
+
+                        <div class="portal-card">
+                            <div class="card-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3 class="card-title">Comissão</h3>
+                            <div class="card-value">R$ 0,00</div>
+                            <p class="card-description">Total de comissões acumuladas</p>
+                        </div>
+
+                        <div class="portal-card">
+                            <div class="card-icon">
+                                <i class="fas fa-calendar"></i>
+                            </div>
+                            <h3 class="card-title">Este Mês</h3>
+                            <div class="card-value">0</div>
+                            <p class="card-description">Propostas enviadas no mês atual</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="portal-card">
-                    <div class="card-icon">
-                        <i class="fas fa-check-circle"></i>
+                <!-- Nova Operação Section -->
+                <div class="portal-section" id="nova-operacao">
+                    <div class="page-header">
+                        <h1 class="page-title">Nova Operação</h1>
                     </div>
-                    <h3 class="card-title">Aprovadas</h3>
-                    <div class="card-value">0</div>
-                    <p class="card-description">Propostas aprovadas e liberadas</p>
+                    
+                    <!-- Wizard Container -->
+                    <div class="wizard-container">
+                        <!-- Progress Bar -->
+                        <div class="wizard-progress">
+                            <div class="step-indicator active" data-step="1">
+                                <span class="step-number">1</span>
+                                <span class="step-label">Tipo</span>
+                            </div>
+                            <div class="step-indicator" data-step="2">
+                                <span class="step-number">2</span>
+                                <span class="step-label">Cliente</span>
+                            </div>
+                            <div class="step-indicator" data-step="3">
+                                <span class="step-number">3</span>
+                                <span class="step-label">Imóvel</span>
+                            </div>
+                            <div class="step-indicator" data-step="4">
+                                <span class="step-number">4</span>
+                                <span class="step-label">Operação</span>
+                            </div>
+                            <div class="step-indicator" data-step="5">
+                                <span class="step-number">5</span>
+                                <span class="step-label">Documentos</span>
+                            </div>
+                            <div class="step-indicator" data-step="6">
+                                <span class="step-number">6</span>
+                                <span class="step-label">Revisão</span>
+                            </div>
+                        </div>
+
+                        <!-- Wizard Steps -->
+                        <form id="operacaoForm" class="wizard-form">
+                            <!-- Etapa 1 - Tipo -->
+                            <div class="wizard-step active" data-step="1">
+                                <div class="step-content">
+                                    <h3 class="step-title">Escolha o Tipo de Operação</h3>
+                                    <div class="radio-grid">
+                                        <label class="radio-card">
+                                            <input type="radio" name="tipo_operacao" value="home_equity" required>
+                                            <div class="card-content">
+                                                <i class="fas fa-home card-icon"></i>
+                                                <h4>Home Equity</h4>
+                                                <p>Crédito com garantia de imóvel já quitado</p>
+                                            </div>
+                                        </label>
+                                        <label class="radio-card">
+                                            <input type="radio" name="tipo_operacao" value="aquisicao_imovel" required>
+                                            <div class="card-content">
+                                                <i class="fas fa-key card-icon"></i>
+                                                <h4>Aquisição de Imóvel</h4>
+                                                <p>Financiamento para compra de imóvel</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 2 - Dados do Cliente -->
+                            <div class="wizard-step" data-step="2">
+                                <div class="step-content">
+                                    <h3 class="step-title">Dados do Cliente</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Nome Completo*</label>
+                                            <input type="text" name="cliente_nome_completo" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>CPF*</label>
+                                            <input type="text" name="cliente_cpf" placeholder="000.000.000-00" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Telefone/WhatsApp*</label>
+                                            <input type="tel" name="cliente_telefone" placeholder="(00) 00000-0000" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>E-mail*</label>
+                                            <input type="email" name="cliente_email" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>CEP</label>
+                                            <input type="text" name="cliente_cep" placeholder="00000-000">
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Endereço Completo (com complemento)</label>
+                                            <textarea name="cliente_endereco" rows="2"></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Renda Aproximada</label>
+                                            <select name="cliente_renda_faixa">
+                                                <option value="">Selecione...</option>
+                                                <option value="ate_3mil">Até R$ 3.000</option>
+                                                <option value="3mil_5mil">R$ 3.001 a R$ 5.000</option>
+                                                <option value="5mil_10mil">R$ 5.001 a R$ 10.000</option>
+                                                <option value="10mil_20mil">R$ 10.001 a R$ 20.000</option>
+                                                <option value="acima_20mil">Acima de R$ 20.000</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Profissão</label>
+                                            <input type="text" name="cliente_profissao">
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Tem Restrições?</label>
+                                            <select name="cliente_restricoes">
+                                                <option value="">Selecione...</option>
+                                                <option value="sim">Sim</option>
+                                                <option value="nao">Não</option>
+                                                <option value="nao_sei">Não sei</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label class="checkbox-label">
+                                                <input type="checkbox" name="cliente_casado" value="1">
+                                                <span>Cliente é casado</span>
+                                            </label>
+                                        </div>
+                                    </div>
+
+                                    <!-- Dados do Cônjuge (oculto inicialmente) -->
+                                    <div id="conjuge-section" class="conjuge-section" style="display: none;">
+                                        <h4 class="section-subtitle">Dados do Cônjuge</h4>
+                                        <div class="form-grid">
+                                            <div class="form-group">
+                                                <label>Nome do Cônjuge</label>
+                                                <input type="text" name="cliente_conjuge_nome">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>CPF do Cônjuge</label>
+                                                <input type="text" name="cliente_conjuge_cpf" placeholder="000.000.000-00">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 3 - Dados do Imóvel -->
+                            <div class="wizard-step" data-step="3">
+                                <div class="step-content">
+                                    <h3 class="step-title">Dados do Imóvel</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Tipo do Imóvel*</label>
+                                            <select name="imovel_tipo" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="casa">Casa</option>
+                                                <option value="apartamento">Apartamento</option>
+                                                <option value="comercial">Comercial</option>
+                                                <option value="terreno">Terreno</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Cidade*</label>
+                                            <input type="text" name="imovel_cidade" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>UF*</label>
+                                            <select name="imovel_uf" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="AC">AC</option><option value="AL">AL</option><option value="AP">AP</option>
+                                                <option value="AM">AM</option><option value="BA">BA</option><option value="CE">CE</option>
+                                                <option value="DF">DF</option><option value="ES">ES</option><option value="GO">GO</option>
+                                                <option value="MA">MA</option><option value="MT">MT</option><option value="MS">MS</option>
+                                                <option value="MG">MG</option><option value="PA">PA</option><option value="PB">PB</option>
+                                                <option value="PR">PR</option><option value="PE">PE</option><option value="PI">PI</option>
+                                                <option value="RJ">RJ</option><option value="RN">RN</option><option value="RS">RS</option>
+                                                <option value="RO">RO</option><option value="RR">RR</option><option value="SC">SC</option>
+                                                <option value="SP">SP</option><option value="SE">SE</option><option value="TO">TO</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Endereço Completo do Imóvel*</label>
+                                            <textarea name="imovel_endereco_completo" rows="2" required></textarea>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Valor Estimado do Imóvel (R$)*</label>
+                                            <input type="text" name="imovel_valor_estimado" class="money-input" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Situação*</label>
+                                            <select name="imovel_situacao" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="quitado">Quitado</option>
+                                                <option value="financiado">Financiado</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group full-width">
+                                            <label>Em nome de quem (Titular)*</label>
+                                            <input type="text" name="imovel_titular" required>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 4 - Dados da Operação -->
+                            <div class="wizard-step" data-step="4">
+                                <div class="step-content">
+                                    <h3 class="step-title">Dados da Operação</h3>
+                                    <div class="form-grid">
+                                        <div class="form-group">
+                                            <label>Valor do Imóvel (R$)*</label>
+                                            <input type="text" name="operacao_valor_imovel" class="money-input" required readonly>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Valor Pretendido (R$)*</label>
+                                            <input type="text" name="operacao_valor_pretendido" class="money-input" required>
+                                            <small class="help-text">Máximo: 50% do valor do imóvel</small>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Finalidade*</label>
+                                            <select name="operacao_finalidade" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="capital_giro">Capital de Giro</option>
+                                                <option value="quitacao_dividas">Quitação de Dívidas</option>
+                                                <option value="reforma_imovel">Reforma de Imóvel</option>
+                                                <option value="investimento">Investimento</option>
+                                                <option value="educacao">Educação</option>
+                                                <option value="viagem">Viagem</option>
+                                                <option value="outros">Outros</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>Prazo Desejado*</label>
+                                            <select name="operacao_prazo_desejado" required>
+                                                <option value="">Selecione...</option>
+                                                <option value="12_meses">12 meses</option>
+                                                <option value="24_meses">24 meses</option>
+                                                <option value="36_meses">36 meses</option>
+                                                <option value="48_meses">48 meses</option>
+                                                <option value="60_meses">60 meses</option>
+                                                <option value="72_meses">72 meses</option>
+                                                <option value="84_meses">84 meses</option>
+                                                <option value="120_meses">120 meses</option>
+                                                <option value="180_meses">180 meses</option>
+                                                <option value="240_meses">240 meses</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="calculation-summary">
+                                        <h4>Resumo da Operação</h4>
+                                        <div class="calc-item">
+                                            <span>Valor do Imóvel:</span>
+                                            <span id="calc-valor-imovel">R$ 0,00</span>
+                                        </div>
+                                        <div class="calc-item">
+                                            <span>Valor Máximo (50%):</span>
+                                            <span id="calc-valor-maximo">R$ 0,00</span>
+                                        </div>
+                                        <div class="calc-item highlight">
+                                            <span>Valor Solicitado:</span>
+                                            <span id="calc-valor-solicitado">R$ 0,00</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 5 - Documentos -->
+                            <div class="wizard-step" data-step="5">
+                                <div class="step-content">
+                                    <h3 class="step-title">Upload de Documentos</h3>
+                                    
+                                    <div class="documents-section">
+                                        <div class="doc-category">
+                                            <h4><i class="fas fa-user"></i> Documentos do Cliente</h4>
+                                            <div class="upload-grid">
+                                                <div class="upload-item">
+                                                    <label>RG ou CNH *</label>
+                                                    <input type="file" name="docs_cliente_rg_cnh" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>CPF *</label>
+                                                    <input type="file" name="docs_cliente_cpf" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>Comprovante de Renda *</label>
+                                                    <input type="file" name="docs_cliente_renda" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>Comprovante de Residência *</label>
+                                                    <input type="file" name="docs_cliente_residencia" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>Extratos Últimos 3 Meses *</label>
+                                                    <input type="file" name="docs_cliente_extratos" accept=".pdf,.jpg,.jpeg,.png" multiple required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item conjuge-doc" style="display: none;">
+                                                    <label>Documentos do Cônjuge</label>
+                                                    <input type="file" name="docs_cliente_conjuge" accept=".pdf,.jpg,.jpeg,.png">
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="doc-category">
+                                            <h4><i class="fas fa-home"></i> Documentos do Imóvel</h4>
+                                            <div class="upload-grid">
+                                                <div class="upload-item">
+                                                    <label>Matrícula *</label>
+                                                    <input type="file" name="docs_imovel_matricula" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>IPTU *</label>
+                                                    <input type="file" name="docs_imovel_iptu" accept=".pdf,.jpg,.jpeg,.png" required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>Escritura/Contrato</label>
+                                                    <input type="file" name="docs_imovel_escritura" accept=".pdf,.jpg,.jpeg,.png">
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                                <div class="upload-item">
+                                                    <label>Fotos do Imóvel *</label>
+                                                    <input type="file" name="docs_imovel_fotos" accept=".jpg,.jpeg,.png" multiple required>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="doc-category">
+                                            <h4><i class="fas fa-file-alt"></i> Outros Documentos</h4>
+                                            <div class="upload-grid">
+                                                <div class="upload-item">
+                                                    <label>Outros Documentos</label>
+                                                    <input type="file" name="docs_outros" accept=".pdf,.jpg,.jpeg,.png" multiple>
+                                                    <div class="upload-status"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="upload-info">
+                                        <p><i class="fas fa-info-circle"></i> Formatos aceitos: PDF, JPG, PNG | Tamanho máximo: 5MB por arquivo</p>
+                                        <p><i class="fas fa-save"></i> Você pode salvar como rascunho a qualquer momento</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Etapa 6 - Revisão e Envio -->
+                            <div class="wizard-step" data-step="6">
+                                <div class="step-content">
+                                    <h3 class="step-title">Revisão e Envio</h3>
+                                    
+                                    <div class="review-sections">
+                                        <div class="review-section">
+                                            <h4>Tipo de Operação</h4>
+                                            <p id="review-tipo">-</p>
+                                        </div>
+                                        
+                                        <div class="review-section">
+                                            <h4>Dados do Cliente</h4>
+                                            <div class="review-grid">
+                                                <p><strong>Nome:</strong> <span id="review-cliente-nome">-</span></p>
+                                                <p><strong>CPF:</strong> <span id="review-cliente-cpf">-</span></p>
+                                                <p><strong>Telefone:</strong> <span id="review-cliente-telefone">-</span></p>
+                                                <p><strong>E-mail:</strong> <span id="review-cliente-email">-</span></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="review-section">
+                                            <h4>Dados do Imóvel</h4>
+                                            <div class="review-grid">
+                                                <p><strong>Tipo:</strong> <span id="review-imovel-tipo">-</span></p>
+                                                <p><strong>Localização:</strong> <span id="review-imovel-cidade">-</span></p>
+                                                <p><strong>Valor:</strong> <span id="review-imovel-valor">-</span></p>
+                                                <p><strong>Situação:</strong> <span id="review-imovel-situacao">-</span></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="review-section">
+                                            <h4>Dados da Operação</h4>
+                                            <div class="review-grid">
+                                                <p><strong>Valor Pretendido:</strong> <span id="review-valor-pretendido">-</span></p>
+                                                <p><strong>Finalidade:</strong> <span id="review-finalidade">-</span></p>
+                                                <p><strong>Prazo:</strong> <span id="review-prazo">-</span></p>
+                                            </div>
+                                        </div>
+                                        
+                                        <div class="review-section">
+                                            <h4>Documentos Enviados</h4>
+                                            <div id="review-documentos">-</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="final-agreements">
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="aceite_lgpd" required>
+                                            <span>Aceito os termos da LGPD e autorizo o tratamento dos meus dados</span>
+                                        </label>
+                                        <label class="checkbox-label">
+                                            <input type="checkbox" name="aceite_declaracao" required>
+                                            <span>Declaro que todas as informações são verdadeiras</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+
+                        <!-- Wizard Navigation -->
+                        <div class="wizard-navigation">
+                            <button type="button" id="prevBtn" class="nav-btn secondary" onclick="changeStep(-1)">Anterior</button>
+                            <button type="button" id="saveRascunhoBtn" class="nav-btn draft" onclick="salvarRascunho()">Salvar Rascunho</button>
+                            <button type="button" id="nextBtn" class="nav-btn primary" onclick="changeStep(1)">Próximo</button>
+                            <button type="button" id="submitBtn" class="nav-btn success" style="display: none;" onclick="enviarOperacao()">Enviar Operação</button>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="portal-card">
-                    <div class="card-icon">
-                        <i class="fas fa-chart-line"></i>
+                <!-- Minhas Operações Section -->
+                <div class="portal-section" id="minhas-operacoes">
+                    <div class="page-header">
+                        <h1 class="page-title">Minhas Operações</h1>
+                        <button class="action-btn" onclick="showSection('nova-operacao')">
+                            <i class="fas fa-plus"></i> Nova Operação
+                        </button>
                     </div>
-                    <h3 class="card-title">Comissão</h3>
-                    <div class="card-value">R$ 0,00</div>
-                    <p class="card-description">Total de comissões acumuladas</p>
+                    
+                    <!-- Estatísticas -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                            <div class="stat-title">Em Análise</div>
+                            <div class="stat-value" id="stats-em-analise">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-file-alt"></i></div>
+                            <div class="stat-title">Pendência Docs</div>
+                            <div class="stat-value" id="stats-pendencia-docs">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+                            <div class="stat-title">Aprovadas</div>
+                            <div class="stat-value" id="stats-aprovadas">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon"><i class="fas fa-times-circle"></i></div>
+                            <div class="stat-title">Recusadas</div>
+                            <div class="stat-value" id="stats-recusadas">0</div>
+                        </div>
+                    </div>
+
+                    <!-- Lista de Operações -->
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Lista de Operações</h3>
+                            <div class="filter-controls">
+                                <select id="status-filter">
+                                    <option value="">Todos os Status</option>
+                                    <option value="rascunho">Rascunho</option>
+                                    <option value="recebida">Recebida</option>
+                                    <option value="em_analise">Em Análise</option>
+                                    <option value="pendencia_docs">Pendência Docs</option>
+                                    <option value="aprovada">Aprovada</option>
+                                    <option value="recusada">Recusada</option>
+                                    <option value="cancelada">Cancelada</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Tabela de Operações -->
+                        <div class="operations-table">
+                            <div class="table-header">
+                                <div class="th">Nº Operação</div>
+                                <div class="th">Cliente</div>
+                                <div class="th">Tipo</div>
+                                <div class="th">Valor</div>
+                                <div class="th">Status</div>
+                                <div class="th">Última Atualização</div>
+                                <div class="th">Ações</div>
+                            </div>
+                            <div class="table-body" id="operations-tbody">
+                                <div class="table-row empty-state">
+                                    <div class="empty-content">
+                                        <i class="fas fa-list-ul"></i>
+                                        <p>Nenhuma operação encontrada.</p>
+                                        <button class="action-btn" onclick="showSection('nova-operacao')">
+                                            Criar Primeira Operação
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="portal-card">
-                    <div class="card-icon">
-                        <i class="fas fa-calendar"></i>
+                <!-- Central de Materiais Section -->
+                <div class="portal-section" id="central-materiais">
+                    <div class="page-header">
+                        <h1 class="page-title">Central de Materiais</h1>
                     </div>
-                    <h3 class="card-title">Este Mês</h3>
-                    <div class="card-value">0</div>
-                    <p class="card-description">Propostas enviadas no mês atual</p>
-                </div>
-            </div>
-
-            <div class="user-details">
-                <h2 class="details-title">Seus Dados</h2>
-                <div class="details-grid">
-                    <div class="detail-item">
-                        <span class="detail-label">Nome Completo</span>
-                        <span class="detail-value" id="userFullName">Carregando...</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">CPF</span>
-                        <span class="detail-value" id="userCpf">Carregando...</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">E-mail</span>
-                        <span class="detail-value" id="userEmail">Carregando...</span>
-                    </div>
-                    <div class="detail-item">
-                        <span class="detail-label">Cadastro</span>
-                        <span class="detail-value" id="userCreatedAt">Carregando...</span>
+                    
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Materiais de Divulgação</h3>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-folder-open" style="font-size: 3rem; margin-bottom: 1rem; color: var(--accent);"></i>
+                            <p>Materiais em breve...</p>
+                            <p style="margin-top: 1rem;">Acesse materiais de marketing e treinamento.</p>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="actions-section">
-                <div class="action-card" onclick="window.open('https://wa.me/5543988331584', '_blank')">
-                    <div class="action-icon">
-                        <i class="fab fa-whatsapp"></i>
+                <!-- Comissões Section -->
+                <div class="portal-section" id="comissoes">
+                    <div class="page-header">
+                        <h1 class="page-title">Comissões</h1>
                     </div>
-                    <h3 class="action-title">Suporte WhatsApp</h3>
-                    <p class="action-description">Fale conosco diretamente pelo WhatsApp para tirar dúvidas ou solicitar ajuda</p>
-                    <button class="action-btn">Abrir WhatsApp</button>
+                    
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h3 class="card-title">Minhas Comissões</h3>
+                        </div>
+                        
+                        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                            <i class="fas fa-dollar-sign" style="font-size: 3rem; margin-bottom: 1rem; color: var(--accent);"></i>
+                            <p>Nenhuma comissão disponível.</p>
+                            <p style="margin-top: 1rem;">Comissões aparecerão aqui após operações aprovadas.</p>
+                        </div>
+                    </div>
                 </div>
 
-                <div class="action-card" onclick="window.location.href='../simulador/simulador.html'">
-                    <div class="action-icon">
-                        <i class="fas fa-calculator"></i>
+                <!-- Meu Perfil / Suporte Section -->
+                <div class="portal-section" id="perfil-suporte">
+                    <div class="page-header">
+                        <h1 class="page-title">Meu Perfil / Suporte</h1>
                     </div>
-                    <h3 class="action-title">Simulador</h3>
-                    <p class="action-description">Use nosso simulador para calcular propostas de crédito para seus clientes</p>
-                    <button class="action-btn">Usar Simulador</button>
-                </div>
+                    
+                    <div class="user-details">
+                        <h2 class="details-title">Seus Dados</h2>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Nome Completo</span>
+                                <span class="detail-value" id="userFullName">Carregando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">CPF</span>
+                                <span class="detail-value" id="userCpf">Carregando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">E-mail</span>
+                                <span class="detail-value" id="userEmail">Carregando...</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Cadastro</span>
+                                <span class="detail-value" id="userCreatedAt">Carregando...</span>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="action-card">
-                    <div class="action-icon">
-                        <i class="fas fa-file-alt"></i>
+                    <div class="actions-section">
+                        <div class="action-card" onclick="window.open('https://wa.me/5543988331584', '_blank')">
+                            <div class="action-icon">
+                                <i class="fab fa-whatsapp"></i>
+                            </div>
+                            <h3 class="action-title">Suporte WhatsApp</h3>
+                            <p class="action-description">Fale conosco diretamente pelo WhatsApp para tirar dúvidas ou solicitar ajuda</p>
+                            <button class="action-btn">Abrir WhatsApp</button>
+                        </div>
+
+                        <div class="action-card" onclick="window.location.href='../simulador/simulador.html'">
+                            <div class="action-icon">
+                                <i class="fas fa-calculator"></i>
+                            </div>
+                            <h3 class="action-title">Simulador</h3>
+                            <p class="action-description">Use nosso simulador para calcular propostas de crédito para seus clientes</p>
+                            <button class="action-btn">Usar Simulador</button>
+                        </div>
+
+                        <div class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3 class="action-title">Materiais</h3>
+                            <p class="action-description">Acesse materiais de divulgação e treinamento para parceiros</p>
+                            <button class="action-btn">Ver Materiais</button>
+                        </div>
                     </div>
-                    <h3 class="action-title">Materiais</h3>
-                    <p class="action-description">Acesse materiais de divulgação e treinamento para parceiros</p>
-                    <button class="action-btn">Ver Materiais</button>
                 </div>
             </div>
         </div>
     </main>
+
+    <!-- Modal para Detalhes da Operação -->
+    <div class="modal-overlay" id="operacaoModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalhes da Operação</h3>
+                <button class="close-modal" onclick="closeOperacaoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content" id="operacaoModalContent">
+                <!-- Conteúdo será carregado dinamicamente -->
+            </div>
+        </div>
+    </div>
 
     <footer>
         <p>&copy; 2025 CredOn Brasil. Todos os direitos reservados.</p>
@@ -493,27 +2019,878 @@
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Portal do Parceiro inicializado');
             
-            // Animação de entrada rápida
-            const elements = [
-                '.welcome-section',
-                '.portal-grid .portal-card',
-                '.user-details',
-                '.actions-section .action-card'
-            ];
-            
-            elements.forEach((selector, index) => {
-                const els = document.querySelectorAll(selector);
-                els.forEach((el, i) => {
-                    el.style.opacity = '0';
-                    el.style.transform = 'translateY(15px)';
+            // Inicializar funcionalidades da sidebar
+            initSidebar();
+            initPageAnimations();
+        });
+
+        function initSidebar() {
+            const sidebar = document.getElementById('parceiroSidebar');
+            const sidebarToggle = document.getElementById('sidebarToggle');
+            const mainContent = document.getElementById('mainContent');
+            const navLinks = document.querySelectorAll('.sidebar-nav a');
+
+            // Toggle da sidebar
+            sidebarToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('sidebar-collapsed');
+                
+                const icon = sidebarToggle.querySelector('i');
+                if (sidebar.classList.contains('collapsed')) {
+                    icon.classList.remove('fa-chevron-left');
+                    icon.classList.add('fa-chevron-right');
+                } else {
+                    icon.classList.remove('fa-chevron-right');
+                    icon.classList.add('fa-chevron-left');
+                }
+            });
+
+            // Navegação entre seções
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
                     
-                    setTimeout(() => {
-                        el.style.transition = 'all 0.4s ease';
-                        el.style.opacity = '1';
-                        el.style.transform = 'translateY(0)';
-                    }, 50 + (index * 50) + (i * 20));
+                    const sectionName = link.dataset.section;
+                    showSection(sectionName);
+                    
+                    // Atualizar link ativo
+                    navLinks.forEach(l => l.classList.remove('active'));
+                    link.classList.add('active');
                 });
             });
+        }
+
+        function showSection(sectionName) {
+            // Esconder todas as seções
+            const sections = document.querySelectorAll('.portal-section');
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            // Mostrar seção específica
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                setTimeout(() => {
+                    targetSection.classList.add('active');
+                }, 50);
+            }
+            
+            // Atualizar título da página
+            const pageTitle = document.querySelector('.page-title');
+            const titles = {
+                'dashboard': 'Dashboard',
+                'nova-operacao': 'Nova Operação',
+                'minhas-operacoes': 'Minhas Operações', 
+                'central-materiais': 'Central de Materiais',
+                'comissoes': 'Comissões',
+                'perfil-suporte': 'Meu Perfil / Suporte'
+            };
+            
+            if (pageTitle && titles[sectionName]) {
+                pageTitle.textContent = titles[sectionName];
+            }
+        }
+
+        function initPageAnimations() {
+            // Animação de entrada suave para elementos
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, { threshold: 0.1 });
+            
+            // Observar elementos que devem animar
+            const animateElements = document.querySelectorAll('.portal-card, .content-card, .action-card');
+            animateElements.forEach(el => {
+                el.style.opacity = '0';
+                el.style.transform = 'translateY(20px)';
+                el.style.transition = 'all 0.4s ease';
+                observer.observe(el);
+            });
+        }
+
+        // Função de logout para compatibilidade
+        function logoutParceiro() {
+            PortalAPI.logout();
+        }
+
+        // =============================================
+        // WIZARD DE OPERAÇÕES
+        // =============================================
+
+        let currentStep = 1;
+        let maxStep = 6;
+        let operacaoData = {};
+        let uploadedFiles = {};
+
+        // Inicializar wizard quando a seção for ativada
+        function initWizard() {
+            setupFormValidation();
+            setupFileUploads();
+            setupCalculations();
+            setupConditionalFields();
+            updateNavigationButtons();
+        }
+
+        // Navegar entre etapas
+        function changeStep(direction) {
+            const nextStep = currentStep + direction;
+            
+            if (direction > 0) {
+                // Validar etapa atual antes de avançar
+                if (!validateStep(currentStep)) {
+                    return false;
+                }
+            }
+            
+            if (nextStep >= 1 && nextStep <= maxStep) {
+                // Ocultar etapa atual
+                document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.remove('active');
+                
+                currentStep = nextStep;
+                
+                // Mostrar nova etapa
+                document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
+                document.querySelector(`.wizard-step[data-step="${currentStep}"]`).classList.add('active');
+                
+                // Atualizar indicadores de progresso
+                updateProgressIndicators();
+                updateNavigationButtons();
+                
+                // Ações especiais por etapa
+                if (currentStep === 4) {
+                    updateOperationCalculations();
+                }
+                if (currentStep === 6) {
+                    updateReviewSection();
+                }
+            }
+        }
+
+        // Validar etapa atual
+        function validateStep(step) {
+            const stepElement = document.querySelector(`.wizard-step[data-step="${step}"]`);
+            const requiredFields = stepElement.querySelectorAll('input[required], select[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.style.borderColor = '#ef4444';
+                    isValid = false;
+                } else {
+                    field.style.borderColor = 'var(--line-color)';
+                }
+            });
+            
+            // Validação especial para upload de documentos (etapa 5)
+            if (step === 5) {
+                const requiredUploads = stepElement.querySelectorAll('input[type="file"][required]');
+                requiredUploads.forEach(upload => {
+                    if (!upload.files.length) {
+                        upload.style.borderColor = '#ef4444';
+                        isValid = false;
+                    }
+                });
+            }
+            
+            if (!isValid) {
+                alert('Por favor, preencha todos os campos obrigatórios.');
+            }
+            
+            return isValid;
+        }
+
+        // Atualizar indicadores de progresso
+        function updateProgressIndicators() {
+            document.querySelectorAll('.step-indicator').forEach((indicator, index) => {
+                const stepNumber = index + 1;
+                indicator.classList.remove('active', 'completed');
+                
+                if (stepNumber < currentStep) {
+                    indicator.classList.add('completed');
+                } else if (stepNumber === currentStep) {
+                    indicator.classList.add('active');
+                }
+            });
+        }
+
+        // Atualizar botões de navegação
+        function updateNavigationButtons() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            prevBtn.style.display = currentStep === 1 ? 'none' : 'block';
+            
+            if (currentStep === maxStep) {
+                nextBtn.style.display = 'none';
+                submitBtn.style.display = 'block';
+            } else {
+                nextBtn.style.display = 'block';
+                submitBtn.style.display = 'none';
+            }
+        }
+
+        // Configurar campos condicionais
+        function setupConditionalFields() {
+            // Mostrar/ocultar campos do cônjuge
+            const casadoCheckbox = document.querySelector('input[name="cliente_casado"]');
+            const conjugeSection = document.getElementById('conjuge-section');
+            const conjugeUpload = document.querySelector('.conjuge-doc');
+            
+            casadoCheckbox.addEventListener('change', function() {
+                if (this.checked) {
+                    conjugeSection.style.display = 'block';
+                    conjugeUpload.style.display = 'block';
+                } else {
+                    conjugeSection.style.display = 'none';
+                    conjugeUpload.style.display = 'none';
+                    // Limpar campos do cônjuge
+                    document.querySelector('input[name="cliente_conjuge_nome"]').value = '';
+                    document.querySelector('input[name="cliente_conjuge_cpf"]').value = '';
+                }
+            });
+        }
+
+        // Configurar cálculos da operação
+        function setupCalculations() {
+            const valorImovelInput = document.querySelector('input[name="imovel_valor_estimado"]');
+            const valorPretendidoInput = document.querySelector('input[name="operacao_valor_pretendido"]');
+            
+            valorImovelInput.addEventListener('input', function() {
+                // Copiar valor para etapa 4
+                document.querySelector('input[name="operacao_valor_imovel"]').value = this.value;
+                updateOperationCalculations();
+            });
+            
+            valorPretendidoInput.addEventListener('input', updateOperationCalculations);
+        }
+
+        // Atualizar cálculos da operação
+        function updateOperationCalculations() {
+            const valorImovel = parseFloat(document.querySelector('input[name="operacao_valor_imovel"]').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const valorPretendido = parseFloat(document.querySelector('input[name="operacao_valor_pretendido"]').value.replace(/[^\d,]/g, '').replace(',', '.')) || 0;
+            const valorMaximo = valorImovel * 0.5;
+            
+            document.getElementById('calc-valor-imovel').textContent = formatMoney(valorImovel);
+            document.getElementById('calc-valor-maximo').textContent = formatMoney(valorMaximo);
+            document.getElementById('calc-valor-solicitado').textContent = formatMoney(valorPretendido);
+            
+            // Verificar se valor pretendido está dentro do limite
+            const valorPretendidoField = document.querySelector('input[name="operacao_valor_pretendido"]');
+            if (valorPretendido > valorMaximo) {
+                valorPretendidoField.style.borderColor = '#ef4444';
+                alert('O valor pretendido não pode ser maior que 50% do valor do imóvel.');
+            } else {
+                valorPretendidoField.style.borderColor = 'var(--line-color)';
+            }
+        }
+
+        // Configurar uploads de arquivos
+        function setupFileUploads() {
+            document.querySelectorAll('input[type="file"]').forEach(input => {
+                input.addEventListener('change', handleFileUpload);
+            });
+        }
+
+        // Gerenciar upload de arquivo
+        async function handleFileUpload(event) {
+            const input = event.target;
+            const files = input.files;
+            const fieldName = input.name;
+            const statusElement = input.parentElement.querySelector('.upload-status');
+            
+            if (files.length === 0) return;
+            
+            statusElement.textContent = 'Enviando...';
+            statusElement.className = 'upload-status';
+            statusElement.style.display = 'block';
+            
+            try {
+                // Simular upload - converter para base64 ou enviar para serviço
+                const uploadedLinks = [];
+                
+                for (let file of files) {
+                    // Validar tamanho (5MB)
+                    if (file.size > 5 * 1024 * 1024) {
+                        throw new Error(`Arquivo ${file.name} muito grande. Máximo 5MB.`);
+                    }
+                    
+                    // Simular upload - gerar link fictício
+                    const fileExtension = file.name.split('.').pop();
+                    const fileName = `${fieldName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
+                    const mockLink = `https://storage.credonbrasil.com/docs/${fileName}`;
+                    
+                    uploadedLinks.push(mockLink);
+                }
+                
+                // Armazenar links dos arquivos
+                uploadedFiles[fieldName] = uploadedLinks.join(',');
+                
+                statusElement.textContent = `${files.length} arquivo(s) enviado(s)`;
+                statusElement.className = 'upload-status success';
+                
+            } catch (error) {
+                console.error('Erro no upload:', error);
+                statusElement.textContent = error.message;
+                statusElement.className = 'upload-status error';
+            }
+        }
+
+        // Atualizar seção de revisão
+        function updateReviewSection() {
+            const formData = new FormData(document.getElementById('operacaoForm'));
+            
+            // Tipo de operação
+            const tipo = formData.get('tipo_operacao');
+            document.getElementById('review-tipo').textContent = 
+                tipo === 'home_equity' ? 'Home Equity' : 'Aquisição de Imóvel';
+            
+            // Dados do cliente
+            document.getElementById('review-cliente-nome').textContent = formData.get('cliente_nome_completo');
+            document.getElementById('review-cliente-cpf').textContent = formData.get('cliente_cpf');
+            document.getElementById('review-cliente-telefone').textContent = formData.get('cliente_telefone');
+            document.getElementById('review-cliente-email').textContent = formData.get('cliente_email');
+            
+            // Dados do imóvel
+            document.getElementById('review-imovel-tipo').textContent = formData.get('imovel_tipo');
+            document.getElementById('review-imovel-cidade').textContent = `${formData.get('imovel_cidade')}/${formData.get('imovel_uf')}`;
+            document.getElementById('review-imovel-valor').textContent = formatMoney(parseFloat(formData.get('imovel_valor_estimado').replace(/[^\d,]/g, '').replace(',', '.')) || 0);
+            document.getElementById('review-imovel-situacao').textContent = formData.get('imovel_situacao');
+            
+            // Dados da operação
+            document.getElementById('review-valor-pretendido').textContent = formatMoney(parseFloat(formData.get('operacao_valor_pretendido').replace(/[^\d,]/g, '').replace(',', '.')) || 0);
+            document.getElementById('review-finalidade').textContent = formData.get('operacao_finalidade');
+            document.getElementById('review-prazo').textContent = formData.get('operacao_prazo_desejado');
+            
+            // Documentos
+            const docsElement = document.getElementById('review-documentos');
+            const uploadedCount = Object.keys(uploadedFiles).length;
+            docsElement.innerHTML = uploadedCount > 0 ? 
+                `<span style="color: var(--accent);">${uploadedCount} categoria(s) de documentos enviada(s)</span>` :
+                '<span style="color: #ef4444;">Nenhum documento enviado</span>';
+        }
+
+        // Salvar como rascunho
+        async function salvarRascunho() {
+            try {
+                // Obter dados do usuário logado
+                const userData = window.AuthManager.getUserData();
+                if (!userData || !userData.id) {
+                    alert('Erro: Usuário não identificado. Faça login novamente.');
+                    return;
+                }
+                
+                // Coletar dados do formulário excluindo campos de arquivo
+                const form = document.getElementById('operacaoForm');
+                const formData = new FormData(form);
+                const operacaoData = {
+                    parceiro_id: userData.id, // Incluir ID do parceiro
+                    status_operacao: 'rascunho',
+                    aceite_lgpd: 0,
+                    aceite_declaracao: 0
+                };
+                
+                // Converter FormData para objeto, filtrando campos de arquivo
+                for (let [key, value] of formData.entries()) {
+                    const inputElement = form.querySelector(`[name="${key}"]`);
+                    
+                    // Filtrar campos de arquivo - NÃO enviar objetos File
+                    if (inputElement && inputElement.type === 'file') {
+                        // Ignorar completamente - os arquivos já foram processados em uploadedFiles
+                        continue;
+                    }
+                    
+                    // Processar outros campos normalmente
+                    if (value && value.toString().trim() !== '') {
+                        operacaoData[key] = value;
+                    }
+                }
+                
+                // Adicionar arquivos enviados
+                Object.assign(operacaoData, uploadedFiles);
+                
+                // VALIDAÇÃO CRÍTICA: Garantir que nenhum objeto File seja enviado
+                for (const [key, value] of Object.entries(operacaoData)) {
+                    if (value && typeof value === 'object' && value instanceof File) {
+                        console.warn(`Removendo objeto File do campo ${key}`);
+                        delete operacaoData[key];
+                    }
+                }
+                
+                console.log('Salvando rascunho:', operacaoData);
+                
+                // Verificar se tem dados mínimos necessários
+                if (!operacaoData.tipo_operacao) {
+                    alert('Por favor, selecione o tipo de operação antes de salvar.');
+                    return;
+                }
+                
+                // Usar a API real
+                const response = await window.PortalAPI.criarOperacao(operacaoData);
+                
+                alert(`Rascunho salvo com sucesso! ID: ${response.id}`);
+                
+                // Atualizar lista de operações se estiver na seção
+                if (document.querySelector('.portal-section.active').id === 'minhasOperacoesSection') {
+                    await loadMinhasOperacoes();
+                }
+                
+            } catch (error) {
+                console.error('Erro ao salvar rascunho:', error);
+                alert(`Erro ao salvar rascunho: ${error.message}`);
+            }
+        }
+
+        // Enviar operação
+        async function enviarOperacao() {
+            if (!validateStep(6)) return;
+            
+            try {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = true;
+                    submitBtn.textContent = 'Enviando...';
+                }
+                // Obter dados do usuário logado
+                const userData = window.AuthManager.getUserData();
+                if (!userData || !userData.id) {
+                    alert('Erro: Usuário não identificado. Faça login novamente.');
+                    return;
+                }
+                
+                // Coletar dados do formulário excluindo campos de arquivo
+                const form = document.getElementById('operacaoForm');
+                const formData = new FormData(form);
+                const operacaoData = {
+                    parceiro_id: userData.id, // Incluir ID do parceiro
+                    status_operacao: 'recebida',
+                    aceite_lgpd: 1,
+                    aceite_declaracao: 1
+                };
+                
+                // Converter FormData para objeto, filtrando campos de arquivo
+                for (let [key, value] of formData.entries()) {
+                    const inputElement = form.querySelector(`[name="${key}"]`);
+                    
+                    // Filtrar campos de arquivo - NÃO enviar objetos File
+                    if (inputElement && inputElement.type === 'file') {
+                        // Ignorar completamente - os arquivos já foram processados em uploadedFiles
+                        continue;
+                    }
+                    
+                    // Processar outros campos normalmente
+                    if (value && value.toString().trim() !== '') {
+                        operacaoData[key] = value;
+                    }
+                }
+                
+                // Adicionar arquivos enviados
+                Object.assign(operacaoData, uploadedFiles);
+                
+                // VALIDAÇÃO CRÍTICA: Garantir que nenhum objeto File seja enviado
+                for (const [key, value] of Object.entries(operacaoData)) {
+                    if (value && typeof value === 'object' && value instanceof File) {
+                        console.warn(`Removendo objeto File do campo ${key}`);
+                        delete operacaoData[key];
+                    }
+                }
+                
+                console.log('Enviando operação:', operacaoData);
+                
+                // Usar a API real
+                const response = await window.PortalAPI.criarOperacao(operacaoData);
+
+                if (response && response.id) {
+                    alert(`Operação enviada com sucesso! ID: ${response.id}. Você pode acompanhar o status na seção "Minhas Operações".`);
+                } else {
+                    alert('Operação enviada com sucesso!');
+                }
+                
+                // Resetar formulário e voltar para dashboard
+                resetWizard();
+                showSection('dashboard');
+                
+                // Atualizar lista de operações se estiver na seção
+                if (document.querySelector('.portal-section.active').id === 'minhasOperacoesSection') {
+                    await loadMinhasOperacoes();
+                }
+                
+            } catch (error) {
+                console.error('Erro ao enviar operação:', error);
+                alert(`Erro ao enviar operação: ${error.message}`);
+            } finally {
+                const submitBtn = document.getElementById('submitBtn');
+                if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.textContent = 'Enviar Operação';
+                }
+            }
+        }
+
+        // Resetar wizard
+        function resetWizard() {
+            currentStep = 1;
+            operacaoData = {};
+            uploadedFiles = {};
+            document.getElementById('operacaoForm').reset();
+            updateProgressIndicators();
+            updateNavigationButtons();
+            
+            // Mostrar primeira etapa
+            document.querySelectorAll('.wizard-step').forEach(step => step.classList.remove('active'));
+            document.querySelector('.wizard-step[data-step="1"]').classList.add('active');
+        }
+
+        // Configurar validação de formulário
+        function setupFormValidation() {
+            // Máscaras de input
+            const cpfInputs = document.querySelectorAll('input[name$="_cpf"]');
+            cpfInputs.forEach(input => {
+                // Ignorar inputs de arquivo
+                if (input.type === 'file') return;
+                
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d)/, '$1.$2');
+                    value = value.replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+                    e.target.value = value;
+                });
+            });
+            
+            const phoneInputs = document.querySelectorAll('input[name$="_telefone"]');
+            phoneInputs.forEach(input => {
+                // Ignorar inputs de arquivo
+                if (input.type === 'file') return;
+                
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = value.replace(/(\d{2})(\d)/, '($1) $2');
+                    value = value.replace(/(\d{5})(\d)/, '$1-$2');
+                    e.target.value = value;
+                });
+            });
+            
+            const moneyInputs = document.querySelectorAll('.money-input');
+            moneyInputs.forEach(input => {
+                // Ignorar inputs de arquivo
+                if (input.type === 'file') return;
+                
+                input.addEventListener('input', function(e) {
+                    let value = e.target.value.replace(/\D/g, '');
+                    value = (value / 100).toLocaleString('pt-BR', {
+                        style: 'currency',
+                        currency: 'BRL'
+                    });
+                    e.target.value = value;
+                });
+            });
+        }
+
+        // Formatar dinheiro
+        function formatMoney(value) {
+            return value.toLocaleString('pt-BR', {
+                style: 'currency',
+                currency: 'BRL'
+            });
+        }
+
+        // Observar mudanças de seção
+        const originalShowSection = showSection;
+        showSection = function(sectionName) {
+            originalShowSection(sectionName);
+            
+            if (sectionName === 'nova-operacao') {
+                setTimeout(() => {
+                    initWizard();
+                }, 100);
+            } else if (sectionName === 'minhas-operacoes') {
+                setTimeout(() => {
+                    loadMinhasOperacoes();
+                }, 100);
+            }
+        };
+
+        // =============================================
+        // MINHAS OPERAÇÕES
+        // =============================================
+
+        let operacoesData = [];
+
+        // Carregar lista de operações
+        async function loadMinhasOperacoes() {
+            try {
+                console.log('Carregando operações do parceiro...');
+                
+                // Usar a API real
+                const response = await window.PortalAPI.listarOperacoes();
+                
+                operacoesData = response.operacoes || [];
+                
+                console.log('Operações carregadas:', operacoesData);
+                
+                // Atualizar estatísticas
+                if (response.estatisticas) {
+                    updateOperacoesStats(response.estatisticas);
+                }
+                
+                // Renderizar lista
+                renderOperacoesList();
+                
+            } catch (error) {
+                console.error('Erro ao carregar operações:', error);
+                
+                // Em caso de erro, mostrar estado vazio
+                operacoesData = [];
+                showEmptyState();
+                
+                // Mostrar erro temporário
+                const tableBody = document.querySelector('.table-body');
+                if (tableBody) {
+                    tableBody.innerHTML = `
+                        <div class="table-row empty-state">
+                            <div class="empty-content">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <p>Erro ao carregar operações: ${error.message}</p>
+                                <button onclick="loadMinhasOperacoes()" class="action-btn">
+                                    <i class="fas fa-sync"></i> Tentar Novamente
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // Renderizar lista de operações
+        function renderOperacoesList(filteredData = null) {
+            const data = filteredData || operacoesData;
+            const tbody = document.getElementById('operations-tbody');
+            
+            if (!tbody) {
+                console.error('Elemento operations-tbody não encontrado');
+                return;
+            }
+            
+            if (data.length === 0) {
+                showEmptyState();
+                return;
+            }
+            
+            tbody.innerHTML = data.map(operacao => `
+                <div class="table-row">
+                    <div class="td">#${operacao.id.toString().padStart(4, '0')}</div>
+                    <div class="td">${operacao.cliente_nome_completo || 'N/A'}</div>
+                    <div class="td">${operacao.tipo_operacao === 'home_equity' ? 'Home Equity' : 'Aquisição'}</div>
+                    <div class="td">${window.PortalAPI ? window.PortalAPI.formatMoney(operacao.operacao_valor_pretendido) : 'R$ 0,00'}</div>
+                    <div class="td">
+                        <span class="status-badge status-${operacao.status_operacao}">
+                            ${window.PortalAPI ? window.PortalAPI.getStatusLabel(operacao.status_operacao) : operacao.status_operacao}
+                        </span>
+                    </div>
+                    <div class="td">${window.PortalAPI ? window.PortalAPI.formatDate(operacao.updated_at || operacao.created_at) : 'N/A'}</div>
+                    <div class="td">
+                        <div class="action-buttons">
+                            <button class="action-btn-small view" onclick="viewOperacao(${operacao.id})">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${operacao.status_operacao === 'rascunho' ? `
+                                <button class="action-btn-small edit" onclick="editOperacao(${operacao.id})">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                            ` : ''}
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Mostrar estado vazio
+        function showEmptyState() {
+            const tbody = document.getElementById('operations-tbody');
+            tbody.innerHTML = `
+                <div class="table-row empty-state">
+                    <div class="empty-content">
+                        <i class="fas fa-list-ul"></i>
+                        <p>Nenhuma operação encontrada.</p>
+                        <button class="action-btn" onclick="showSection('nova-operacao')">
+                            Criar Primeira Operação
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Atualizar estatísticas
+        function updateOperacoesStats(stats = null) {
+            let total, rascunho, em_analise, aprovadas;
+            
+            if (stats) {
+                // Usar estatísticas da API
+                total = stats.total || 0;
+                rascunho = stats.rascunho || 0;
+                em_analise = (stats.em_analise || 0) + (stats.recebida || 0) + (stats.pendencia_docs || 0);
+                aprovadas = stats.aprovada || 0;
+            } else {
+                // Calcular das operações carregadas
+                total = operacoesData.length;
+                rascunho = operacoesData.filter(op => op.status_operacao === 'rascunho').length;
+                em_analise = operacoesData.filter(op => ['recebida', 'em_analise', 'pendencia_docs'].includes(op.status_operacao)).length;
+                aprovadas = operacoesData.filter(op => op.status_operacao === 'aprovada').length;
+            }
+            
+            // Atualizar elementos da interface
+            const totalEl = document.querySelector('[data-stat="total"] .stat-value');
+            const rascunhoEl = document.querySelector('[data-stat="rascunho"] .stat-value');
+            const analiseEl = document.querySelector('[data-stat="analise"] .stat-value');
+            const aprovadasEl = document.querySelector('[data-stat="aprovadas"] .stat-value');
+            
+            if (totalEl) totalEl.textContent = total;
+            if (rascunhoEl) rascunhoEl.textContent = rascunho;
+            if (analiseEl) analiseEl.textContent = em_analise;
+            if (aprovadasEl) aprovadasEl.textContent = aprovadas;
+        }
+
+        // Obter rótulo do status
+        function getStatusLabel(status) {
+            const labels = {
+                'rascunho': 'Rascunho',
+                'recebida': 'Recebida',
+                'em_analise': 'Em Análise',
+                'pendencia_docs': 'Pendência',
+                'aprovada': 'Aprovada',
+                'recusada': 'Recusada',
+                'cancelada': 'Cancelada'
+            };
+            return labels[status] || status;
+        }
+
+        // Visualizar operação
+        async function viewOperacao(id) {
+            try {
+                // Buscar dados completos da operação via API
+                const response = await window.PortalAPI.buscarOperacao(id);
+                const operacao = response.operacao;
+                
+                if (!operacao) {
+                    alert('Operação não encontrada');
+                    return;
+                }
+                
+                const modalContent = document.getElementById('operacaoModalContent');
+                modalContent.innerHTML = `
+                    <div class="detail-section">
+                        <h4>Informações Gerais</h4>
+                        <div class="review-grid">
+                            <p><strong>Nº da Operação:</strong> #${operacao.id.toString().padStart(4, '0')}</p>
+                            <p><strong>Tipo:</strong> ${operacao.tipo_operacao === 'home_equity' ? 'Home Equity' : 'Aquisição de Imóvel'}</p>
+                            <p><strong>Status:</strong> <span class="status-badge status-${operacao.status_operacao}">${window.PortalAPI.getStatusLabel(operacao.status_operacao)}</span></p>
+                            <p><strong>Valor Pretendido:</strong> ${window.PortalAPI.formatMoney(operacao.operacao_valor_pretendido)}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Dados do Cliente</h4>
+                        <div class="review-grid">
+                            <p><strong>Nome:</strong> ${operacao.cliente_nome_completo}</p>
+                            <p><strong>CPF:</strong> ${operacao.cliente_cpf}</p>
+                            <p><strong>Telefone:</strong> ${operacao.cliente_telefone || 'Não informado'}</p>
+                            <p><strong>Email:</strong> ${operacao.cliente_email || 'Não informado'}</p>
+                            <p><strong>Profissão:</strong> ${operacao.cliente_profissao || 'Não informado'}</p>
+                            <p><strong>Renda:</strong> ${operacao.cliente_renda_faixa || 'Não informado'}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Dados do Imóvel</h4>
+                        <div class="review-grid">
+                            <p><strong>Tipo:</strong> ${operacao.imovel_tipo}</p>
+                            <p><strong>Localização:</strong> ${operacao.imovel_cidade}/${operacao.imovel_uf}</p>
+                            <p><strong>Endereço:</strong> ${operacao.imovel_endereco_completo}</p>
+                            <p><strong>Valor Estimado:</strong> ${window.PortalAPI.formatMoney(operacao.imovel_valor_estimado)}</p>
+                            <p><strong>Situação:</strong> ${operacao.imovel_situacao === 'quitado' ? 'Quitado' : 'Financiado'}</p>
+                            <p><strong>Titular:</strong> ${operacao.imovel_titular}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Detalhes da Operação</h4>
+                        <div class="review-grid">
+                            <p><strong>Valor do Imóvel:</strong> ${window.PortalAPI.formatMoney(operacao.operacao_valor_imovel)}</p>
+                            <p><strong>Valor Pretendido:</strong> ${window.PortalAPI.formatMoney(operacao.operacao_valor_pretendido)}</p>
+                            <p><strong>Finalidade:</strong> ${operacao.operacao_finalidade}</p>
+                            <p><strong>Prazo Desejado:</strong> ${operacao.operacao_prazo_desejado}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="detail-section">
+                        <h4>Histórico</h4>
+                        <div class="review-grid">
+                            <p><strong>Criado em:</strong> ${window.PortalAPI.formatDate(operacao.created_at)}</p>
+                            <p><strong>Última atualização:</strong> ${window.PortalAPI.formatDate(operacao.updated_at)}</p>
+                            ${operacao.enviado_em ? `<p><strong>Enviado em:</strong> ${window.PortalAPI.formatDate(operacao.enviado_em)}</p>` : ''}
+                        </div>
+                    </div>
+                    
+                    ${operacao.status_operacao === 'pendencia_docs' ? `
+                        <div class="detail-section">
+                            <h4>Documentos Pendentes</h4>
+                            <p style="color: #ef4444;">• Verificar documentos exigidos</p>
+                            <button class="action-btn" style="margin-top: 1rem;" onclick="showSection('nova-operacao')">
+                                <i class="fas fa-edit"></i> Completar Operação
+                            </button>
+                        </div>
+                    ` : ''}
+                `;
+                
+                document.getElementById('operacaoModal').classList.add('show');
+                
+            } catch (error) {
+                console.error('Erro ao visualizar operação:', error);
+                alert(`Erro ao carregar detalhes da operação: ${error.message}`);
+            }
+        }
+
+        // Editar operação
+        function editOperacao(id) {
+            alert('Funcionalidade de edição em desenvolvimento.');
+        }
+
+        // Fechar modal
+        function closeOperacaoModal() {
+            document.getElementById('operacaoModal').classList.remove('show');
+        }
+
+        // Filtrar operações
+        function setupOperacoesFilter() {
+            const filterSelect = document.getElementById('status-filter');
+            if (filterSelect) {
+                filterSelect.addEventListener('change', function() {
+                    const status = this.value;
+                    if (status === '') {
+                        renderOperacoesList();
+                    } else {
+                        const filtered = operacoesData.filter(op => op.status_operacao === status);
+                        renderOperacoesList(filtered);
+                    }
+                });
+            }
+        }
+
+        // Formatar data
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('pt-BR') + ' às ' + date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        // Configurar filtros quando a página carregar
+        document.addEventListener('DOMContentLoaded', function() {
+            setupOperacoesFilter();
         });
     </script>
 </body>
