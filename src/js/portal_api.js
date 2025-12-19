@@ -123,6 +123,15 @@
         // Continua usando dados do localStorage se a API falhar
       }
 
+      // Carregar estatísticas das operações
+      try {
+        await listarOperacoes();
+      } catch (operError) {
+        console.warn('Erro ao carregar estatísticas das operações:', operError);
+        // Inicializar com valores zerados se falhar
+        updateDashboardStats([]);
+      }
+
     } catch (error) {
       console.error('Erro ao carregar dados do usuário:', error);
       showError('Erro ao carregar dados do usuário');
@@ -293,6 +302,74 @@
   }
 
   /**
+   * Atualizar estatísticas do dashboard
+   * @param {Array} operacoes - Array de operações do parceiro
+   * @param {Object} estatisticas - Estatísticas calculadas pelo backend
+   */
+  function updateDashboardStats(operacoes = [], estatisticas = null) {
+    let elementos;
+    
+    if (estatisticas) {
+      // Usar estatísticas do backend se disponíveis
+      const aprovadas = operacoes.filter(op => op.status_operacao === 'aprovada');
+      const comissaoTotal = aprovadas.reduce((total, op) => {
+        const valor = parseFloat(op.operacao_valor_pretendido || 0);
+        return total + (valor * 0.02); // 2% de comissão
+      }, 0);
+      
+      // Propostas enviadas este mês
+      const agora = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+      const enviadasEsteMes = operacoes.filter(op => {
+        const dataOperacao = new Date(op.created_at);
+        return dataOperacao >= inicioMes;
+      }).length;
+      
+      elementos = {
+        'propostasEnviadas': estatisticas.total || 0,
+        'propostasAprovadas': estatisticas.aprovada || 0,
+        'comissaoTotal': `R$ ${comissaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        'enviadasEsteMes': enviadasEsteMes
+      };
+    } else {
+      // Fallback - calcular manualmente
+      const totalEnviadas = operacoes.length;
+      
+      const aprovadas = operacoes.filter(op => op.status_operacao === 'aprovada');
+      const totalAprovadas = aprovadas.length;
+      
+      const comissaoTotal = aprovadas.reduce((total, op) => {
+        const valor = parseFloat(op.operacao_valor_pretendido || 0);
+        return total + (valor * 0.02);
+      }, 0);
+      
+      const agora = new Date();
+      const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
+      const enviadasEsteMes = operacoes.filter(op => {
+        const dataOperacao = new Date(op.created_at);
+        return dataOperacao >= inicioMes;
+      }).length;
+
+      elementos = {
+        'propostasEnviadas': totalEnviadas,
+        'propostasAprovadas': totalAprovadas,
+        'comissaoTotal': `R$ ${comissaoTotal.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`,
+        'enviadasEsteMes': enviadasEsteMes
+      };
+    }
+
+    // Atualizar elementos do dashboard
+    Object.entries(elementos).forEach(([id, value]) => {
+      const el = document.querySelector(`[data-stat="${id}"]`) || document.getElementById(id);
+      if (el) {
+        el.textContent = value;
+      }
+    });
+
+    console.log('Dashboard atualizado:', elementos);
+  }
+
+  /**
    * Listar operações do parceiro
    * @returns {Promise<Object>} Lista de operações e estatísticas
    */
@@ -315,6 +392,9 @@
       if (!response.ok) {
         throw new Error(data.message || `Erro ${response.status}`);
       }
+
+      // Atualizar dashboard com dados das operações
+      updateDashboardStats(data.operacoes || [], data.estatisticas);
 
       return data;
     } catch (error) {
@@ -442,7 +522,8 @@
     buscarOperacao,
     atualizarOperacao,
     formatMoney,
-    getStatusLabel
+    getStatusLabel,
+    updateDashboardStats
   };
 
   // Auto-inicialização quando o DOM estiver pronto

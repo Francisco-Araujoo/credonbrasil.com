@@ -9,6 +9,15 @@ class AdminAPI {
     static currentPreCadastro = null;
     static currentOperacao = null;
 
+    // Status map para operações
+    static statusMap = {
+        'pendente': 'Pendente',
+        'em_analise': 'Em Análise', 
+        'aprovada': 'Aprovada',
+        'recusada': 'Recusada',
+        'cancelada': 'Cancelada'
+    };
+
     // Funções utilitárias de formatação
     static formatCPF(cpf) {
         if (!cpf || cpf.trim() === '') return 'Não informado';
@@ -118,77 +127,54 @@ class AdminAPI {
             if (!response.ok) throw new Error(`HTTP ${response.status}`);
             const data = await response.json();
             this.operacoes = data.operacoes || [];
-            this.renderOperacoes();
+            this.renderOperacoesList();
+            this.updateStatsDisplay(); // Atualizar estatísticas após carregar operações
         } catch (err) {
             console.error('Erro ao carregar operações:', err);
             this.showError('Erro ao carregar propostas');
         }
     }
 
-    static renderOperacoes() {
-        const listEl = document.getElementById('operacoesList');
-        if (!listEl) return;
-
-        if (!this.operacoes.length) {
-            listEl.innerHTML = `
-                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
-                    <i class="fas fa-file-alt" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.3;"></i>
-                    <p>Nenhuma proposta encontrada</p>
-                </div>
-            `;
-            return;
-        }
-
-        const html = this.operacoes.map(op => {
-            const created = this.formatDate(op.created_at);
-            const valor = this.formatCurrency(op.operacao_valor_pretendido);
-            const status = this.getStatusTextOperacao(op.status_operacao);
-            return `
-                <div class="pre-cadastro-card" data-id="${op.id}" onclick="AdminAPI.viewOperacao(${op.id})">
-                    <div class="pre-main-info">
-                        <div class="pre-person-info">
-                            <h3>${this.sanitizeHTML(op.cliente_nome_completo)} <small style="color: var(--text-muted); font-weight: 400;">(${this.sanitizeHTML(op.tipo_operacao)})</small></h3>
-                            <div class="email">Parceiro: ${this.sanitizeHTML(op.parceiro_nome)} &lt;${this.sanitizeHTML(op.parceiro_email)}&gt;</div>
-                            <div class="date">Criada em: ${created}</div>
-                        </div>
-                        <div class="pre-status">
-                            <span class="status-badge status-${op.status_operacao}">${status}</span>
-                        </div>
-                        <div class="pre-actions" onclick="event.stopPropagation()">
-                            <button class="action-btn success" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'aprovada')"><i class="fas fa-check"></i> Aceitar</button>
-                            <button class="action-btn danger" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'recusada')"><i class="fas fa-times"></i> Recusar</button>
-                        </div>
-                    </div>
-                    <div class="pre-business-info">
-                        <div class="info-item"><span class="info-label">CPF</span><span class="info-value">${this.formatCPF(op.cliente_cpf)}</span></div>
-                        <div class="info-item"><span class="info-label">Valor Pretendido</span><span class="info-value">${valor}</span></div>
-                        <div class="info-item"><span class="info-label">Status</span><span class="info-value">${status}</span></div>
-                    </div>
-                </div>
-            `;
-        }).join('');
-
-        listEl.innerHTML = html;
-    }
-
     static async viewOperacao(operacaoId) {
         if (!this.currentAdmin) return;
+        
+        // Mostrar modal rapidamente com loading
+        const modal = document.getElementById('operacaoModal');
+        if (modal) {
+            modal.style.display = 'block';
+            modal.classList.add('show');
+            
+            // Mostrar indicador de carregamento
+            const docContainer = document.getElementById('opDocumentosContainer');
+            if (docContainer) {
+                docContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando proposta...</div>';
+            }
+        }
+        
         try {
             const params = new URLSearchParams({ adminId: this.currentAdmin.id, operacaoId });
-            const resp = await fetch(`${this.API_BASE_URL}/admin/operacoes/view?${params.toString()}`, { method: 'GET', headers: { 'Content-Type': 'application/json' } });
+            const resp = await fetch(`${this.API_BASE_URL}/admin/operacoes/view?${params.toString()}`, { 
+                method: 'GET', 
+                headers: { 'Content-Type': 'application/json' }
+            });
+            
             if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+            
             const data = await resp.json();
             this.currentOperacao = data.operacao;
-            this.showOperacaoModal();
+            
+            // Preencher dados após carregar
+            this.fillOperacaoModal();
+            
         } catch (err) {
             console.error('Erro ao buscar operação:', err);
             this.showError('Erro ao carregar dados da proposta');
+            this.closeOperacaoModal();
         }
     }
 
-    static showOperacaoModal() {
-        const modal = document.getElementById('operacaoModal');
-        if (!modal || !this.currentOperacao) return;
+    static fillOperacaoModal() {
+        if (!this.currentOperacao) return;
 
         // Preencher campos básicos
         const op = this.currentOperacao;
@@ -203,74 +189,30 @@ class AdminAPI {
         setText('opValorImovel', this.formatCurrency(op.operacao_valor_imovel));
         setText('opImovel', `${op.imovel_tipo || ''} - ${op.imovel_cidade || ''}/${op.imovel_uf || ''}`);
 
-        // Galeria de imagens / documentos - exibir como imagens clicáveis
-        const gallery = document.getElementById('opDocsGallery');
-        if (gallery) {
-            const docFields = [
-                'docs_cliente_rg_cnh','docs_cliente_cpf','docs_cliente_renda','docs_cliente_residencia',
-                'docs_cliente_extratos','docs_cliente_conjuge','docs_imovel_matricula','docs_imovel_iptu',
-                'docs_imovel_escritura','docs_imovel_fotos','docs_outros'
-            ];
-            const urls = [];
-            docFields.forEach(f => {
-                if (op[f]) {
-                    const parts = String(op[f]).split(',').map(s => s.trim()).filter(Boolean);
-                    urls.push(...parts);
-                }
-            });
-            if (!urls.length) {
-                gallery.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Nenhum documento foi enviado</div>';
-            } else {
-                gallery.innerHTML = urls.map((url, index) => {
-                    const cleanUrl = this.sanitizeURL(url);
-                    return `
-                        <div style="display: inline-block; margin: 10px; cursor: pointer; position: relative;" onclick="window.open('${cleanUrl}', '_blank', 'noopener,noreferrer')">
-                            <img src="${cleanUrl}" 
-                                 alt="Documento ${index + 1}" 
-                                 loading="lazy"
-                                 style="
-                                     width: 140px; 
-                                     height: 100px; 
-                                     object-fit: cover; 
-                                     border: 2px solid var(--line-color); 
-                                     border-radius: 8px; 
-                                     transition: all 0.3s ease; 
-                                     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-                                     cursor: pointer;
-                                     display: block;
-                                 " 
-                                 onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(56,189,248,0.3)';" 
-                                 onmouseout="this.style.borderColor='var(--line-color)'; this.style.transform='scale(1)'; this.style.boxShadow='0 4px 8px rgba(0,0,0,0.1)';" 
-                                 onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-                            <div style="
-                                     display: none; 
-                                     width: 140px; 
-                                     height: 100px; 
-                                     background: linear-gradient(135deg, var(--accent), #0ea5e9); 
-                                     color: white; 
-                                     border-radius: 8px; 
-                                     align-items: center; 
-                                     justify-content: center; 
-                                     flex-direction: column;
-                                     font-size: 12px; 
-                                     font-weight: 600;
-                                     cursor: pointer;
-                                     transition: all 0.3s ease;
-                                 "
-                                 onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 6px 16px rgba(56,189,248,0.4)';"
-                                 onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';">
-                                <i class="fas fa-file-pdf" style="font-size: 24px; margin-bottom: 8px;"></i>
-                                <span>Documento ${index + 1}</span>
-                                <small style="opacity: 0.8; margin-top: 4px;">Clique para abrir</small>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
+        // Usar novo sistema de exibição de documentos Base64
+        if (typeof window.displayDocuments === 'function') {
+            window.displayDocuments(op);
+        } else {
+            // Fallback para compatibilidade
+            const docContainer = document.getElementById('opDocumentosContainer');
+            if (docContainer) {
+                docContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Carregando documentos...</div>';
+                // Retry após um pequeno delay para garantir que o script foi carregado
+                setTimeout(() => {
+                    if (typeof window.displayDocuments === 'function') {
+                        window.displayDocuments(op);
+                    } else {
+                        docContainer.innerHTML = '<div style="color: var(--text-muted); padding: 1rem; text-align: center;">Sistema de documentos indisponível</div>';
+                    }
+                }, 100);
             }
         }
 
-        modal.style.display = 'block';
-        modal.classList.add('show');
+    }
+
+    static showOperacaoModal() {
+        // Função mantida para compatibilidade - agora só chama fillOperacaoModal
+        this.fillOperacaoModal();
     }
 
     static closeOperacaoModal() {
@@ -312,8 +254,8 @@ class AdminAPI {
     static updateStatsDisplay() {
         const totalParceiros = document.getElementById('totalParceiros');
         const totalPreCadastros = document.getElementById('totalPreCadastros');
-        const preCadastrosPendentes = document.getElementById('preCadastrosPendentes');
-        const preCadastrosAprovados = document.getElementById('preCadastrosAprovados');
+        const operacoesPendentes = document.getElementById('operacoesPendentes');
+        const operacoesAprovadas = document.getElementById('operacoesAprovadas');
 
         if (totalParceiros) {
             totalParceiros.textContent = this.parceiros.length;
@@ -323,19 +265,79 @@ class AdminAPI {
             totalPreCadastros.textContent = this.preCadastros.length;
         }
 
-        if (preCadastrosPendentes) {
-            const pendentes = this.preCadastros.filter(p => 
-                !p.status_elegibilidade || p.status_elegibilidade === 'pendente'
+        if (operacoesPendentes) {
+            const pendentes = this.operacoes.filter(op => 
+                op.status_operacao === 'pendente' || op.status_operacao === 'em_analise' || !op.status_operacao
             ).length;
-            preCadastrosPendentes.textContent = pendentes;
+            operacoesPendentes.textContent = pendentes;
         }
 
-        if (preCadastrosAprovados) {
-            const aprovados = this.preCadastros.filter(p => 
-                p.status_elegibilidade === 'aprovado'
+        if (operacoesAprovadas) {
+            const aprovadas = this.operacoes.filter(op => 
+                op.status_operacao === 'aprovada'
             ).length;
-            preCadastrosAprovados.textContent = aprovados;
+            operacoesAprovadas.textContent = aprovadas;
         }
+    }
+
+    // Filtrar operações por status
+    static filterOperacoes() {
+        const statusFilter = document.getElementById('statusFilter');
+        if (!statusFilter) return;
+        
+        const selectedStatus = statusFilter.value;
+        let filteredOperacoes = this.operacoes;
+        
+        if (selectedStatus) {
+            filteredOperacoes = this.operacoes.filter(op => op.status_operacao === selectedStatus);
+        }
+        
+        this.renderOperacoesList(filteredOperacoes);
+    }
+
+    // Renderizar lista de operações (modificado para aceitar lista filtrada)
+    static renderOperacoesList(operacoesToRender = null) {
+        const listEl = document.getElementById('operacoesList');
+        if (!listEl) return;
+
+        const operacoes = operacoesToRender || this.operacoes;
+        
+        if (!operacoes.length) {
+            listEl.innerHTML = `
+                <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+                    <i class="fas fa-inbox" style="font-size: 3rem; margin-bottom: 1rem; opacity: 0.5;"></i>
+                    <p style="margin: 0;">Nenhuma proposta encontrada</p>
+                </div>`;
+            return;
+        }
+
+        const html = operacoes.map(op => {
+            const statusClass = op.status_operacao || 'pendente';
+            const statusText = this.statusMap[op.status_operacao] || 'Pendente';
+            
+            return `
+                <div class="item-card">
+                    <div>
+                        <h4>${op.cliente_nome_completo || 'Cliente não informado'}</h4>
+                        <p style="color: var(--text-muted); margin: 0.5rem 0;">
+                            Valor: R$ ${(op.operacao_valor_pretendido || 0).toLocaleString('pt-BR')}
+                        </p>
+                        <div class="status-badge status-${statusClass}" style="display: inline-block;">
+                            ${statusText}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="action-btn" onclick="AdminAPI.viewOperacao(${op.id})" title="Ver detalhes"><i class="fas fa-eye"></i> Ver</button>
+                        ${op.status_operacao === 'pendente' || !op.status_operacao ? `
+                            <button class="action-btn success" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'aprovada')" title="Aceitar proposta"><i class="fas fa-check"></i> Aceitar</button>
+                            <button class="action-btn danger" onclick="AdminAPI.updateOperacaoStatus(${op.id}, 'recusada')" title="Recusar proposta"><i class="fas fa-times"></i> Recusar</button>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+        
+        listEl.innerHTML = html;
     }
 
     // Carregar dados do admin na interface

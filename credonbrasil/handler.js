@@ -1208,9 +1208,61 @@ exports.criarOperacao = async (event, context) => {
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
+    // Função para processar documentos Base64
+    function processBase64Documents(docsField) {
+      if (!docsField) return null;
+      
+      try {
+        // Se já é uma string, retorna como está
+        if (typeof docsField === 'string') {
+          return docsField;
+        }
+        
+        // Se é um array de objetos com base64
+        if (Array.isArray(docsField)) {
+          return JSON.stringify(docsField.map(doc => ({
+            name: doc.name || 'arquivo',
+            type: doc.type || 'application/octet-stream',
+            size: doc.size || 0,
+            base64: doc.base64 || '',
+            compressedSize: doc.compressedSize || 0
+          })));
+        }
+        
+        // Se é um objeto único
+        if (docsField.base64) {
+          return JSON.stringify([{
+            name: docsField.name || 'arquivo',
+            type: docsField.type || 'application/octet-stream',
+            size: docsField.size || 0,
+            base64: docsField.base64 || '',
+            compressedSize: docsField.compressedSize || 0
+          }]);
+        }
+        
+        return JSON.stringify(docsField);
+      } catch (error) {
+        console.error('Erro ao processar documento Base64:', error);
+        return null;
+      }
+    }
+
     const imovel_valor_estimado_final = normalizeMoney(imovel_valor_estimado, 100000);
     const operacao_valor_imovel_final = normalizeMoney(operacao_valor_imovel, 100000);
     const operacao_valor_pretendido_final = normalizeMoney(operacao_valor_pretendido, 50000);
+
+    // Processar todos os documentos Base64
+    const docs_cliente_rg_cnh_final = processBase64Documents(docs_cliente_rg_cnh);
+    const docs_cliente_cpf_final = processBase64Documents(docs_cliente_cpf);
+    const docs_cliente_renda_final = processBase64Documents(docs_cliente_renda);
+    const docs_cliente_residencia_final = processBase64Documents(docs_cliente_residencia);
+    const docs_cliente_extratos_final = processBase64Documents(docs_cliente_extratos);
+    const docs_cliente_conjuge_final = processBase64Documents(docs_cliente_conjuge);
+    const docs_imovel_matricula_final = processBase64Documents(docs_imovel_matricula);
+    const docs_imovel_iptu_final = processBase64Documents(docs_imovel_iptu);
+    const docs_imovel_escritura_final = processBase64Documents(docs_imovel_escritura);
+    const docs_imovel_fotos_final = processBase64Documents(docs_imovel_fotos);
+    const docs_outros_final = processBase64Documents(docs_outros);
 
     values = [
       parceiro_id, tipo_operacao_final,
@@ -1221,9 +1273,9 @@ exports.criarOperacao = async (event, context) => {
       imovel_valor_estimado_final, imovel_situacao_final, imovel_titular || 'Titular não informado',
       operacao_valor_imovel_final, operacao_valor_pretendido_final, 
       operacao_finalidade || 'Finalidade não informada', operacao_prazo_desejado || '12 meses',
-      docs_cliente_rg_cnh || null, docs_cliente_cpf || null, docs_cliente_renda || null, docs_cliente_residencia || null,
-      docs_cliente_extratos || null, docs_cliente_conjuge || null, docs_imovel_matricula || null, docs_imovel_iptu || null,
-      docs_imovel_escritura || null, docs_imovel_fotos || null, docs_outros || null,
+      docs_cliente_rg_cnh_final, docs_cliente_cpf_final, docs_cliente_renda_final, docs_cliente_residencia_final,
+      docs_cliente_extratos_final, docs_cliente_conjuge_final, docs_imovel_matricula_final, docs_imovel_iptu_final,
+      docs_imovel_escritura_final, docs_imovel_fotos_final, docs_outros_final,
       status_operacao || 'rascunho', normalizeBool(aceite_lgpd, 0), normalizeBool(aceite_declaracao, 0),
       status_operacao === 'recebida' ? new Date() : null
     ];

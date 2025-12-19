@@ -686,6 +686,48 @@
             margin-bottom: 0;
         }
 
+        /* --- FILE PREVIEW STYLES --- */
+        .file-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(15, 23, 42, 0.3);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .image-preview {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 1rem;
+            text-align: center;
+            max-width: 180px;
+            transition: all 0.3s ease;
+        }
+
+        .image-preview:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .image-preview img {
+            max-width: 150px;
+            max-height: 100px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .image-preview p {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin: 0;
+            word-break: break-word;
+        }
+
         .review-sections {
             margin-bottom: 2rem;
         }
@@ -1355,7 +1397,7 @@
                                 <i class="fas fa-handshake"></i>
                             </div>
                             <h3 class="card-title">Propostas Enviadas</h3>
-                            <div class="card-value">0</div>
+                            <div class="card-value" id="propostasEnviadas">0</div>
                             <p class="card-description">Total de propostas de crédito enviadas</p>
                         </div>
 
@@ -1364,7 +1406,7 @@
                                 <i class="fas fa-check-circle"></i>
                             </div>
                             <h3 class="card-title">Aprovadas</h3>
-                            <div class="card-value">0</div>
+                            <div class="card-value" id="propostasAprovadas">0</div>
                             <p class="card-description">Propostas aprovadas e liberadas</p>
                         </div>
 
@@ -1373,7 +1415,7 @@
                                 <i class="fas fa-chart-line"></i>
                             </div>
                             <h3 class="card-title">Comissão</h3>
-                            <div class="card-value">R$ 0,00</div>
+                            <div class="card-value" id="comissaoTotal">R$ 0,00</div>
                             <p class="card-description">Total de comissões acumuladas</p>
                         </div>
 
@@ -1382,7 +1424,7 @@
                                 <i class="fas fa-calendar"></i>
                             </div>
                             <h3 class="card-title">Este Mês</h3>
-                            <div class="card-value">0</div>
+                            <div class="card-value" id="enviadasEsteMes">0</div>
                             <p class="card-description">Propostas enviadas no mês atual</p>
                         </div>
                     </div>
@@ -2005,6 +2047,7 @@
     <!-- Scripts necessários -->
     <script src="../src/js/auth_manager.js"></script>
     <script src="../src/js/portal_api.js"></script>
+    <script src="../src/js/image_base64_utils.js"></script>
 
     <script>
         // Script adicional para funcionalidades específicas do portal
@@ -2306,38 +2349,94 @@
             
             if (files.length === 0) return;
             
-            statusElement.textContent = 'Enviando...';
+            statusElement.textContent = 'Convertendo arquivos...';
             statusElement.className = 'upload-status';
             statusElement.style.display = 'block';
             
             try {
-                // Simular upload - converter para base64 ou enviar para serviço
-                const uploadedLinks = [];
+                const uploadedBase64Files = [];
                 
                 for (let file of files) {
-                    // Validar tamanho (5MB)
-                    if (file.size > 5 * 1024 * 1024) {
-                        throw new Error(`Arquivo ${file.name} muito grande. Máximo 5MB.`);
+                    // Validar tamanho (10MB para acomodar Base64)
+                    if (file.size > 10 * 1024 * 1024) {
+                        throw new Error(`Arquivo ${file.name} muito grande. Máximo 10MB.`);
                     }
                     
-                    // Simular upload - gerar link fictício
-                    const fileExtension = file.name.split('.').pop();
-                    const fileName = `${fieldName}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}.${fileExtension}`;
-                    const mockLink = `https://storage.credonbrasil.com/docs/${fileName}`;
+                    // Converter arquivo para Base64
+                    let base64String;
                     
-                    uploadedLinks.push(mockLink);
+                    // Comprimir imagens antes de converter
+                    if (file.type.startsWith('image/')) {
+                        base64String = await window.ImageBase64Utils.compressImageToBase64(file, 0.8, 1920);
+                    } else {
+                        base64String = await window.ImageBase64Utils.convertFileToBase64(file);
+                    }
+
+                    // Obter informações do arquivo
+                    const fileInfo = window.ImageBase64Utils.getBase64FileInfo(base64String);
+                    
+                    // Criar objeto com dados do arquivo
+                    const fileData = {
+                        name: file.name,
+                        type: file.type,
+                        size: file.size,
+                        base64: base64String,
+                        compressedSize: fileInfo.sizeMB
+                    };
+                    
+                    uploadedBase64Files.push(fileData);
+                    
+                    console.log(`Arquivo ${file.name} convertido:`, {
+                        originalSize: (file.size / 1024 / 1024).toFixed(2) + 'MB',
+                        compressedSize: fileInfo.sizeMB + 'MB',
+                        type: fileInfo.mimeType
+                    });
                 }
                 
-                // Armazenar links dos arquivos
-                uploadedFiles[fieldName] = uploadedLinks.join(',');
+                // Armazenar dados dos arquivos em Base64
+                uploadedFiles[fieldName] = uploadedBase64Files;
                 
-                statusElement.textContent = `${files.length} arquivo(s) enviado(s)`;
+                statusElement.textContent = `${files.length} arquivo(s) convertido(s)`;
                 statusElement.className = 'upload-status success';
+                
+                // Criar preview para imagens
+                const previewContainer = input.parentElement.querySelector('.file-preview') || 
+                                       document.createElement('div');
+                previewContainer.className = 'file-preview';
+                previewContainer.innerHTML = '';
+                
+                uploadedBase64Files.forEach(fileData => {
+                    if (fileData.type.startsWith('image/')) {
+                        const preview = window.ImageBase64Utils.createImagePreview(fileData.base64, fileData.name);
+                        previewContainer.appendChild(preview);
+                    } else {
+                        // Para PDFs, mostrar apenas o nome
+                        const fileDiv = document.createElement('div');
+                        fileDiv.style.cssText = `
+                            display: inline-block;
+                            margin: 5px;
+                            padding: 10px;
+                            border: 1px solid #ddd;
+                            border-radius: 4px;
+                            background: #f5f5f5;
+                        `;
+                        fileDiv.innerHTML = `<i class="fas fa-file-pdf"></i> ${fileData.name}`;
+                        previewContainer.appendChild(fileDiv);
+                    }
+                });
+                
+                // Adicionar container se não existir
+                if (!input.parentElement.querySelector('.file-preview')) {
+                    input.parentElement.appendChild(previewContainer);
+                }
                 
             } catch (error) {
                 console.error('Erro no upload:', error);
                 statusElement.textContent = error.message;
                 statusElement.className = 'upload-status error';
+                
+                // Limpar arquivos em caso de erro
+                delete uploadedFiles[fieldName];
             }
         }
 
@@ -2369,10 +2468,26 @@
             
             // Documentos
             const docsElement = document.getElementById('review-documentos');
-            const uploadedCount = Object.keys(uploadedFiles).length;
-            docsElement.innerHTML = uploadedCount > 0 ? 
-                `<span style="color: var(--accent);">${uploadedCount} categoria(s) de documentos enviada(s)</span>` :
-                '<span style="color: #ef4444;">Nenhum documento enviado</span>';
+            let totalFiles = 0;
+            let docsHtml = '';
+            
+            // Contar e exibir documentos carregados
+            for (const [fieldName, fileData] of Object.entries(uploadedFiles)) {
+                if (Array.isArray(fileData)) {
+                    totalFiles += fileData.length;
+                    const categoryName = fieldName.replace('docs_', '').replace('_', ' ');
+                    docsHtml += `<div style="margin: 5px 0; color: var(--accent);"><i class="fas fa-check-circle"></i> ${categoryName}: ${fileData.length} arquivo(s)</div>`;
+                }
+            }
+            
+            if (totalFiles > 0) {
+                docsElement.innerHTML = `
+                    <div style="margin-bottom: 10px;"><strong>${totalFiles} arquivo(s) convertido(s):</strong></div>
+                    ${docsHtml}
+                `;
+            } else {
+                docsElement.innerHTML = '<span style="color: #ef4444;"><i class="fas fa-exclamation-triangle"></i> Nenhum documento enviado</span>';
+            }
         }
 
         // Salvar como rascunho

@@ -733,11 +733,11 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            z-index: 2000;
-            backdrop-filter: blur(5px);
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
             opacity: 0;
             transition: opacity 0.3s ease;
+            overflow-y: auto;
         }
         
         .modal-overlay.show {
@@ -745,55 +745,66 @@
         }
 
         .modal {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%) scale(0.9);
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid var(--line-color);
-            border-radius: 12px;
-            padding: 2rem;
-            min-width: 400px;
-            max-width: 500px;
-            width: 90%;
-            transition: transform 0.3s ease;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.1);
+            background: var(--bg-dark);
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            transition: none;
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+            padding: 0;
         }
         
         .modal-overlay.show .modal {
-            transform: translate(-50%, -50%) scale(1);
+            transform: none;
         }
 
         .modal-header {
+            position: sticky;
+            top: 0;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line-color);
+            padding: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--line-color);
+            z-index: 10001;
         }
 
         .modal-title {
             font-family: var(--font-display);
-            font-size: 1.5rem;
+            font-size: 2rem;
             color: white;
+            margin: 0;
         }
 
         .close-modal {
-            background: none;
+            background: var(--accent);
+            color: white;
             border: none;
-            color: var(--text-muted);
-            font-size: 1.5rem;
+            padding: 1rem;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: color 0.3s;
+            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
         }
 
         .close-modal:hover {
-            color: white;
+            background: #1d4ed8;
+            transform: scale(1.1);
         }
 
         .modal-content {
-            margin-bottom: 2rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
         .form-group {
@@ -865,6 +876,156 @@
 
         .btn-secondary:hover {
             background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- DOCUMENTOS MODAL STYLES --- */
+        .documents-section {
+            background: rgba(15, 23, 42, 0.8);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .documents-section h4 {
+            color: var(--accent);
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .document-category {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .document-category h5 {
+            color: white;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+
+        .document-item {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 1rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .document-item:hover {
+            border-color: var(--accent);
+            transform: translateY(-2px);
+        }
+
+        .document-preview {
+            width: 100%;
+            max-height: 200px;
+            object-fit: cover;
+            border-radius: 6px;
+            margin-bottom: 0.5rem;
+        }
+
+        .document-icon {
+            font-size: 4rem;
+            color: var(--accent);
+            margin-bottom: 1rem;
+        }
+
+        .document-info {
+            text-align: center;
+        }
+
+        .document-name {
+            color: white;
+            font-size: 0.9rem;
+            margin-bottom: 0.3rem;
+            word-break: break-word;
+        }
+
+        .document-type {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+        }
+
+        .document-size {
+            color: var(--text-muted);
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+        }
+
+        .no-documents {
+            text-align: center;
+            color: var(--text-muted);
+            font-style: italic;
+            padding: 2rem;
+        }
+
+        /* --- LIGHTBOX PARA IMAGENS --- */
+        .image-lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 20000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .image-lightbox.active {
+            display: flex;
+        }
+
+        .lightbox-content {
+            max-width: 90%;
+            max-height: 90%;
+            object-fit: contain;
+            border-radius: 8px;
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 15px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.5rem;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .lightbox-close:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
         }
 
         /* --- ESTILOS ADICIONAIS PARA MODAL DE SENHA --- */
@@ -1087,8 +1248,8 @@
                             <div class="stat-icon">
                                 <i class="fas fa-clock"></i>
                             </div>
-                            <h3 class="stat-title">Pendentes</h3>
-                            <div class="stat-value" id="preCadastrosPendentes">0</div>
+                            <h3 class="stat-title">Propostas Pendentes</h3>
+                            <div class="stat-value" id="operacoesPendentes">0</div>
                             <p class="stat-description">Aguardando análise</p>
                         </div>
 
@@ -1096,9 +1257,9 @@
                             <div class="stat-icon">
                                 <i class="fas fa-check-circle"></i>
                             </div>
-                            <h3 class="stat-title">Aprovados</h3>
-                            <div class="stat-value" id="preCadastrosAprovados">0</div>
-                            <p class="stat-description">Prontos para contato</p>
+                            <h3 class="stat-title">Propostas Aprovadas</h3>
+                            <div class="stat-value" id="operacoesAprovadas">0</div>
+                            <p class="stat-description">Aprovadas e liberadas</p>
                         </div>
                     </div>
 
@@ -1150,7 +1311,14 @@
                     <div class="content-card">
                         <div class="card-header">
                             <h3 class="card-title">Propostas de Operações</h3>
-                            <div>
+                            <div style="display: flex; gap: 10px; align-items: center;">
+                                <select id="statusFilter" style="background: var(--bg-dark); color: white; border: 1px solid var(--line-color); padding: 0.5rem; border-radius: 4px;" onchange="AdminAPI.filterOperacoes()">
+                                    <option value="">Todos os Status</option>
+                                    <option value="pendente">Pendentes</option>
+                                    <option value="aprovada">Aprovadas</option>
+                                    <option value="recusada">Recusadas</option>
+                                    <option value="em_analise">Em Análise</option>
+                                </select>
                                 <button class="refresh-btn" onclick="AdminAPI.loadOperacoes()"><i class="fas fa-sync-alt"></i> Atualizar</button>
                             </div>
                         </div>
@@ -1217,68 +1385,88 @@
 
     <!-- Modal para visualizar operação/proposta -->
     <div class="modal-overlay" id="operacaoModal">
-        <div class="modal" style="max-width: 800px; width: 95%;">
+        <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Detalhes da Proposta</h3>
-                <button class="close-modal" onclick="AdminAPI.closeOperacaoModal()">&times;</button>
+                <button class="close-modal" onclick="AdminAPI.closeOperacaoModal()">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
-            <div class="modal-content" style="max-height: 70vh; overflow-y: auto;">
+            <div class="modal-content">
                 <!-- Dados do Cliente -->
-                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados do Cliente</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                    <div class="form-group">
-                        <label class="form-label">Nome Completo</label>
-                        <span id="opClienteNome" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">CPF</label>
-                        <span id="opClienteCpf" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Email</label>
-                        <span id="opClienteEmail" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Telefone</label>
-                        <span id="opClienteTelefone" style="color: white; font-weight: 500;">—</span>
+                <div class="documents-section">
+                    <h4><i class="fas fa-user"></i> Dados do Cliente</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Nome Completo</label>
+                            <span id="opClienteNome" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">CPF</label>
+                            <span id="opClienteCpf" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <span id="opClienteEmail" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Telefone</label>
+                            <span id="opClienteTelefone" style="color: white; font-weight: 500;">—</span>
+                        </div>
                     </div>
                 </div>
 
                 <!-- Dados da Operação -->
-                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Dados da Operação</h4>
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                    <div class="form-group">
-                        <label class="form-label">Tipo de Operação</label>
-                        <span id="opTipo" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Status</label>
-                        <span id="opStatus" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Valor Pretendido</label>
-                        <span id="opValorPretendido" style="color: var(--accent); font-weight: 600;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Valor do Imóvel</label>
-                        <span id="opValorImovel" style="color: white; font-weight: 500;">—</span>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Imóvel</label>
-                        <span id="opImovel" style="color: white; font-weight: 500;">—</span>
+                <div class="documents-section">
+                    <h4><i class="fas fa-handshake"></i> Dados da Operação</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                        <div class="form-group">
+                            <label class="form-label">Tipo de Operação</label>
+                            <span id="opTipo" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Status</label>
+                            <span id="opStatus" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valor Pretendido</label>
+                            <span id="opValorPretendido" style="color: var(--accent); font-weight: 600;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Valor do Imóvel</label>
+                            <span id="opValorImovel" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Imóvel</label>
+                            <span id="opImovel" style="color: white; font-weight: 500;">—</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Data de Criação</label>
+                            <span id="opDataCriacao" style="color: white; font-weight: 500;">—</span>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Galeria de Documentos -->
-                <h4 style="color: var(--accent); margin-bottom: 1rem; border-bottom: 1px solid var(--line-color); padding-bottom: 0.5rem;">Documentos Enviados</h4>
-                <div id="opDocsGallery" style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 2rem;">
-                    <!-- Imagens serão inseridas aqui -->
+                <!-- Documentos Enviados -->
+                <div class="documents-section">
+                    <h4><i class="fas fa-file-image"></i> Documentos Enviados</h4>
+                    <div id="opDocumentosContainer">
+                        <!-- Documentos serão inseridos aqui -->
+                    </div>
                 </div>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-modal btn-secondary" onclick="AdminAPI.closeOperacaoModal()">Fechar</button>
-                <button class="btn-modal btn-primary" style="background: #10b981;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'aprovada')">Aceitar</button>
-                <button class="btn-modal btn-primary" style="background: #ef4444;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'recusada')">Recusar</button>
+
+                <!-- Ações -->
+                <div style="display: flex; gap: 1rem; justify-content: center; margin-top: 2rem;">
+                    <button class="btn-modal btn-secondary" onclick="AdminAPI.closeOperacaoModal()">
+                        <i class="fas fa-times"></i> Fechar
+                    </button>
+                    <button class="btn-modal btn-primary" style="background: #10b981;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'aprovada')">
+                        <i class="fas fa-check"></i> Aceitar
+                    </button>
+                    <button class="btn-modal btn-primary" style="background: #ef4444;" onclick="AdminAPI.updateOperacaoStatus(AdminAPI.currentOperacao?.id, 'recusada')">
+                        <i class="fas fa-ban"></i> Recusar
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -1379,9 +1567,18 @@
         <p>&copy; 2025 CredOn Brasil. Todos os direitos reservados.</p>
     </footer>
 
+    <!-- Lightbox para imagens -->
+    <div class="image-lightbox" id="imageLightbox">
+        <img class="lightbox-content" id="lightboxImage" src="" alt="Documento">
+        <button class="lightbox-close" onclick="closeLightbox()">
+            <i class="fas fa-times"></i>
+        </button>
+    </div>
+
     <!-- Scripts necessários -->
     <script src="../src/js/auth_manager.js"></script>
     <script src="../src/js/admin_api.js"></script>
+    <script src="../src/js/image_base64_utils.js"></script>
 
     <script>
         // Script adicional para funcionalidades específicas do admin
@@ -1510,6 +1707,306 @@
         function logoutAdmin() {
             AuthManager.logoutAdmin();
         }
+
+        // =============================================
+        // SISTEMA DE EXIBIÇÃO DE DOCUMENTOS BASE64
+        // =============================================
+
+        /**
+         * Processa e exibe documentos Base64 no modal
+         * @param {Object} operacao - Dados da operação
+         */
+        function displayDocuments(operacao) {
+            const container = document.getElementById('opDocumentosContainer');
+            
+            if (!container) return;
+            
+            container.innerHTML = '';
+            
+            // Mapear campos de documentos
+            const documentFields = {
+                'docs_cliente_rg_cnh': 'Documentos Pessoais (RG/CNH)',
+                'docs_cliente_cpf': 'CPF',
+                'docs_cliente_renda': 'Comprovantes de Renda',
+                'docs_cliente_residencia': 'Comprovante de Residência',
+                'docs_cliente_extratos': 'Extratos Bancários',
+                'docs_cliente_conjuge': 'Documentos do Cônjuge',
+                'docs_imovel_matricula': 'Matrícula do Imóvel',
+                'docs_imovel_iptu': 'IPTU',
+                'docs_imovel_escritura': 'Escritura',
+                'docs_imovel_fotos': 'Fotos do Imóvel',
+                'docs_outros': 'Outros Documentos'
+            };
+            
+            let hasDocuments = false;
+            
+            // Processar cada categoria de documento
+            for (const [fieldName, categoryName] of Object.entries(documentFields)) {
+                const docData = operacao[fieldName];
+                
+                if (docData && docData.trim() !== '') {
+                    hasDocuments = true;
+                    createDocumentCategory(container, categoryName, docData);
+                }
+            }
+            
+            if (!hasDocuments) {
+                container.innerHTML = '<div class="no-documents"><i class="fas fa-file-excel"></i><br>Nenhum documento foi enviado para esta proposta</div>';
+            }
+        }
+
+        /**
+         * Cria uma categoria de documentos
+         * @param {HTMLElement} container - Container principal
+         * @param {string} categoryName - Nome da categoria
+         * @param {string} docData - Dados dos documentos (JSON ou string)
+         */
+        function createDocumentCategory(container, categoryName, docData) {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'document-category';
+            
+            const titleElement = document.createElement('h5');
+            titleElement.textContent = categoryName;
+            categoryDiv.appendChild(titleElement);
+            
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'document-grid';
+            
+            try {
+                // Tentar parsear como JSON (novo formato Base64)
+                const documents = JSON.parse(docData);
+                
+                if (Array.isArray(documents)) {
+                    // Array de documentos
+                    documents.forEach(doc => {
+                        createDocumentItem(gridDiv, doc);
+                    });
+                } else if (documents && (documents.base64 || documents.name)) {
+                    // Documento único
+                    createDocumentItem(gridDiv, documents);
+                } else {
+                    // Formato antigo - string simples
+                    createLegacyDocumentItem(gridDiv, docData, categoryName);
+                }
+            } catch (error) {
+                console.warn('Falha ao parsear documento como JSON:', error);
+                // Se não conseguir parsear, assume formato antigo
+                createLegacyDocumentItem(gridDiv, docData, categoryName);
+            }
+            
+            categoryDiv.appendChild(gridDiv);
+            container.appendChild(categoryDiv);
+        }
+
+        /**
+         * Cria item de documento individual (novo formato Base64)
+         * @param {HTMLElement} container - Container da grid
+         * @param {Object} doc - Dados do documento
+         */
+        function createDocumentItem(container, doc) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'document-item';
+            
+            const isImage = doc.type && doc.type.startsWith('image/');
+            const isPDF = doc.type && doc.type.includes('pdf');
+            
+            if (isImage && doc.base64) {
+                // Criar preview de imagem
+                const img = document.createElement('img');
+                img.className = 'document-preview';
+                
+                // Verificar se é uma URL Base64 completa ou só os dados
+                if (doc.base64.startsWith('data:')) {
+                    img.src = doc.base64;
+                } else {
+                    // Se não tem o prefixo data:, adicionar
+                    img.src = `data:${doc.type || 'image/jpeg'};base64,${doc.base64}`;
+                }
+                
+                img.alt = doc.name || 'Documento';
+                img.onclick = () => openLightbox(img.src);
+                itemDiv.appendChild(img);
+            } else {
+                // Criar ícone para outros tipos
+                const iconDiv = document.createElement('div');
+                iconDiv.className = 'document-icon';
+                
+                if (isPDF) {
+                    iconDiv.innerHTML = '<i class="fas fa-file-pdf"></i>';
+                } else {
+                    iconDiv.innerHTML = '<i class="fas fa-file"></i>';
+                }
+                
+                itemDiv.appendChild(iconDiv);
+                
+                // Se for PDF, permitir download
+                if (isPDF && doc.base64) {
+                    itemDiv.onclick = () => downloadBase64File(doc.base64, doc.name || 'documento.pdf', doc.type);
+                    itemDiv.style.cursor = 'pointer';
+                }
+            }
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'document-info';
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'document-name';
+            nameDiv.textContent = doc.name || 'Documento sem nome';
+            
+            const typeDiv = document.createElement('div');
+            typeDiv.className = 'document-type';
+            typeDiv.textContent = doc.type || 'Tipo desconhecido';
+            
+            const sizeDiv = document.createElement('div');
+            sizeDiv.className = 'document-size';
+            if (doc.compressedSize) {
+                sizeDiv.textContent = `${doc.compressedSize}MB`;
+            } else if (doc.size) {
+                sizeDiv.textContent = `${(doc.size / 1024 / 1024).toFixed(2)}MB`;
+            }
+            
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(typeDiv);
+            infoDiv.appendChild(sizeDiv);
+            
+            itemDiv.appendChild(infoDiv);
+            container.appendChild(itemDiv);
+        }
+
+        /**
+         * Cria item de documento formato legado (links ou strings)
+         * @param {HTMLElement} container - Container da grid
+         * @param {string} docData - Dados do documento
+         * @param {string} categoryName - Nome da categoria
+         */
+        function createLegacyDocumentItem(container, docData, categoryName) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'document-item';
+            
+            const iconDiv = document.createElement('div');
+            iconDiv.className = 'document-icon';
+            iconDiv.innerHTML = '<i class="fas fa-external-link-alt"></i>';
+            itemDiv.appendChild(iconDiv);
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'document-info';
+            
+            const nameDiv = document.createElement('div');
+            nameDiv.className = 'document-name';
+            nameDiv.textContent = `${categoryName} (formato antigo)`;
+            
+            const typeDiv = document.createElement('div');
+            typeDiv.className = 'document-type';
+            typeDiv.textContent = 'Link externo';
+            
+            infoDiv.appendChild(nameDiv);
+            infoDiv.appendChild(typeDiv);
+            
+            // Tentar abrir link se for URL
+            if (docData.startsWith('http')) {
+                itemDiv.onclick = () => window.open(docData, '_blank');
+                itemDiv.style.cursor = 'pointer';
+            }
+            
+            itemDiv.appendChild(infoDiv);
+            container.appendChild(itemDiv);
+        }
+
+        /**
+         * Abre lightbox para visualizar imagem
+         * @param {string} imageSrc - Source da imagem
+         */
+        function openLightbox(imageSrc) {
+            const lightbox = document.getElementById('imageLightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            
+            lightboxImage.src = imageSrc;
+            lightbox.classList.add('active');
+            
+            // Fechar lightbox com ESC
+            document.addEventListener('keydown', closeLightboxOnEscape);
+        }
+
+        /**
+         * Fecha o lightbox
+         */
+        function closeLightbox() {
+            const lightbox = document.getElementById('imageLightbox');
+            lightbox.classList.remove('active');
+            document.removeEventListener('keydown', closeLightboxOnEscape);
+        }
+
+        /**
+         * Fecha lightbox ao pressionar ESC
+         */
+        function closeLightboxOnEscape(event) {
+            if (event.key === 'Escape') {
+                closeLightbox();
+            }
+        }
+
+        /**
+         * Faz download de arquivo Base64
+         * @param {string} base64Data - Dados Base64
+         * @param {string} fileName - Nome do arquivo
+         * @param {string} mimeType - Tipo MIME
+         */
+        function downloadBase64File(base64Data, fileName, mimeType) {
+            try {
+                const base64String = base64Data.includes(',') ? base64Data.split(',')[1] : base64Data;
+                const byteCharacters = atob(base64String);
+                const byteNumbers = new Array(byteCharacters.length);
+                
+                for (let i = 0; i < byteCharacters.length; i++) {
+                    byteNumbers[i] = byteCharacters.charCodeAt(i);
+                }
+                
+                const byteArray = new Uint8Array(byteNumbers);
+                const blob = new Blob([byteArray], { type: mimeType });
+                
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = fileName;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (error) {
+                console.error('Erro ao fazer download:', error);
+                alert('Erro ao fazer download do arquivo');
+            }
+        }
+
+        // Adicionar listener para carregar documentos quando abrir modal de operação
+        document.addEventListener('DOMContentLoaded', function() {
+            // Tornar funções de documentos disponíveis globalmente
+            window.displayDocuments = displayDocuments;
+            window.openLightbox = openLightbox;
+            window.closeLightbox = closeLightbox;
+            window.downloadBase64File = downloadBase64File;
+            
+            // Observar mudanças no modal de operação
+            const operacaoModal = document.getElementById('operacaoModal');
+            if (operacaoModal) {
+                const observer = new MutationObserver(function(mutations) {
+                    mutations.forEach(function(mutation) {
+                        if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                            if (operacaoModal.classList.contains('show')) {
+                                // Modal foi aberto, aguardar um pouco e carregar documentos
+                                setTimeout(() => {
+                                    if (window.AdminAPI && window.AdminAPI.currentOperacao) {
+                                        displayDocuments(window.AdminAPI.currentOperacao);
+                                    }
+                                }, 300);
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(operacaoModal, { attributes: true });
+            }
+        });
     </script>
 </body>
 </html>

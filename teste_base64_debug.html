@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste Base64 Debug</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a1a;
+            color: white;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 20px;
+            border: 1px solid #333;
+            border-radius: 8px;
+            background: #2a2a2a;
+        }
+        .document-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        .document-item {
+            background: #333;
+            border-radius: 8px;
+            padding: 1rem;
+            border: 1px solid #444;
+        }
+        .document-preview {
+            width: 100%;
+            max-width: 200px;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .document-info {
+            margin-top: 10px;
+        }
+        .document-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .document-type {
+            color: #888;
+            font-size: 0.9em;
+        }
+        .json-display {
+            background: #000;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Processamento Base64</h1>
+    
+    <div class="test-section">
+        <h2>Dados de Exemplo (como no banco):</h2>
+        <div class="json-display" id="exemploJson"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Processamento:</h2>
+        <div id="resultado"></div>
+    </div>
+    
+    <script>
+        // Simular o formato exato que o usuário mostrou
+        const exemploBase64Banco = '[{"name":"documentos.jpg","type":"image/jpeg","size":1211388,"base64":"data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAA"}]';
+        
+        document.getElementById('exemploJson').textContent = exemploBase64Banco;
+        
+        // Função igual à do portal admin
+        function createDocumentCategory(container, categoryName, docData) {
+            const categoryDiv = document.createElement('div');
+            categoryDiv.innerHTML = `<h3>${categoryName}</h3>`;
+            
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'document-grid';
+            
+            try {
+                const documents = JSON.parse(docData);
+                console.log('Parsed documents:', documents);
+                
+                if (Array.isArray(documents)) {
+                    documents.forEach((doc, index) => {
+                        console.log(`Processing document ${index}:`, doc);
+                        createDocumentItem(gridDiv, doc);
+                    });
+                } else if (documents && (documents.base64 || documents.name)) {
+                    createDocumentItem(gridDiv, documents);
+                } else {
+                    gridDiv.innerHTML = '<p>Formato não reconhecido como Base64</p>';
+                }
+            } catch (error) {
+                console.error('Erro ao parsear JSON:', error);
+                gridDiv.innerHTML = `<p>Erro: ${error.message}</p>`;
+            }
+            
+            categoryDiv.appendChild(gridDiv);
+            container.appendChild(categoryDiv);
+        }
+        
+        function createDocumentItem(container, doc) {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'document-item';
+            
+            const isImage = doc.type && doc.type.startsWith('image/');
+            
+            if (isImage && doc.base64) {
+                const img = document.createElement('img');
+                img.className = 'document-preview';
+                
+                if (doc.base64.startsWith('data:')) {
+                    img.src = doc.base64;
+                } else {
+                    img.src = `data:${doc.type || 'image/jpeg'};base64,${doc.base64}`;
+                }
+                
+                img.alt = doc.name || 'Documento';
+                img.onclick = () => window.open(img.src, '_blank');
+                itemDiv.appendChild(img);
+            }
+            
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'document-info';
+            
+            infoDiv.innerHTML = `
+                <div class="document-name">${doc.name || 'Documento sem nome'}</div>
+                <div class="document-type">${doc.type || 'Tipo desconhecido'}</div>
+                <div class="document-size">${doc.size ? (doc.size / 1024 / 1024).toFixed(2) + 'MB' : 'Tamanho não informado'}</div>
+            `;
+            
+            itemDiv.appendChild(infoDiv);
+            container.appendChild(itemDiv);
+        }
+        
+        // Testar processamento
+        const resultado = document.getElementById('resultado');
+        createDocumentCategory(resultado, 'Teste - Documentos do Cliente', exemploBase64Banco);
+    </script>
+</body>
+</html>
