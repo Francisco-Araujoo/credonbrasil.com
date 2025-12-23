@@ -18,6 +18,7 @@
     <script src="./src/js/auth_manager.js"></script>
     <script src="./src/js/login_parceiros.js"></script>
     <script src="./src/js/login_admin.js"></script>
+    <script src="./src/js/login_supervisor.js"></script>
 
     <style>
         :root {
@@ -622,6 +623,7 @@
                 <h3 style="font-family: var(--font-display); margin-bottom: 1.5rem; font-size: 2rem;">Acesso</h3>
                 <div class="login-tabs">
                     <button class="tab-btn active" onclick="switchLogin('client', this)">Parceiros</button>
+                    <button class="tab-btn" onclick="switchLogin('supervisor', this)">Supervisor</button>
                     <button class="tab-btn" onclick="switchLogin('admin', this)">Administrador</button>
                 </div>
                 <div class="form-container">
@@ -635,6 +637,17 @@
                             <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
                         </div>
                         <button type="submit" class="btn-submit">Acessar Portal</button>
+                    </form>
+                    <form id="form-supervisor" class="login-form" style="opacity: 0; pointer-events: none;">
+                        <div class="input-group">
+                            <input type="email" name="email" class="input-field" placeholder=" " id="s-email" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Email do Supervisor</div>
+                        </div>
+                        <div class="input-group">
+                            <input type="password" name="senha" class="input-field" placeholder=" " id="s-pass" required>
+                            <div style="font-size:0.8rem; color: #94a3b8; margin-top:5px;">Senha</div>
+                        </div>
+                        <button type="submit" class="btn-submit" style="background: #7c3aed; border: 1px solid #7c3aed; color: white;">Entrar Supervisor</button>
                     </form>
                     <form id="form-admin" class="login-form" style="opacity: 0; pointer-events: none;">
                         <div class="input-group">
@@ -1219,11 +1232,19 @@
         function switchLogin(type, btn) {
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
+            
+            const formClient = document.getElementById('form-client');
+            const formSupervisor = document.getElementById('form-supervisor');
+            const formAdmin = document.getElementById('form-admin');
+            
             if (type === 'client') {
-                gsap.to(formAdmin, { autoAlpha: 0, x: 20, duration: 0.3, pointerEvents: "none" });
+                gsap.to([formSupervisor, formAdmin], { autoAlpha: 0, x: 20, duration: 0.3, pointerEvents: "none" });
                 gsap.fromTo(formClient, { autoAlpha: 0, x: -20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
+            } else if (type === 'supervisor') {
+                gsap.to([formClient, formAdmin], { autoAlpha: 0, duration: 0.3, pointerEvents: "none" });
+                gsap.fromTo(formSupervisor, { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
             } else {
-                gsap.to(formClient, { autoAlpha: 0, x: -20, duration: 0.3, pointerEvents: "none" });
+                gsap.to([formClient, formSupervisor], { autoAlpha: 0, x: -20, duration: 0.3, pointerEvents: "none" });
                 gsap.fromTo(formAdmin, { autoAlpha: 0, x: 20 }, { autoAlpha: 1, x: 0, duration: 0.4, delay: 0.1, pointerEvents: "all" });
             }
         }

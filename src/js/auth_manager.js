@@ -65,6 +65,35 @@
       }
     },
 
+    // Verificar se o supervisor está logado
+    checkSupervisorAuth() {
+      const supervisorData = localStorage.getItem('credon_supervisor');
+      if (!supervisorData) {
+        this.redirectToLogin('Acesso negado. Faça login como supervisor.');
+        return null;
+      }
+
+      try {
+        return JSON.parse(supervisorData);
+      } catch (error) {
+        console.error('Erro ao decodificar dados do supervisor:', error);
+        localStorage.removeItem('credon_supervisor');
+        this.redirectToLogin('Dados de sessão corrompidos. Faça login novamente.');
+        return null;
+      }
+    },
+
+    // Logout do supervisor
+    logoutSupervisor() {
+      try {
+        localStorage.removeItem('credon_supervisor');
+        window.location.href = '../index.html';
+      } catch (error) {
+        console.error('Erro durante logout do supervisor:', error);
+        window.location.href = '../index.html';
+      }
+    },
+
     // Redirecionar para login
     redirectToLogin(message) {
       if (message) {
@@ -77,8 +106,10 @@
     getLoggedUserType() {
       const userData = localStorage.getItem('credon_user');
       const adminData = localStorage.getItem('credon_admin');
+      const supervisorData = localStorage.getItem('credon_supervisor');
       
       if (adminData) return 'admin';
+      if (supervisorData) return 'supervisor';
       if (userData) return 'user';
       return null;
     },

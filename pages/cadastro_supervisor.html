@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastro de Supervisor | CredOn Brasil</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #0f172a;
+            --bg-card: #1e293b;
+            --text-primary: white;
+            --text-muted: #94a3b8;
+            --line-color: rgba(255, 255, 255, 0.08);
+            --primary: #38bdf8;
+            --accent: #7c3aed;
+            --font-body: 'Outfit', sans-serif;
+            --font-display: 'Space Grotesk', sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 20% 50%, rgba(124, 58, 237, 0.1) 0%, transparent 50%),
+                        radial-gradient(circle at 80% 80%, rgba(56, 189, 248, 0.1) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+
+        .back-link:hover {
+            color: var(--accent);
+            transform: translateX(-5px);
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--line-color);
+            border-radius: 16px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), var(--primary));
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: var(--font-display);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, var(--accent), var(--primary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            color: white;
+            padding: 0.4rem 1rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-top: 0.5rem;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            margin-top: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 0.9rem 1rem;
+            color: white;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            background: rgba(255, 255, 255, 0.08);
+            box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+        }
+
+        .btn-submit {
+            width: 100%;
+            background: linear-gradient(135deg, var(--accent), #a78bfa);
+            border: none;
+            color: white;
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .message {
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid rgba(34, 197, 94, 0.3);
+            color: #4ade80;
+            display: block;
+        }
+
+        .message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #f87171;
+            display: block;
+        }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin: 2rem 0;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        .divider::before,
+        .divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--line-color);
+        }
+
+        .login-link {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .login-link a {
+            color: var(--accent);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .login-link a:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* Loading spinner */
+        .spinner {
+            display: inline-block;
+            width: 14px;
+            height: 14px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            body {
+                padding: 1rem;
+            }
+
+            .card {
+                padding: 2rem 1.5rem;
+            }
+
+            .logo {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i>
+            Voltar para o site
+        </a>
+
+        <div class="card">
+            <div class="header">
+                <h1 class="logo">CredOn</h1>
+                <div class="badge">CADASTRO SUPERVISOR</div>
+                <p class="subtitle">Crie sua conta de supervisor</p>
+            </div>
+
+            <div id="messageContainer"></div>
+
+            <form id="cadastroForm">
+                <div class="form-group">
+                    <label class="form-label" for="nome">Nome Completo</label>
+                    <input 
+                        type="text" 
+                        class="form-input" 
+                        id="nome" 
+                        name="nome" 
+                        placeholder="Digite seu nome completo"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="email">Email</label>
+                    <input 
+                        type="email" 
+                        class="form-input" 
+                        id="email" 
+                        name="email" 
+                        placeholder="seu@email.com"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="senha">Senha</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="senha" 
+                        name="senha" 
+                        placeholder="Crie uma senha forte"
+                        minlength="6"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label" for="confirmarSenha">Confirmar Senha</label>
+                    <input 
+                        type="password" 
+                        class="form-input" 
+                        id="confirmarSenha" 
+                        name="confirmarSenha" 
+                        placeholder="Digite a senha novamente"
+                        minlength="6"
+                        required
+                    >
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    Criar Conta
+                </button>
+            </form>
+
+            <div class="divider">ou</div>
+
+            <div class="login-link">
+                Já tem uma conta? <a href="../index.html">Fazer login</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = "https://5ljkqdjuuh.execute-api.us-east-1.amazonaws.com";
+
+        const form = document.getElementById('cadastroForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const messageContainer = document.getElementById('messageContainer');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Limpar mensagens anteriores
+            messageContainer.innerHTML = '';
+
+            // Coletar dados do formulário
+            const nome = document.getElementById('nome').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const senha = document.getElementById('senha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+
+            // Validações
+            if (!nome || !email || !senha || !confirmarSenha) {
+                showMessage('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+
+            if (senha !== confirmarSenha) {
+                showMessage('As senhas não coincidem.', 'error');
+                return;
+            }
+
+            if (senha.length < 6) {
+                showMessage('A senha deve ter pelo menos 6 caracteres.', 'error');
+                return;
+            }
+
+            // Validação de email
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(email)) {
+                showMessage('Por favor, insira um email válido.', 'error');
+                return;
+            }
+
+            // Desabilitar botão e mostrar loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = 'Cadastrando<span class="spinner"></span>';
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/supervisor/cadastro`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        nome,
+                        email,
+                        senha
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    showMessage('Cadastro realizado com sucesso! Redirecionando para o login...', 'success');
+                    
+                    // Limpar formulário
+                    form.reset();
+
+                    // Redirecionar para a página principal após 2 segundos
+                    setTimeout(() => {
+                        window.location.href = '../index.html';
+                    }, 2000);
+                } else {
+                    showMessage(data.message || 'Erro ao realizar cadastro. Tente novamente.', 'error');
+                }
+            } catch (error) {
+                console.error('Erro:', error);
+                showMessage('Erro de conexão. Verifique sua internet e tente novamente.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Criar Conta';
+            }
+        });
+
+        function showMessage(text, type) {
+            messageContainer.innerHTML = `<div class="message ${type}">${text}</div>`;
+            
+            // Scroll suave para a mensagem
+            messageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // Remover mensagem de erro ao digitar
+        form.addEventListener('input', () => {
+            const errorMessage = messageContainer.querySelector('.message.error');
+            if (errorMessage) {
+                messageContainer.innerHTML = '';
+            }
+        });
+    </script>
+</body>
+</html>

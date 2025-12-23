@@ -63,6 +63,48 @@ functions:
           path: /admin/login
           method: post
 
+  # Funções de supervisor
+  supervisorLogin:
+    handler: handler.supervisorLogin
+    timeout: 4  # Login é rápido
+    events:
+      - httpApi:
+          path: /supervisor/login
+          method: post
+
+  supervisorCadastro:
+    handler: handler.supervisorCadastro
+    timeout: 6  # Hash + validações
+    events:
+      - httpApi:
+          path: /supervisor/cadastro
+          method: post
+
+  getSupervisorData:
+    handler: handler.getSupervisorData
+    timeout: 3  # Muito simples, 1 query apenas
+    events:
+      - httpApi:
+          path: /supervisor/me
+          method: get
+
+  supervisorListParceiros:
+    handler: handler.supervisorListParceiros
+    timeout: 8  # Pode listar muitos registros
+    memorySize: 256  # Menos memória para economizar
+    events:
+      - httpApi:
+          path: /supervisor/parceiros
+          method: get
+
+  supervisorGetParceiro:
+    handler: handler.supervisorGetParceiro
+    timeout: 4  # 1 parceiro apenas
+    events:
+      - httpApi:
+          path: /supervisor/parceiros/view
+          method: get
+
   # Funções de cadastro (podem ser mais lentas)
   cadastro:
     handler: handler.cadastro

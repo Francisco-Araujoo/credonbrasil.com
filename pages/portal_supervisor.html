@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Portal do Supervisor | CredOn Brasil</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;700&family=Space+Grotesk:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --bg-dark: #020617;
+            --primary: #2563eb;
+            --accent: #38bdf8; 
+            --text-muted: #64748b;
+            --line-color: rgba(255, 255, 255, 0.1);
+            --font-display: 'Space Grotesk', sans-serif;
+            --font-body: 'Outfit', sans-serif;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background: var(--bg-dark);
+            color: white;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER --- */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            padding: 1.5rem 5%;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line-color);
+            z-index: 1000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: white;
+            font-family: var(--font-display);
+            letter-spacing: -1px;
+        }
+
+        .supervisor-badge {
+            background: var(--accent);
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            margin-left: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 0 rgba(56, 189, 248, 0);
+        }
+        
+        .supervisor-badge:hover {
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            transform: scale(1.05);
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-name {
+            font-family: var(--font-display);
+            font-size: 1rem;
+            color: var(--accent);
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid var(--line-color);
+            color: white;
+            padding: 0.5rem 1rem;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: white;
+        }
+
+        /* --- MAIN CONTENT --- */
+        main {
+            padding-top: 100px;
+            min-height: 100vh;
+            background: var(--bg-dark);
+            display: flex;
+        }
+
+        /* --- SIDEBAR --- */
+        .supervisor-sidebar {
+            position: fixed;
+            left: 0;
+            top: 100px;
+            width: 280px;
+            height: calc(100vh - 100px);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid var(--line-color);
+            transition: all 0.3s ease;
+            z-index: 900;
+            overflow-y: auto;
+        }
+
+        .supervisor-sidebar.collapsed {
+            width: 60px;
+        }
+
+        .sidebar-header {
+            padding: 2rem 1.5rem 1rem 1.5rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 1.1rem;
+            color: var(--accent);
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .supervisor-sidebar.collapsed .sidebar-title {
+            opacity: 0;
+        }
+
+        .sidebar-nav {
+            padding: 1rem 0;
+        }
+
+        .sidebar-nav a {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem 1.5rem;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 3px solid transparent;
+        }
+
+        .sidebar-nav a:hover,
+        .sidebar-nav a.active {
+            background: rgba(56, 189, 248, 0.1);
+            color: var(--accent);
+            border-left-color: var(--accent);
+        }
+
+        .sidebar-nav a i {
+            width: 20px;
+            text-align: center;
+            font-size: 1.1rem;
+        }
+
+        .sidebar-nav a span {
+            font-family: var(--font-display);
+            font-size: 0.9rem;
+            font-weight: 500;
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        .supervisor-sidebar.collapsed .sidebar-nav a span {
+            opacity: 0;
+        }
+
+        .sidebar-toggle {
+            position: absolute;
+            top: 2rem;
+            right: -18px;
+            background: var(--accent);
+            border: none;
+            color: white;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 1100;
+            box-shadow: 0 4px 12px rgba(56, 189, 248, 0.3);
+            border: 2px solid var(--bg-dark);
+        }
+
+        .sidebar-toggle:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.5);
+        }
+
+        /* --- MAIN CONTENT AREA --- */
+        .main-content {
+            margin-left: 280px;
+            min-height: calc(100vh - 100px);
+            flex: 1;
+            transition: margin-left 0.3s ease;
+            background-image: 
+                linear-gradient(to bottom, rgba(2, 6, 23, 0.85), rgba(2, 6, 23, 0.95)),
+                url('../src/img/fundoS3.jpg');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+
+        .main-content.sidebar-collapsed {
+            margin-left: 60px;
+        }
+
+        .content-container {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 3rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .page-title {
+            font-family: var(--font-display);
+            font-size: 2.5rem;
+            color: white;
+            margin: 0;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* --- SUPERVISOR SECTIONS --- */
+        .supervisor-section {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: all 0.4s ease;
+        }
+
+        .supervisor-section.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- DASHBOARD STATS --- */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+
+        .stat-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--accent), #2563eb);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 20px 40px -10px rgba(56, 189, 248, 0.1);
+        }
+
+        .stat-card:hover::before {
+            opacity: 1;
+        }
+
+        .stat-icon {
+            font-size: 2.5rem;
+            color: var(--accent);
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-title {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            color: white;
+        }
+
+        .stat-value {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-description {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- CONTENT CARDS --- */
+        .content-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--line-color);
+        }
+
+        .card-title {
+            font-family: var(--font-display);
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .refresh-btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s;
+        }
+
+        .refresh-btn:hover {
+            background: #1d4ed8;
+        }
+
+        /* --- ITEM LISTS --- */
+        .item-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .item-card {
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--line-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .item-card:hover {
+            background: rgba(30, 41, 59, 0.8);
+            border-color: var(--accent);
+            transform: translateX(5px);
+        }
+
+        /* --- PARCEIROS CARD STYLES --- */
+        .parceiro-card {
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid var(--line-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .parceiro-card:hover {
+            background: rgba(30, 41, 59, 0.9);
+            border-color: var(--accent);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+        }
+
+        .parceiro-main-info {
+            display: grid;
+            grid-template-columns: 1fr auto auto;
+            align-items: center;
+            gap: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .parceiro-person-info h3 {
+            font-family: var(--font-display);
+            font-size: 1.3rem;
+            color: white;
+            margin-bottom: 0.5rem;
+        }
+
+        .parceiro-person-info .email {
+            color: var(--accent);
+            font-size: 1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .parceiro-person-info .date {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .parceiro-business-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--line-color);
+        }
+
+        .info-item {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            color: white;
+            font-weight: 500;
+        }
+
+        .parceiro-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .action-btn-small {
+            background: transparent;
+            border: 1px solid var(--line-color);
+            color: white;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-family: var(--font-display);
+        }
+
+        .action-btn-small:hover {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--line-color);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* --- MODAL --- */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            overflow-y: auto;
+        }
+        
+        .modal-overlay.show {
+            opacity: 1;
+        }
+
+        .modal {
+            background: var(--bg-dark);
+            width: 100%;
+            min-height: 100vh;
+            position: relative;
+            transition: none;
+            box-shadow: none;
+            border: none;
+            border-radius: 0;
+            padding: 0;
+        }
+        
+        .modal-overlay.show .modal {
+            transform: none;
+        }
+
+        .modal-header {
+            position: sticky;
+            top: 0;
+            background: rgba(2, 6, 23, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid var(--line-color);
+            padding: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10001;
+        }
+
+        .modal-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            color: white;
+            margin: 0;
+        }
+
+        .close-modal {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 1rem;
+            font-size: 1.2rem;
+            cursor: pointer;
+            border-radius: 8px;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .close-modal:hover {
+            background: #1d4ed8;
+            transform: scale(1.1);
+        }
+
+        .modal-content {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(30, 41, 59, 0.5);
+            border: 1px solid var(--line-color);
+            color: white;
+            padding: 0.8rem;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent);
+        }
+
+        .form-input:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+
+        .btn-modal {
+            padding: 0.8rem 1.5rem;
+            border: none;
+            border-radius: 6px;
+            font-family: var(--font-display);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: var(--accent);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 1px solid var(--line-color);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background: rgba(2, 6, 23, 0.95);
+            border-top: 1px solid var(--line-color);
+            padding: 2rem;
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        /* --- MOBILE --- */
+        @media (max-width: 900px) {
+            header {
+                padding: 1rem 2%;
+            }
+
+            main {
+                padding-top: 70px;
+            }
+
+            .supervisor-sidebar {
+                position: fixed;
+                left: -280px;
+                top: 0;
+                height: 100vh;
+                z-index: 2000;
+                transition: left 0.3s ease;
+            }
+
+            .supervisor-sidebar.open {
+                left: 0;
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 1rem;
+            }
+
+            .main-content.sidebar-collapsed {
+                margin-left: 0;
+            }
+
+            .page-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .page-title {
+                font-size: 2rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            .parceiro-card,
+            .parceiro-main-info {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-content {
+                padding: 1rem;
+            }
+
+            .modal-header {
+                padding: 1rem;
+            }
+
+            .modal-title {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <span>CredOn</span>
+            <span class="supervisor-badge">SUPERVISOR</span>
+        </div>
+        <div class="user-info">
+            <span class="user-name">Olá, <strong id="supervisorName">Supervisor</strong></span>
+            <button class="logout-btn" onclick="logoutSupervisor()">
+                <i class="fas fa-sign-out-alt"></i> Sair
+            </button>
+        </div>
+    </header>
+
+    <main>
+        <!-- Sidebar -->
+        <aside class="supervisor-sidebar" id="supervisorSidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-title">Menu</h2>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="#" class="active" onclick="showSection('dashboard')">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="#" onclick="showSection('parceiros')">
+                    <i class="fas fa-users"></i>
+                    <span>Parceiros</span>
+                </a>
+            </nav>
+            <button class="sidebar-toggle" onclick="toggleSidebar()">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content" id="mainContent">
+            <div class="content-container">
+                <!-- DASHBOARD -->
+                <section class="supervisor-section active" id="dashboard">
+                    <div class="page-header">
+                        <h1 class="page-title">Dashboard</h1>
+                        <div class="page-actions">
+                            <button class="refresh-btn" onclick="SupervisorAPI.refreshData()">
+                                <i class="fas fa-sync-alt"></i>
+                                Atualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="color: var(--accent);">
+                                <i class="fas fa-users"></i>
+                            </div>
+                            <h3 class="stat-title">Total de Parceiros</h3>
+                            <p class="stat-value" id="statTotalParceiros">0</p>
+                            <p class="stat-description">Parceiros sob sua supervisão</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- PARCEIROS -->
+                <section class="supervisor-section" id="parceiros">
+                    <div class="page-header">
+                        <h1 class="page-title">Parceiros</h1>
+                        <div class="page-actions">
+                            <button class="refresh-btn" onclick="SupervisorAPI.loadParceiros()">
+                                <i class="fas fa-sync-alt"></i>
+                                Atualizar
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="content-card">
+                        <div class="card-header">
+                            <h2 class="card-title">Lista de Parceiros</h2>
+                        </div>
+                        <div class="item-list" id="parceirosContainer">
+                            <p style="color: var(--text-muted); text-align: center; padding: 2rem;">Carregando parceiros...</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal para visualizar parceiro -->
+    <div class="modal-overlay" id="parceiroModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 class="modal-title">Detalhes do Parceiro</h3>
+                <button class="close-modal" onclick="SupervisorAPI.closeModal('parceiroModal')">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-content">
+                <div class="form-group">
+                    <label class="form-label">Nome</label>
+                    <input type="text" class="form-input" id="modalParceiroNome" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-input" id="modalParceiroEmail" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">CPF</label>
+                    <input type="text" class="form-input" id="modalParceiroCPF" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Data de Cadastro</label>
+                    <input type="text" class="form-input" id="modalParceiroCreatedAt" disabled>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-modal btn-secondary" onclick="SupervisorAPI.closeModal('parceiroModal')">Fechar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 CredOn Brasil. Todos os direitos reservados.</p>
+    </footer>
+
+    <!-- Scripts necessários -->
+    <script src="../src/js/auth_manager.js"></script>
+    <script src="../src/js/supervisor_api.js"></script>
+
+    <script>
+        // Script adicional para funcionalidades específicas do supervisor
+        document.addEventListener('DOMContentLoaded', function() {
+            // Inicializar o sidebar toggle
+            initSidebar();
+            
+            // Inicializar animações da página
+            initPageAnimations();
+        });
+
+        function initSidebar() {
+            const sidebar = document.getElementById('supervisorSidebar');
+            const mainContent = document.getElementById('mainContent');
+            const toggleBtn = document.querySelector('.sidebar-toggle i');
+
+            window.toggleSidebar = function() {
+                sidebar.classList.toggle('collapsed');
+                mainContent.classList.toggle('sidebar-collapsed');
+                
+                if (sidebar.classList.contains('collapsed')) {
+                    toggleBtn.classList.remove('fa-chevron-left');
+                    toggleBtn.classList.add('fa-chevron-right');
+                } else {
+                    toggleBtn.classList.remove('fa-chevron-right');
+                    toggleBtn.classList.add('fa-chevron-left');
+                }
+            };
+        }
+
+        function showSection(sectionName) {
+            // Remove active de todas as seções e links
+            document.querySelectorAll('.supervisor-section').forEach(section => {
+                section.classList.remove('active');
+            });
+            
+            document.querySelectorAll('.sidebar-nav a').forEach(link => {
+                link.classList.remove('active');
+            });
+
+            // Ativa a seção selecionada
+            const targetSection = document.getElementById(sectionName);
+            if (targetSection) {
+                targetSection.classList.add('active');
+            }
+
+            // Ativa o link correspondente
+            const targetLink = document.querySelector(`.sidebar-nav a[onclick*="${sectionName}"]`);
+            if (targetLink) {
+                targetLink.classList.add('active');
+            }
+
+            // Scroll para o topo
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function initPageAnimations() {
+            // Animação suave para os cards ao carregar
+            const cards = document.querySelectorAll('.stat-card, .content-card, .item-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+        }
+        
+        // Função de logout para o header
+        function logoutSupervisor() {
+            SupervisorAPI.logout();
+        }
+    </script>
+</body>
+</html>
